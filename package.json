@@ -46,6 +46,7 @@
     "@yeskunall/astro-umami": "^0.0.9",
     "astro": "^7.0.6",
     "astro-icon": "^1.1.5",
+    "astro-loading-indicator": "^0.8.0",
     "astro-og-canvas": "^0.13.0",
     "canvaskit-wasm": "^0.41.1",
     "class-variance-authority": "^0.7.1",

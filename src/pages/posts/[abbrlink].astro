@@ -184,7 +184,7 @@ const readTime = remarkPluginFrontmatter.readTime || 1;
         </div>
       </nav>
 
-      <Twikoo path={`/posts/${post.data.abbrlink}`} />
+      <Twikoo path={`/posts/${post.data.abbrlink}`} client:visible />
     </div>
 
     <Toc

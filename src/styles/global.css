@@ -184,3 +184,7 @@ body {
   padding-right: 0 !important;
   margin-right: 0 !important;
 }
+
+.astro-loading-indicator {
+  z-index: 9999 !important;
+}

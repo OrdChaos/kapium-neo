@@ -4,6 +4,7 @@ import { getCollection } from 'astro:content';
 import { siteConfig } from '@/config/site';
 import { getPageTitle } from '@/lib/seo';
 import Navbar from '@/components/Navbar';
+import LoadingIndicator from 'astro-loading-indicator/component';
 import SearchDialog from '@/components/SearchDialog';
 import Footer from '@/components/Footer.astro';
 import '@/styles/global.css';
@@ -99,6 +100,7 @@ const postIds = (await getCollection('posts')).map((post) => post.data.abbrlink)
     </script>
 
     <ClientRouter />
+    <LoadingIndicator color="var(--primary)" threshold={false} />
   </head>
 
   <body>
@@ -110,6 +112,7 @@ const postIds = (await getCollection('posts')).map((post) => post.data.abbrlink)
     </a>
 
     <Navbar client:load postIds={postIds} />
+
     <SearchDialog client:load />
 
     <main id="main-content">
