@@ -28,12 +28,6 @@
   cursor: pointer;
 }
 
-.pswp__bg {
-  background-color: rgba(0, 0, 0, 0.7) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-}
-
 .tk-owo-emotion {
   display: inline-block !important;
   height: 1.5em !important;
