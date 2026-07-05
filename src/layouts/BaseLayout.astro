@@ -76,7 +76,8 @@ const postIds = (await getCollection('posts')).map((post) => post.data.abbrlink)
     <link rel="manifest" href="/manifest.json" />
 
     <!-- Alternative Links -->
-    <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={new URL('/rss.xml', siteConfig.url).toString()} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
 
     <!-- Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

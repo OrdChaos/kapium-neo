@@ -18,8 +18,13 @@ import { rehypeFootnoteTooltip } from './src/plugins/rehype-footnote-tooltip.mjs
 import { rehypeCodeBlockWrapper } from './src/plugins/rehype-code-block-wrapper.mjs';
 
 import photosuite from 'photosuite';
+import sitemap from '@astrojs/sitemap';
+
+import { siteConfig } from './src/config/site';
 
 export default defineConfig({
+  site: siteConfig.url,
+
   vite: {
     plugins: [tailwindcss()],
   },
@@ -27,6 +32,7 @@ export default defineConfig({
   integrations: [
     react(),
     icon(),
+    sitemap(),
     photosuite({
       scope: '#post-content',
       imageGrid: false,

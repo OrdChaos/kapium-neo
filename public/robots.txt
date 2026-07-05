@@ -7,4 +7,4 @@ Allow: /posts/
 Disallow: /assets/
 Disallow: /img/
 
-Sitemap: https://www.ordchaos.com/sitemap.xml
+Sitemap: https://www.ordchaos.com/sitemap-index.xml

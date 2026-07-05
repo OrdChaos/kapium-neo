@@ -20,6 +20,8 @@
   "dependencies": {
     "@astrojs/check": "^0.9.9",
     "@astrojs/react": "^6.0.0",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.3",
     "@iconify-json/ri": "^1.2.10",
     "@iconify-json/simple-icons": "^1.2.88",
     "@iconify/react": "^6.0.2",
