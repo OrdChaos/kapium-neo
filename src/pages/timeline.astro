@@ -1,0 +1,133 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Banner from '@/components/Banner.astro';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import Badge from '@/components/ui/badge.astro';
+import { estimateReadTime } from '@/lib/utils';
+
+import Calendar from '@lucide/astro/icons/calendar';
+import Clock from '@lucide/astro/icons/clock';
+
+const allPosts = (await getCollection('posts')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+
+interface MonthGroup {
+  key: string;
+  year: string;
+  month: number;
+  label: string;
+  posts: typeof allPosts;
+}
+
+const monthMap = new Map<string, MonthGroup>();
+for (const post of allPosts) {
+  const d = post.data.date;
+  const year = d.getFullYear().toString();
+  const month = d.getMonth() + 1;
+  const key = `${year}-${String(month).padStart(2, '0')}`;
+  if (!monthMap.has(key)) {
+    monthMap.set(key, { key, year, month, label: `${month}月`, posts: [] });
+  }
+  monthMap.get(key)!.posts.push(post);
+}
+
+const months = Array.from(monthMap.values()).sort((a, b) => b.key.localeCompare(a.key));
+---
+
+<BaseLayout title="时间线" description="按时间顺序浏览文章" ogImage="/img/og/timeline.png">
+  <Banner title="时间线" subtitle="按时间顺序浏览文章" />
+
+  <div class="container mx-auto px-4 py-12 sm:px-6">
+    <div class="mx-auto max-w-5xl space-y-12">
+      {
+        months.map((m, idx) => (
+          <section aria-label={`${m.year}年${m.label}`}>
+            {(idx === 0 || months[idx - 1].year !== m.year) && (
+              <h2 class="mb-4 text-2xl font-bold">{m.year}</h2>
+            )}
+            <h3 class="mb-6 text-lg font-semibold">{m.label}</h3>
+
+            <div class="relative space-y-6">
+              <div class="bg-border absolute top-0 bottom-0 left-3 w-px" />
+
+              {m.posts.map((post) => {
+                const readTime = estimateReadTime(post.body || '');
+                return (
+                  <div class="relative flex items-start gap-6">
+                    <div class="relative flex w-6 justify-center">
+                      <span class="bg-primary ring-card relative z-10 h-4 w-4 rounded-full ring-2" />
+                    </div>
+
+                    <div class="min-w-0 flex-1">
+                      <Card class="group/card hover:border-primary/50 relative w-full max-w-full transition-all duration-300 hover:shadow-lg">
+                        <a
+                          href={`/posts/${post.data.abbrlink}`}
+                          class="absolute inset-0 z-0 block"
+                          aria-label={post.data.title}
+                        />
+
+                        <CardHeader class="pointer-events-none relative z-10">
+                          <CardTitle class="group-hover/card:text-primary transition-colors">
+                            {post.data.title}
+                          </CardTitle>
+                          <CardDescription>
+                            {post.data.excerpt || post.data.summary || ''}
+                          </CardDescription>
+                        </CardHeader>
+
+                        <CardContent class="relative z-10">
+                          <div class="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                            <div class="pointer-events-none flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2">
+                              <div class="flex items-center gap-1 whitespace-nowrap">
+                                <Calendar class="h-4 w-4" />
+                                {post.data.date.toISOString().slice(0, 10)}
+                              </div>
+
+                              <div class="flex items-center gap-1 whitespace-nowrap">
+                                <Clock class="h-4 w-4" />
+                                {readTime} 分钟
+                              </div>
+                            </div>
+
+                            {post.data.category && (
+                              <a
+                                href={`/categories/${encodeURIComponent(post.data.category)}`}
+                                class="relative z-20"
+                              >
+                                <Badge
+                                  variant="secondary"
+                                  class="hover:bg-primary hover:text-primary-foreground cursor-pointer transition-colors"
+                                >
+                                  {post.data.category}
+                                </Badge>
+                              </a>
+                            )}
+
+                            <div class="relative z-20 flex flex-wrap gap-2">
+                              {post.data.tags?.map((tag: string) => (
+                                <a href={`/tags/${encodeURIComponent(tag)}`}>
+                                  <Badge
+                                    variant="outline"
+                                    class="hover:bg-primary hover:text-primary-foreground cursor-pointer text-xs transition-colors"
+                                  >
+                                    {tag}
+                                  </Badge>
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

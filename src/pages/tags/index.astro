@@ -1,0 +1,53 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Banner from '@/components/Banner.astro';
+import Badge from '@/components/ui/badge.astro';
+
+import Hash from '@lucide/astro/icons/hash';
+
+const allPosts = await getCollection('posts');
+
+const tagMap = new Map<string, number>();
+for (const post of allPosts) {
+  if (post.data.tags) {
+    for (const tag of post.data.tags) {
+      tagMap.set(tag, (tagMap.get(tag) || 0) + 1);
+    }
+  }
+}
+
+const tags = Array.from(tagMap.entries())
+  .map(([name, count]) => ({ name, count }))
+  .sort((a, b) => b.count - a.count);
+---
+
+<BaseLayout title="标签" description="浏览本站所有标签" ogImage="/img/og/tags.png">
+  <Banner title="标签" subtitle="按标签浏览文章" />
+
+  <div class="container mx-auto px-4 py-12">
+    <div class="mx-auto max-w-4xl">
+      <div class="flex flex-wrap gap-2">
+        {
+          tags.map((t) => (
+            <a href={`/tags/${encodeURIComponent(t.name)}`}>
+              <div class="inline-block p-2">
+                <Badge
+                  variant="outline"
+                  class="hover:bg-primary hover:text-primary-foreground cursor-pointer px-4 py-2 text-base transition-all duration-300"
+                  style={`font-size: ${Math.min(1 + t.count * 0.1, 2)}rem`}
+                >
+                  <span class="flex items-center gap-1">
+                    <Hash class="h-4 w-4" />
+                    {t.name}
+                    <span class="ml-2 text-xs opacity-70">({t.count})</span>
+                  </span>
+                </Badge>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</BaseLayout>

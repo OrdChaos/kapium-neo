@@ -1,0 +1,123 @@
+---
+import { Icon } from 'astro-icon/components';
+import Tooltip from '@/components/ui/tooltip.astro';
+
+const LICENSE_ICON_MAP: Record<string, string> = {
+  BY: 'cc/by',
+  SA: 'cc/sa',
+  ND: 'cc/nd',
+  NC: 'cc/nc',
+  ZERO: 'cc/zero',
+};
+
+const LICENSE_LABEL_MAP: Record<string, string> = {
+  BY: 'BY - 署名',
+  NC: 'NC - 非商业性使用',
+  SA: 'SA - 相同方式共享',
+  ND: 'ND - 禁止演绎',
+  ZERO: 'CC0 - 公共领域',
+};
+
+const { title, permalink, author, postedAt, updatedAt, license } = Astro.props;
+
+const licenseItems: string[] = license && license.includes('-') ? license.split('-') : [];
+
+const licenseUrl =
+  license === 'ZERO'
+    ? 'https://creativecommons.org/publicdomain/zero/1.0/'
+    : license
+      ? `https://creativecommons.org/licenses/${license.toLowerCase()}/4.0/`
+      : '';
+---
+
+<div
+  class="text-foreground border-border bg-card hover:border-primary/50 relative my-6 overflow-hidden rounded-lg border px-6 py-5 text-sm shadow-md transition hover:shadow-lg"
+>
+  <div class="mb-4">
+    <div class="text-[15px] font-semibold">
+      {title}
+    </div>
+    <div class="text-muted-foreground text-[13px] break-all">
+      <a
+        href={permalink}
+        target="_blank"
+        rel="noreferrer"
+        class="hover:text-primary transition-colors"
+      >
+        {permalink}
+      </a>
+    </div>
+  </div>
+
+  <div class="grid auto-cols-max grid-flow-col gap-x-4 gap-y-3">
+    {
+      author && (
+        <div class="flex flex-col gap-px">
+          <div class="text-muted-foreground text-xs">作者</div>
+          <div>{author}</div>
+        </div>
+      )
+    }
+
+    {
+      postedAt && (
+        <div class="flex flex-col gap-px">
+          <div class="text-muted-foreground text-xs">发布于</div>
+          <div>{postedAt}</div>
+        </div>
+      )
+    }
+
+    {
+      updatedAt && (
+        <div class="flex flex-col gap-px">
+          <div class="text-muted-foreground text-xs">更新于</div>
+          <div>{updatedAt}</div>
+        </div>
+      )
+    }
+
+    {
+      license && (
+        <div class="flex flex-col gap-px">
+          <div class="text-muted-foreground text-xs">许可协议</div>
+          <div class="flex items-center gap-[2px]">
+            {license === 'ZERO' ? (
+              <Tooltip label={LICENSE_LABEL_MAP.ZERO}>
+                <a
+                  href={licenseUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="CC0"
+                  class="hover:text-primary opacity-80 transition hover:opacity-100"
+                >
+                  <Icon name={LICENSE_ICON_MAP.ZERO} class="h-5 w-5" />
+                </a>
+              </Tooltip>
+            ) : (
+              licenseItems.map((item: string) => (
+                <Tooltip label={LICENSE_LABEL_MAP[item]}>
+                  <a
+                    href={licenseUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={item}
+                    class="hover:text-primary opacity-80 transition hover:opacity-100"
+                  >
+                    <Icon name={LICENSE_ICON_MAP[item]} class="h-5 w-5" />
+                  </a>
+                </Tooltip>
+              ))
+            )}
+          </div>
+        </div>
+      )
+    }
+  </div>
+
+  <div
+    class="text-muted-foreground pointer-events-none absolute -right-[18px] -bottom-[22px] opacity-20"
+  >
+    <Icon name="cc/cc" class="h-[120px] w-[120px]" />
+  </div>
+</div>

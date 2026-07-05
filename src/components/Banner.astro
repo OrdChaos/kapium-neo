@@ -1,0 +1,37 @@
+---
+interface Props {
+  title: string;
+  subtitle?: string;
+  height?: string;
+}
+
+const { title, subtitle, height = '280px' } = Astro.props;
+
+const heightNum = parseInt(height, 10);
+const mobileHeight = Math.round(heightNum * 0.71);
+
+const titleSizeClass = heightNum >= 400 ? 'text-4xl md:text-6xl' : 'text-3xl md:text-5xl';
+---
+
+<div
+  class="bg-muted/50 banner-container relative flex w-full items-center justify-center"
+  style={`--h-mobile: ${mobileHeight}px; --h-desktop: ${heightNum}px;`}
+>
+  <div class="container mx-auto px-4 text-center">
+    <h1 class={`font-bold tracking-tight text-foreground ${titleSizeClass}`}>
+      {title}
+    </h1>
+    {subtitle && <p class="text-muted-foreground mt-4 text-lg md:text-xl">{subtitle}</p>}
+  </div>
+</div>
+
+<style>
+  .banner-container {
+    height: var(--h-mobile);
+  }
+  @media (min-width: 768px) {
+    .banner-container {
+      height: var(--h-desktop);
+    }
+  }
+</style>

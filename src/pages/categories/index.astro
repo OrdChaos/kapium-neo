@@ -1,0 +1,52 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Banner from '@/components/Banner.astro';
+import { Card } from '@/components/ui/card';
+import Badge from '@/components/ui/badge.astro';
+import ChevronRight from '@lucide/astro/icons/chevron-right';
+
+const allPosts = await getCollection('posts');
+
+const categoryMap = new Map<string, number>();
+for (const post of allPosts) {
+  const cat = post.data.category;
+  if (cat) {
+    categoryMap.set(cat, (categoryMap.get(cat) || 0) + 1);
+  }
+}
+
+const categories = Array.from(categoryMap.entries())
+  .map(([name, count]) => ({ name, count }))
+  .sort((a, b) => b.count - a.count);
+---
+
+<BaseLayout title="文章分类" description="浏览本站所有文章分类" ogImage="/img/og/categories.png">
+  <Banner title="文章分类" subtitle="按主题浏览文章" />
+
+  <div class="container mx-auto px-4 py-12">
+    <div class="mx-auto grid max-w-4xl grid-cols-1 gap-2">
+      {
+        categories.map((cat) => (
+          <a href={`/categories/${encodeURIComponent(cat.name)}`}>
+            <div class="group block">
+              <Card class="hover:border-primary/50 px-4 py-3 transition-all duration-300 hover:shadow-lg">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-4">
+                    <span class="text-l group-hover:text-primary leading-none font-bold transition-colors">
+                      {cat.name}
+                    </span>
+                    <Badge variant="secondary" class="whitespace-nowrap">
+                      {cat.count} 篇文章
+                    </Badge>
+                  </div>
+                  <ChevronRight class="text-muted-foreground group-hover:text-primary h-5 w-5 transition-colors" />
+                </div>
+              </Card>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

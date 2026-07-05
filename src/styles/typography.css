@@ -1,0 +1,107 @@
+article ul {
+  list-style-type: disc;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+[id] {
+  scroll-margin-top: 80px;
+}
+
+#post-content h2,
+#post-content h3 {
+  scroll-margin-top: 90px;
+}
+
+/* ========== 脚注 ========== */
+.footnote-ref a {
+  text-decoration: none;
+  color: var(--primary);
+  font-weight: 600;
+  cursor: help;
+}
+
+/* 脚注 tooltip：与 tooltip.astro 一致的纯 CSS group-hover 模式 */
+.footnote-tooltip {
+  pointer-events: none;
+  position: absolute;
+  z-index: 50;
+  border-radius: var(--radius);
+  background-color: var(--primary);
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--primary-foreground);
+  opacity: 0;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) scale(0.95);
+  margin-bottom: 0.375rem;
+  white-space: normal;
+  width: max-content;
+  max-width: 24rem;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.group:hover .footnote-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+/* Footnote section at end of document */
+section.footnotes {
+  margin-top: 2em;
+  padding-top: 1em;
+  border-top: 1px solid var(--border);
+  font-size: 0.9em;
+  color: var(--muted-foreground);
+}
+
+section.footnotes > h2 {
+  font-size: 1.2em;
+  font-weight: 700;
+  margin-bottom: 0.5em;
+  color: var(--foreground);
+}
+
+section.footnotes ol {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  counter-reset: footnote-counter;
+}
+
+section.footnotes li {
+  margin: 0.4em 0;
+  counter-increment: footnote-counter;
+}
+
+section.footnotes li[id^='user-content-fn-'] > p::before {
+  content: '[' counter(footnote-counter) '] ';
+  font-weight: 600;
+  color: var(--primary);
+}
+
+section.footnotes p {
+  margin: 0.4em 0;
+}
+
+section.footnotes sup {
+  color: #888;
+  margin-right: 0.3em;
+}
+
+.footnote-backref {
+  color: #999;
+  font-size: 0.85em;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.footnote-backref:hover {
+  color: var(--primary);
+}

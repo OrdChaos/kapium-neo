@@ -1,0 +1,108 @@
+---
+import { siteConfig } from '@/config/site';
+---
+
+<footer data-site-footer class="border-border/90 bg-background border-t" aria-label="页脚信息">
+  <div class="container mx-auto px-4 py-8">
+    <div class="text-muted-foreground flex flex-col gap-2 text-center text-sm">
+      <p>
+        © <span data-current-year></span>
+        <a href="/" class="hover:text-primary transition-colors duration-300">
+          {siteConfig.title}
+        </a>
+        - 保留一切权利
+      </p>
+
+      <p>
+        由
+        <a
+          href="https://github.com/ordchaos/kapium"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hover:text-primary transition-colors duration-300"
+        >
+          Kapium
+        </a>
+        构建
+      </p>
+
+      <p>
+        <a href="/copyright-policy" class="hover:text-primary transition-colors duration-300">
+          版权政策
+        </a>
+        |
+        <a href="/cookies-policy" class="hover:text-primary transition-colors duration-300">
+          Cookies 政策
+        </a>
+        |
+        <a href="/privacy-policy" class="hover:text-primary transition-colors duration-300">
+          隐私政策
+        </a>
+      </p>
+
+      <p>
+        本站已稳定运行
+        <span data-uptime-days>0</span> 天
+        <span data-uptime-hours>0</span> 时
+        <span data-uptime-minutes>0</span> 分
+        <span data-uptime-seconds>0</span> 秒
+      </p>
+
+      <p>
+        <a
+          href="https://icp.gov.moe/?keyword=20220824"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hover:text-primary transition-colors duration-300"
+        >
+          萌 ICP 备 20220824 号
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script define:vars={{ startDate: siteConfig.footer.startDate }}>
+  function initFooter() {
+    const footer = document.querySelector('[data-site-footer]');
+    if (!footer) return;
+
+    const yearEl = footer.querySelector('[data-current-year]');
+    const daysEl = footer.querySelector('[data-uptime-days]');
+    const hoursEl = footer.querySelector('[data-uptime-hours]');
+    const minutesEl = footer.querySelector('[data-uptime-minutes]');
+    const secondsEl = footer.querySelector('[data-uptime-seconds]');
+
+    if (yearEl) {
+      yearEl.textContent = String(new Date().getFullYear());
+    }
+
+    const startTime = new Date(startDate).getTime();
+
+    function updateUptime() {
+      const now = Date.now();
+      const diff = Math.max(0, now - startTime);
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      if (daysEl) daysEl.textContent = String(days);
+      if (hoursEl) hoursEl.textContent = String(hours);
+      if (minutesEl) minutesEl.textContent = String(minutes);
+      if (secondsEl) secondsEl.textContent = String(seconds);
+    }
+
+    updateUptime();
+
+    if (window.__footerUptimeTimer) {
+      clearInterval(window.__footerUptimeTimer);
+    }
+
+    window.__footerUptimeTimer = setInterval(updateUptime, 1000);
+  }
+
+  document.addEventListener('astro:page-load', initFooter);
+  initFooter();
+</script>

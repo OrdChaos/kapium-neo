@@ -1,0 +1,90 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Generate post metadata
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          printf "OPENAI_API_KEY=$OPENAI_API_KEY\nOPENAI_API_BASE=https://api.deepseek.com\nOPENAI_MODEL=deepseek-v4-flash" > .env
+          pnpm abbrlink
+          pnpm summary
+
+      - name: Commit and push generated changes
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No generated changes to commit"
+          else
+            git commit -m "chore(posts): auto-update abbrlink and AI summary [skip ci]"
+            git push
+          fi
+
+      - name: Build
+        run: pnpm build
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      - name: Add VPS SSH known hosts
+        env:
+          VPS_HOST: ${{ secrets.DEPLOY_VPS_HOST }}
+          VPS_PORT: ${{ secrets.DEPLOY_VPS_PORT }}
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "$VPS_PORT" -H "$VPS_HOST" >> ~/.ssh/known_hosts
+
+      - name: Deploy to VPS bare repository
+        env:
+          VPS_HOST: ${{ secrets.DEPLOY_VPS_HOST }}
+          VPS_PORT: ${{ secrets.DEPLOY_VPS_PORT }}
+          VPS_REPO_PATH: ${{ secrets.DEPLOY_VPS_REPO_PATH }}
+        run: |
+          mkdir -p temp-repo
+          cd temp-repo
+
+          git init
+          export GIT_SSH_COMMAND="ssh -p $VPS_PORT -o StrictHostKeyChecking=no"
+          git remote add origin ssh://git@${VPS_HOST}:${VPS_REPO_PATH}
+
+          git checkout --orphan temp-branch
+          cp -r ../dist/. .
+
+          git add -A
+          git commit -m "Deploy $(date '+%Y-%m-%d %H:%M:%S') [ci skip]"
+
+          git push --force origin temp-branch:master

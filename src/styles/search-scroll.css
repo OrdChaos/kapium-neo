@@ -1,0 +1,23 @@
+.scrollbar-search {
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted-foreground) transparent;
+}
+
+.scrollbar-search::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-search::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-search::-webkit-scrollbar-thumb {
+  background-color: color-mix(in oklch, var(--muted-foreground), transparent 40%);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.scrollbar-search::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in oklch, var(--primary), transparent 30%);
+}

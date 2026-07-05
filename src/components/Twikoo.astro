@@ -1,0 +1,48 @@
+---
+import { twikooConfig } from '@/config/twikoo';
+
+export interface Props {
+  path?: string;
+}
+
+const { path = Astro.url.pathname } = Astro.props;
+
+const envId = twikooConfig.envId;
+const staticUrl = twikooConfig.static;
+const lang = twikooConfig.lang || 'zh-CN';
+---
+
+<section aria-label="评论">
+  <div id="tcomment" data-envid={envId} data-static={staticUrl} data-path={path} data-lang={lang}>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    function loadTwikoo() {
+      const commentsContainer = document.getElementById('tcomment');
+      const el = document.getElementById('tcomment');
+      if (commentsContainer) {
+        const script = document.createElement('script');
+        script.src =
+          commentsContainer.dataset.static ||
+          'https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js';
+        script.async = true;
+        script.onload = () => {
+          const initScript = document.createElement('script');
+          initScript.innerHTML = `
+            twikoo.init({
+                envId: '${commentsContainer.dataset.envid}',
+                el: '#tcomment',
+                path: '${commentsContainer.dataset.path}',
+                lang: '${commentsContainer.dataset.lang}',
+            });
+        `;
+          document.body.appendChild(initScript);
+        };
+        document.body.appendChild(script);
+      }
+    }
+    loadTwikoo();
+  });
+</script>

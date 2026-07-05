@@ -1,0 +1,36 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { Button } from '@/components/ui/button.tsx';
+import ChevronLeft from '@lucide/astro/icons/chevron-left';
+import Search from '@lucide/astro/icons/search';
+---
+
+<BaseLayout title="页面未找到" description="页面未找到">
+  <div class="flex min-h-[70vh] flex-col items-center justify-center px-4">
+    <div class="w-full max-w-md text-center">
+      <div class="mb-8">
+        <h1 class="text-primary/20 text-9xl font-bold">404</h1>
+        <div class="relative -mt-12 mb-6">
+          <h2 class="text-foreground text-3xl font-bold">页面未找到</h2>
+        </div>
+      </div>
+
+      <p class="text-muted-foreground mb-8">
+        抱歉，您访问的页面不存在。可能是链接已过期或输入错误。
+      </p>
+
+      <div class="flex flex-col gap-3 sm:flex-row sm:justify-center">
+        <a href="/">
+          <Button variant="outline" size="lg" className="w-full gap-2">
+            <ChevronLeft class="h-4 w-4" />
+            返回首页
+          </Button>
+        </a>
+        <Button size="lg" className="w-full gap-2" onClick={() => {}}>
+          <Search class="h-4 w-4" />
+          搜索内容
+        </Button>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

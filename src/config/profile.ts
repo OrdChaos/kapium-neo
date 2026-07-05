@@ -1,0 +1,144 @@
+export interface SocialLink {
+  platform: string;
+  url: string;
+  icon: string;
+}
+
+export interface EducationItem {
+  degree: string;
+  school: string;
+  period: string;
+}
+
+export interface ExperienceItem {
+  position: string;
+  company: string;
+  period: string;
+  description: string;
+}
+
+export interface MbtiTrait {
+  name: string;
+  value: number;
+}
+
+export interface ProjectItem {
+  name: string;
+  desc: string;
+  url: string;
+  tech: string[];
+}
+
+export interface ProfileData {
+  name: string;
+  avatar: string;
+  title?: string;
+  titleFull?: string;
+  location?: string;
+  bio?: string;
+  skills?: string[];
+  education?: EducationItem[];
+  experience?: ExperienceItem[];
+  socialLinks?: SocialLink[];
+  mbti?: string;
+  mbtiTitle?: string;
+  mbtiRole?: string;
+  mbtiStrategy?: string;
+  mbtiTraits?: MbtiTrait[];
+  alignment?: string;
+  games?: string[];
+  interests?: string[];
+  pursuits?: string[];
+  projects?: ProjectItem[];
+}
+
+export const profile: ProfileData = {
+  name: '序炁',
+  avatar: '/img/avatar.jpg',
+  title: '事学生',
+  titleFull: '不羁之形骸 "混元秩龙" 序炁',
+  mbti: 'INTP-T',
+  mbtiTitle: '逻辑学家',
+  mbtiRole: '分析家',
+  mbtiStrategy: '持续精进',
+  mbtiTraits: [
+    { name: '内向', value: 57 },
+    { name: '天马行空', value: 76 },
+    { name: '理性思考', value: 54 },
+    { name: '随机应变', value: 67 },
+    { name: '情绪易波动', value: 71 },
+  ],
+  alignment: '绝对中立[22]',
+  location: '中国 · 武汉',
+  bio: 'A dragon that born in the Order and Chaos.',
+  skills: ['C / C++', 'JavaScript', 'TypeScript'],
+  games: ['Minecraft', '游戏王：大师决斗', 'Phigros', 'Arcaea', '植物大战僵尸2'],
+  interests: ['数码', '科技', '系统'],
+  pursuits: ['尝试', '体验', '了解', '感受', '无羁'],
+  socialLinks: [
+    {
+      platform: 'GitHub',
+      url: 'https://github.com/ordchaos',
+      icon: 'ri:github-line',
+    },
+    {
+      platform: 'Bilibili',
+      url: 'https://space.bilibili.com/403648634',
+      icon: 'ri:bilibili-line',
+    },
+    {
+      platform: 'Stack Overflow',
+      url: 'https://stackoverflow.com/users/17990099/orderchaos',
+      icon: 'simple-icons:stackoverflow',
+    },
+    {
+      platform: 'Steam',
+      url: 'https://steamcommunity.com/id/OrdChaos',
+      icon: 'ri:steam-line',
+    },
+    {
+      platform: 'Email',
+      url: 'mailto:orderchaos@ordchaos.com',
+      icon: 'ri:mail-line',
+    },
+  ],
+  projects: [
+    {
+      name: 'kapium',
+      desc: '本博客——静态站点生成器与前端',
+      url: 'https://github.com/OrdChaos/kapium',
+      tech: ['C++', 'TypeScript', 'React'],
+    },
+    {
+      name: 'blogpusher',
+      desc: '一键推流工具，帮你推送博客或任意 git 仓库',
+      url: 'https://github.com/OrdChaos/blogpusher',
+      tech: ['C++'],
+    },
+    {
+      name: 'ordchaosgpt-cloud-function',
+      desc: '无服务器 AI 摘要后端',
+      url: 'https://github.com/OrdChaos/ordchaosgpt-cloud-function',
+      tech: ['JavaScript'],
+    },
+    {
+      name: 'clipcc-extension-dictionary',
+      desc: 'Clipcc 词典扩展',
+      url: 'https://github.com/OrdChaos/clipcc-extension-dictionary',
+      tech: ['JavaScript'],
+    },
+    {
+      name: 'MXSERVER_Restart',
+      desc: '定时重启邮件服务',
+      url: 'https://github.com/OrdChaos/MXSERVER_Restart',
+      tech: ['Shell'],
+    },
+  ],
+  education: [
+    {
+      degree: '高中',
+      school: '武汉市武钢三中',
+      period: '2023 - 2026',
+    },
+  ],
+};

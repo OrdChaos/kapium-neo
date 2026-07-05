@@ -1,0 +1,130 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ExternalLink from '@lucide/astro/icons/external-link';
+import AlertCircle from '@lucide/astro/icons/circle-alert';
+import ChevronLeft from '@lucide/astro/icons/chevron-left';
+---
+
+<BaseLayout title="外部链接跳转确认">
+  <div class="flex min-h-[70vh] flex-col items-center justify-center px-4">
+    <div class="w-full max-w-2xl">
+      <!-- 无效链接状态 -->
+      <div
+        id="redirect-invalid"
+        class="border-destructive bg-destructive/5 hidden rounded-lg border p-6"
+      >
+        <div class="flex items-start gap-4">
+          <AlertCircle class="text-destructive mt-0.5 h-6 w-6 flex-shrink-0" />
+          <div class="flex-1">
+            <h2 class="text-destructive mb-2 font-semibold">无效的链接</h2>
+            <p class="text-muted-foreground mb-4 text-sm">很抱歉，无法获取有效的链接信息。</p>
+            <a
+              id="redirect-invalid-back"
+              href="/"
+              class="border-border bg-background hover:bg-muted inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition-colors"
+            >
+              <ChevronLeft class="h-4 w-4" />
+              返回上一页
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 有效链接状态 -->
+      <div
+        id="redirect-valid"
+        class="border-border bg-card hover:border-primary/50 hidden rounded-lg border p-6 shadow-md duration-300 hover:shadow-lg"
+      >
+        <div class="mb-4 flex items-start gap-3">
+          <ExternalLink class="text-primary mt-0.5 h-6 w-6 flex-shrink-0" />
+          <div>
+            <h2 class="text-lg leading-tight font-semibold">确认跳转到外部链接</h2>
+            <p class="text-muted-foreground mt-1 text-sm">提醒您，即将离开本网站并访问以下链接：</p>
+          </div>
+        </div>
+
+        <div class="bg-muted mb-4 rounded-lg p-4 text-sm break-all">
+          <p id="redirect-target-url" class="text-foreground font-mono"></p>
+        </div>
+
+        <p class="text-muted-foreground mb-6 text-sm">
+          博主只能保证在编写此博文时该链接的有效和安全。<br />
+          请自行确认该链接的有效性和安全性，避免遭受损失。
+        </p>
+
+        <div class="flex justify-end gap-4">
+          <a
+            id="redirect-cancel"
+            href="/"
+            class="border-border bg-background hover:bg-muted inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm font-medium transition-colors"
+          >
+            取消
+          </a>
+          <a
+            id="redirect-confirm"
+            href="#"
+            rel="noopener noreferrer"
+            class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors"
+          >
+            <ExternalLink class="h-4 w-4" />
+            确认跳转
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const url = params.get('url') || '';
+      const from = params.get('from') || '';
+
+      let isValid = false;
+      if (url) {
+        try {
+          const urlObj = new URL(url);
+          isValid =
+            urlObj.hostname !== window.location.hostname &&
+            urlObj.hostname !== 'localhost' &&
+            urlObj.hostname !== '127.0.0.1';
+        } catch {
+          /* invalid URL */
+        }
+      }
+
+      const backUrl = from || '/';
+
+      const onCancel = (e: Event) => {
+        e.preventDefault();
+        if (window.history.length > 1) {
+          window.history.back();
+        } else {
+          window.location.href = backUrl;
+        }
+      };
+
+      if (isValid) {
+        const el = document.getElementById('redirect-valid');
+        if (el) el.classList.remove('hidden');
+        const targetEl = document.getElementById('redirect-target-url');
+        if (targetEl) targetEl.textContent = url;
+        const confirmEl = document.getElementById('redirect-confirm');
+        if (confirmEl) confirmEl.setAttribute('href', url);
+        const cancelEl = document.getElementById('redirect-cancel');
+        if (cancelEl) {
+          cancelEl.setAttribute('href', backUrl);
+          cancelEl.addEventListener('click', onCancel);
+        }
+      } else {
+        const el = document.getElementById('redirect-invalid');
+        if (el) el.classList.remove('hidden');
+        const backEl = document.getElementById('redirect-invalid-back');
+        if (backEl) {
+          backEl.setAttribute('href', backUrl);
+          backEl.addEventListener('click', onCancel);
+        }
+      }
+    })();
+  </script>
+</BaseLayout>

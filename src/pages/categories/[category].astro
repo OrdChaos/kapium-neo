@@ -1,0 +1,112 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Banner from '@/components/Banner.astro';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import Badge from '@/components/ui/badge.astro';
+import { estimateReadTime } from '@/lib/utils';
+
+import Calendar from '@lucide/astro/icons/calendar';
+import Clock from '@lucide/astro/icons/clock';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('posts');
+  const categorySet = new Set<string>();
+  for (const post of allPosts) {
+    if (post.data.category) {
+      categorySet.add(post.data.category);
+    }
+  }
+  return Array.from(categorySet).map((cat) => ({
+    params: { category: cat },
+  }));
+}
+
+const { category: encodedCategory } = Astro.params;
+const category = decodeURIComponent(encodedCategory!);
+
+const allPosts = (await getCollection('posts')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+
+const categoryPosts = allPosts.filter((p) => p.data.category === category);
+---
+
+<BaseLayout
+  title={`分类：${category}`}
+  description={`浏览分类下的所有文章：${category}`}
+  ogImage={`/img/og/categories/${category}.png`}
+>
+  <Banner title={`分类：${category}`} subtitle={`共 ${categoryPosts.length} 篇文章`} />
+
+  <div class="container mx-auto px-4 py-12">
+    <div class="mx-auto max-w-4xl space-y-2">
+      {
+        categoryPosts.map((post) => {
+          const readTime = estimateReadTime(post.body || '');
+          return (
+            <div class="mb-6">
+              <Card class="group/card hover:border-primary/50 relative w-full max-w-full overflow-hidden transition-all duration-300 hover:shadow-lg">
+                <a
+                  href={`/posts/${post.data.abbrlink}`}
+                  class="absolute inset-0 z-0 block"
+                  aria-label={post.data.title}
+                />
+
+                <CardHeader class="pointer-events-none relative z-10">
+                  <CardTitle class="group-hover/card:text-primary transition-colors">
+                    {post.data.title}
+                  </CardTitle>
+                  <CardDescription>{post.data.excerpt || post.data.summary || ''}</CardDescription>
+                </CardHeader>
+
+                <CardContent class="pointer-events-none relative z-10">
+                  <div class="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                    <div class="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2">
+                      <div class="flex items-center gap-1 whitespace-nowrap">
+                        <Calendar class="h-4 w-4" />
+                        <span>{post.data.date.toISOString().slice(0, 10)}</span>
+                      </div>
+
+                      <div class="flex items-center gap-1 whitespace-nowrap">
+                        <Clock class="h-4 w-4" />
+                        <span>{readTime} 分钟</span>
+                      </div>
+                    </div>
+
+                    {post.data.category && (
+                      <a
+                        href={`/categories/${encodeURIComponent(post.data.category)}`}
+                        class="pointer-events-auto relative z-20"
+                      >
+                        <Badge
+                          variant="secondary"
+                          class="hover:bg-primary hover:text-primary-foreground cursor-pointer transition-colors"
+                        >
+                          {post.data.category}
+                        </Badge>
+                      </a>
+                    )}
+
+                    <div class="pointer-events-auto relative z-20 flex flex-wrap gap-2">
+                      {post.data.tags?.map((tag: string) => (
+                        <a href={`/tags/${encodeURIComponent(tag)}`}>
+                          <Badge
+                            variant="outline"
+                            class="hover:bg-primary hover:text-primary-foreground cursor-pointer text-xs transition-colors"
+                          >
+                            {tag}
+                          </Badge>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          );
+        })
+      }
+    </div>
+  </div>
+</BaseLayout>

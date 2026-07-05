@@ -1,0 +1,255 @@
+---
+import { getCollection, render } from 'astro:content';
+import 'katex/dist/katex.min.css';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Banner from '@/components/Banner.astro';
+import LicenseBox from '@/components/LicenseBox.astro';
+import SocialShare from '@/components/SocialShare.astro';
+import Twikoo from '@/components/Twikoo.astro';
+import UmamiPageViews from '@/components/UmamiPageViews.astro';
+import Toc from '@/components/Toc.tsx';
+import { siteConfig } from '@/config/site';
+
+import Calendar from '@lucide/astro/icons/calendar';
+import Clock from '@lucide/astro/icons/clock';
+import Eye from '@lucide/astro/icons/eye';
+import Tag from '@lucide/astro/icons/tag';
+import Bot from '@lucide/astro/icons/bot';
+import ChevronLeft from '@lucide/astro/icons/chevron-left';
+import ChevronRight from '@lucide/astro/icons/chevron-right';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((post) => ({
+    params: { abbrlink: post.data.abbrlink },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings, remarkPluginFrontmatter } = await render(post);
+
+const allPosts = (await getCollection('posts'))
+  .filter((p) => p.data.abbrlink)
+  .sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf());
+const currentIdx = allPosts.findIndex((p) => p.data.abbrlink === post.data.abbrlink);
+
+const prevPost = currentIdx < allPosts.length - 1 ? allPosts[currentIdx + 1] : null;
+const nextPost = currentIdx > 0 ? allPosts[currentIdx - 1] : null;
+
+const readTime = remarkPluginFrontmatter.readTime || 1;
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.excerpt || post.data.summary || ''}
+  ogImage={`/img/og/posts/${post.data.abbrlink}.png`}
+  ogType="article"
+>
+  <Banner title={post.data.title} />
+
+  <div class="grid grid-cols-1 px-4 py-12 xl:grid-cols-[1fr_768px_1fr] xl:gap-x-6">
+    <div class="mx-auto w-full max-w-[768px] xl:col-start-2 xl:mx-0">
+      <div class="mb-8 space-y-4">
+        <div class="text-muted-foreground flex flex-wrap items-center gap-4 text-sm">
+          <div class="flex items-center gap-1">
+            <Calendar class="h-4 w-4" />
+            <span>{post.data.date.toISOString().slice(0, 10)}</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <Clock class="h-4 w-4" />
+            <span>{readTime} 分钟</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <Eye class="h-4 w-4" />
+            <UmamiPageViews path={`/posts/${post.data.abbrlink}`} />
+          </div>
+          {
+            post.data.category && (
+              <a href={`/categories/${encodeURIComponent(post.data.category)}`}>
+                <span class="bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground inline-flex cursor-pointer items-center justify-center rounded-md border border-transparent px-2 py-0.5 text-xs font-medium transition-colors">
+                  {post.data.category}
+                </span>
+              </a>
+            )
+          }
+        </div>
+
+        {
+          post.data.tags?.length > 0 && (
+            <div class="flex flex-wrap items-center gap-2">
+              <Tag class="text-muted-foreground h-4 w-4" />
+              <div class="flex flex-wrap gap-2">
+                {post.data.tags.map((tag) => (
+                  <a href={`/tags/${encodeURIComponent(tag)}`}>
+                    <span class="text-foreground hover:bg-primary hover:text-primary-foreground inline-flex cursor-pointer items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium transition-colors">
+                      {tag}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )
+        }
+      </div>
+
+      {
+        post.data.summary && (
+          <div class="border-border bg-card hover:border-primary/50 mb-8 rounded-lg border p-4 shadow-md duration-300 hover:shadow-lg">
+            <h3 class="mb-2 flex items-center gap-2 text-base font-semibold">
+              <Bot class="h-6 w-6" />
+              文章摘要
+            </h3>
+            <p class="text-muted-foreground text-sm leading-relaxed">{post.data.summary}</p>
+          </div>
+        )
+      }
+
+      <article
+        id="post-content"
+        class="prose prose-neutral dark:prose-invert w-full max-w-none"
+        aria-label="文章正文"
+      >
+        <Content />
+      </article>
+
+      <LicenseBox
+        title={post.data.title}
+        permalink={`${siteConfig.url}/posts/${post.data.abbrlink}`}
+        license={siteConfig.license}
+        author={siteConfig.author.name}
+        postedAt={post.data.date.toISOString().slice(0, 10)}
+        updatedAt={post.data.updated?.toISOString().slice(0, 10)}
+      />
+
+      <SocialShare
+        title={post.data.title}
+        permalink={`${siteConfig.url}/posts/${post.data.abbrlink}`}
+      />
+
+      <nav class="mt-4 mb-8 pt-2" aria-label="文章导航">
+        <div class="flex flex-col justify-between gap-6 text-sm sm:flex-row">
+          <div class="min-w-0 flex-1">
+            {
+              prevPost ? (
+                <a
+                  href={`/posts/${prevPost.data.abbrlink}`}
+                  class="group border-border hover:border-primary/50 hover:bg-muted/50 block rounded-lg border p-4 transition-colors"
+                >
+                  <div class="text-muted-foreground mb-1 flex items-center gap-2">
+                    <ChevronLeft class="h-4 w-4" />
+                    <span class="font-medium">下一篇</span>
+                  </div>
+                  <div class="group-hover:text-primary line-clamp-2 font-medium transition-colors">
+                    {prevPost.data.title}
+                  </div>
+                </a>
+              ) : (
+                <div class="border-border bg-muted/30 text-muted-foreground rounded-lg border p-4">
+                  <div class="mb-1 flex items-center gap-2">
+                    <ChevronLeft class="h-4 w-4" />
+                    <span class="font-medium">下一篇</span>
+                  </div>
+                  <div class="line-clamp-2">已是最新文章</div>
+                </div>
+              )
+            }
+          </div>
+          <div class="min-w-0 flex-1 text-right sm:text-left">
+            {
+              nextPost ? (
+                <a
+                  href={`/posts/${nextPost.data.abbrlink}`}
+                  class="group border-border hover:border-primary/50 hover:bg-muted/50 block rounded-lg border p-4 transition-colors"
+                >
+                  <div class="text-muted-foreground mb-1 flex items-center justify-end gap-2 sm:justify-start">
+                    <span class="font-medium">上一篇</span>
+                    <ChevronRight class="h-4 w-4" />
+                  </div>
+                  <div class="group-hover:text-primary line-clamp-2 font-medium transition-colors">
+                    {nextPost.data.title}
+                  </div>
+                </a>
+              ) : (
+                <div class="border-border bg-muted/30 text-muted-foreground rounded-lg border p-4">
+                  <div class="mb-1 flex items-center justify-end gap-2 sm:justify-start">
+                    <span class="font-medium">上一篇</span>
+                    <ChevronRight class="h-4 w-4" />
+                  </div>
+                  <div class="line-clamp-2">已是最旧文章</div>
+                </div>
+              )
+            }
+          </div>
+        </div>
+      </nav>
+
+      <Twikoo path={`/posts/${post.data.abbrlink}`} />
+    </div>
+
+    <Toc
+      client:visible
+      headings={headings
+        .filter((h) => h.slug !== 'footnote-label')
+        .map((h) => ({ id: h.slug, text: h.text, depth: h.depth }))}
+    />
+  </div>
+
+  <script>
+    import { copyToClipboard } from '@/lib/clipboard';
+
+    function initCodeCopyButtons() {
+      document.querySelectorAll<HTMLButtonElement>('.copy-card').forEach((button) => {
+        if (button.dataset.copyBound === 'true') return;
+
+        button.dataset.copyBound = 'true';
+        button.addEventListener('click', async () => {
+          const wrapper = button.closest('.code-block-wrapper');
+          const code = wrapper?.querySelector('pre code')?.textContent ?? '';
+          await copyToClipboard(
+            code,
+            '\u4ee3\u7801\u5df2\u590d\u5236',
+            '\u590d\u5236\u5931\u8d25\uff0c\u8bf7\u624b\u52a8\u590d\u5236',
+          );
+        });
+      });
+    }
+
+    initCodeCopyButtons();
+    document.addEventListener('astro:page-load', initCodeCopyButtons);
+  </script>
+
+  <script>
+    function initExternalLinkInterception() {
+      const article = document.getElementById('post-content');
+      if (!article) return;
+      if (article.dataset.linkIntercepted === 'true') return;
+      article.dataset.linkIntercepted = 'true';
+
+      article.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement).tagName === 'IMG') return;
+
+        const link = (e.target as HTMLElement).closest('a');
+        if (!link?.href) return;
+
+        if (link.querySelector(':scope > img') && link.childNodes.length <= 2) return;
+
+        if (link.classList.contains('footnote-ref') || link.classList.contains('footnote-backref'))
+          return;
+        if (link.getAttribute('href')?.startsWith('#')) return;
+
+        const linkHostname = new URL(link.href, window.location.origin).hostname;
+        const siteHostname = window.location.hostname;
+
+        if (linkHostname !== siteHostname) {
+          e.preventDefault();
+          const redirectUrl = `/redirect?url=${encodeURIComponent(link.href)}&from=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+          window.location.href = redirectUrl;
+        }
+      });
+    }
+
+    initExternalLinkInterception();
+    document.addEventListener('astro:page-load', initExternalLinkInterception);
+  </script>
+</BaseLayout>

@@ -1,0 +1,30 @@
+---
+export interface Props {
+  path: string;
+  class?: string;
+}
+
+const { path, class: className = '' } = Astro.props;
+---
+
+<span data-umami-path={path} class={`inline-flex items-center gap-1 ${className}`.trim()}>
+  ...
+</span>
+
+<script>
+  import { fetchUmamiPageViews } from '@/lib/umami';
+
+  function initUmamiPageViews() {
+    document.querySelectorAll<HTMLElement>('[data-umami-path]').forEach(async (el) => {
+      const path = el.dataset.umamiPath;
+      if (!path) return;
+
+      const { pageViews, error } = await fetchUmamiPageViews(path);
+      el.textContent = error ? '— 次浏览' : `${(pageViews ?? 0).toLocaleString()} 次浏览`;
+    });
+  }
+
+  initUmamiPageViews();
+
+  document.addEventListener('astro:page-load', initUmamiPageViews);
+</script>

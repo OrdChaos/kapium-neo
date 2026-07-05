@@ -1,0 +1,108 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Banner from '@/components/Banner.astro';
+import { siteConfig } from '@/config/site';
+import Copy from '@lucide/astro/icons/copy';
+import Rss from '@lucide/astro/icons/rss';
+import ExternalLink from '@lucide/astro/icons/external-link';
+
+const feedUrl = `${siteConfig.url}/rss.xml`;
+
+const readers = [
+  { name: 'Feedly', url: 'https://feedly.com', platforms: 'Web / iOS / Android' },
+  { name: 'Inoreader', url: 'https://www.inoreader.com', platforms: 'Web / iOS / Android' },
+  { name: 'NetNewsWire', url: 'https://netnewswire.com', platforms: 'macOS / iOS' },
+];
+---
+
+<BaseLayout title="订阅" description="通过 RSS 随时获取最新文章，无广告、无算法干扰">
+  <Banner title="订阅" subtitle="通过 RSS 随时获取最新文章，无广告、无算法干扰" />
+
+  <div class="container mx-auto px-4 py-12">
+    <div class="mx-auto max-w-2xl space-y-8">
+      <div class="border-border bg-card relative overflow-hidden rounded-xl border shadow-lg">
+        <div class="from-primary/60 via-primary to-primary/60 h-1.5 bg-gradient-to-r"></div>
+
+        <div class="p-6 sm:p-8">
+          <div class="mb-6 flex items-center gap-4">
+            <div
+              class="bg-primary/10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
+            >
+              <Rss class="text-primary h-6 w-6" />
+            </div>
+            <div>
+              <h3 class="text-xl leading-tight font-semibold">RSS 订阅地址</h3>
+              <p class="text-muted-foreground text-sm">粘贴到阅读器即可订阅</p>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <input
+              value={feedUrl}
+              readonly
+              data-feed-input
+              class="border-input bg-muted/30 focus-visible:border-ring focus-visible:ring-ring/50 flex h-10 w-full min-w-0 rounded-lg border px-3 py-2 font-mono text-sm transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
+            />
+            <button
+              data-copy-feed
+              data-feed-url={feedUrl}
+              class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg px-5 py-2 text-sm font-medium whitespace-nowrap shadow transition-all duration-300 active:scale-[0.98]"
+            >
+              <Copy class="h-4 w-4" />
+              复制链接
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-border bg-muted/30 rounded-xl border p-6">
+        <h4 class="mb-2 font-semibold">什么是 RSS？</h4>
+        <p class="text-muted-foreground text-sm leading-relaxed">
+          RSS（Really Simple Syndication）是一种内容订阅格式。通过 RSS
+          阅读器，你可以不用打开网站就能获取最新文章更新——无广告、无算法推荐、按时间排序，你订阅什么就看什么。
+        </p>
+      </div>
+
+      <div>
+        <h4 class="mb-4 font-semibold">推荐阅读器</h4>
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {
+            readers.map((r) => (
+              <a
+                href={r.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group border-border bg-card hover:border-primary/50 flex items-center gap-3 rounded-lg border p-4 transition-all duration-300 hover:shadow-md"
+              >
+                <ExternalLink class="text-muted-foreground group-hover:text-primary h-4 w-4 shrink-0" />
+                <div class="min-w-0">
+                  <div class="text-sm font-medium">{r.name}</div>
+                  <div class="text-muted-foreground text-xs">{r.platforms}</div>
+                </div>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="text-muted-foreground pt-4 text-center">
+        <p class="italic">"阅读不是为了逃避生活，而是为了更清晰地看见世界。"</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    import { copyToClipboard } from '@/lib/clipboard';
+
+    document.addEventListener('astro:page-load', () => {
+      const feedInput = document.querySelector('[data-feed-input]') as HTMLInputElement | null;
+      feedInput?.addEventListener('click', () => feedInput.select());
+
+      const copyBtn = document.querySelector('[data-copy-feed]');
+      copyBtn?.addEventListener('click', () => {
+        const url = copyBtn.getAttribute('data-feed-url')!;
+        copyToClipboard(url, '链接已复制');
+      });
+    });
+  </script>
+</BaseLayout>
