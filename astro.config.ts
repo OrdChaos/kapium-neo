@@ -7,6 +7,7 @@ import react from '@astrojs/react';
 import icon from 'astro-icon';
 
 import remarkMath from 'remark-math';
+import remarkPangu from 'remark-pangu';
 import rehypeKatex from 'rehype-katex';
 import rehypeSlug from 'rehype-slug';
 
@@ -53,7 +54,23 @@ export default defineConfig({
     },
 
     processor: unified({
-      remarkPlugins: [remarkMath, remarkGroupImages, remarkExcerpt, remarkReadingTime],
+      remarkPlugins: [
+        remarkMath,
+        remarkGroupImages,
+        remarkExcerpt,
+        [
+          remarkPangu,
+          {
+            text: true,
+            inlineCode: false,
+            link: true,
+            image: false,
+            imageReference: false,
+            definition: false,
+          },
+        ],
+        remarkReadingTime,
+      ],
       rehypePlugins: [rehypeKatex, rehypeSlug, rehypeFootnoteTooltip, rehypeCodeBlockWrapper],
     }),
   },
