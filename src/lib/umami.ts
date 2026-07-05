@@ -1,4 +1,4 @@
-import { umamiConfig } from '@/config/umami';
+import { umamiPageViewConfig } from '@/config/umami';
 
 export interface UmamiPageViewsResult {
   pageViews: number | null;
@@ -6,7 +6,7 @@ export interface UmamiPageViewsResult {
 }
 
 export async function fetchUmamiPageViews(path: string): Promise<UmamiPageViewsResult> {
-  const { apiUrl, websiteId, apiToken } = umamiConfig;
+  const { apiUrl, websiteId, apiToken } = umamiPageViewConfig;
 
   const startAt = new Date('2020-01-01').getTime().toString();
   const endAt = Date.now().toString();

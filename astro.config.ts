@@ -17,7 +17,6 @@ import { remarkReadingTime } from './src/plugins/remark-reading-time.mjs';
 import { rehypeFootnoteTooltip } from './src/plugins/rehype-footnote-tooltip.mjs';
 import { rehypeCodeBlockWrapper } from './src/plugins/rehype-code-block-wrapper.mjs';
 
-import yeskunallumami from '@yeskunall/astro-umami';
 import photosuite from 'photosuite';
 
 export default defineConfig({
@@ -28,13 +27,6 @@ export default defineConfig({
   integrations: [
     react(),
     icon(),
-    yeskunallumami({
-      id: '94db1cb1-74f4-4a40-ad6c-962362670409',
-      endpointUrl: 'https://umami.ordchaos.top',
-      domains: ['ordchaos.com', 'www.ordchaos.com'],
-      doNotTrack: true,
-      excludeSearch: true,
-    }),
     photosuite({
       scope: '#post-content',
       imageGrid: false,

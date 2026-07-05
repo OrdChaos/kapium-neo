@@ -3,6 +3,7 @@ import { ClientRouter } from 'astro:transitions';
 import { getCollection } from 'astro:content';
 import { siteConfig } from '@/config/site';
 import { getPageTitle } from '@/lib/seo';
+import Umami from '@/components/Umami.astro';
 import Navbar from '@/components/Navbar';
 import LoadingIndicator from 'astro-loading-indicator/component';
 import SearchDialog from '@/components/SearchDialog';
@@ -100,7 +101,10 @@ const postIds = (await getCollection('posts')).map((post) => post.data.abbrlink)
     </script>
 
     <ClientRouter />
+
     <LoadingIndicator color="var(--primary)" threshold={false} />
+
+    <Umami />
   </head>
 
   <body>
