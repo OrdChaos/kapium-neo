@@ -71,6 +71,9 @@
   },
   "devDependencies": {
     "@astrojs/markdown-remark": "^7.2.1",
+    "astro-html-minifier-next": "^4.0.2",
+    "browserslist": "^4.28.4",
+    "lightningcss": "^1.32.0",
     "prettier": "^3.9.4",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.8.0",

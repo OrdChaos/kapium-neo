@@ -57,7 +57,7 @@ export default function Navbar({ postIds = [] }: NavbarProps) {
   const goRandomPost = () => {
     if (!postIds.length) return;
     const random = postIds[Math.floor(Math.random() * postIds.length)];
-    navigate(`/posts/${random}`);
+    navigate(`/posts/${random}/`);
     setIsOpen(false);
   };
 
@@ -168,7 +168,7 @@ export default function Navbar({ postIds = [] }: NavbarProps) {
                   <Dice5 className="h-5 w-5" />
                 </Button>
                 <Button variant="ghost" size="icon" asChild title="RSS 订阅" aria-label="RSS 订阅">
-                  <a href="/feed" title="RSS 订阅" aria-label="RSS 订阅">
+                  <a href="/feed/" title="RSS 订阅" aria-label="RSS 订阅">
                     <Rss className="h-5 w-5" />
                   </a>
                 </Button>
@@ -298,7 +298,7 @@ export default function Navbar({ postIds = [] }: NavbarProps) {
                     title="RSS 订阅"
                     aria-label="RSS 订阅"
                   >
-                    <a href="/feed" title="RSS 订阅" aria-label="RSS 订阅">
+                    <a href="/feed/" title="RSS 订阅" aria-label="RSS 订阅">
                       <Rss className="h-5 w-5" />
                     </a>
                   </Button>

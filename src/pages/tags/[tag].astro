@@ -50,7 +50,7 @@ const tagPosts = allPosts.filter((p) => p.data.tags?.includes(tag));
             <div class="mb-6">
               <Card class="group/card hover:border-primary/50 relative w-full max-w-full !gap-3 overflow-hidden !py-4 transition-all duration-300 hover:shadow-lg">
                 <a
-                  href={`/posts/${post.data.abbrlink}`}
+                  href={`/posts/${post.data.abbrlink}/`}
                   class="absolute inset-0 z-0 block"
                   aria-label={post.data.title}
                 />
@@ -59,7 +59,7 @@ const tagPosts = allPosts.filter((p) => p.data.tags?.includes(tag));
                   {post.data.category && (
                     <div class="mb-1">
                       <a
-                        href={`/categories/${encodeURIComponent(post.data.category)}`}
+                        href={`/categories/${encodeURIComponent(post.data.category)}/`}
                         class="pointer-events-auto relative z-20"
                       >
                         <Badge
@@ -95,7 +95,7 @@ const tagPosts = allPosts.filter((p) => p.data.tags?.includes(tag));
 
                     <div class="pointer-events-auto relative z-20 flex flex-wrap gap-2">
                       {post.data.tags?.map((t: string) => (
-                        <a href={`/tags/${encodeURIComponent(t)}`}>
+                        <a href={`/tags/${encodeURIComponent(t)}/`}>
                           <Badge
                             variant="outline"
                             class="hover:bg-primary hover:text-primary-foreground cursor-pointer text-xs transition-colors"

@@ -63,7 +63,7 @@ const months = Array.from(monthMap.values()).sort((a, b) => b.key.localeCompare(
                     <div class="min-w-0 flex-1">
                       <Card class="group/card hover:border-primary/50 relative w-full max-w-full transition-all duration-300 hover:shadow-lg">
                         <a
-                          href={`/posts/${post.data.abbrlink}`}
+                          href={`/posts/${post.data.abbrlink}/`}
                           class="absolute inset-0 z-0 block"
                           aria-label={post.data.title}
                         />
@@ -93,7 +93,7 @@ const months = Array.from(monthMap.values()).sort((a, b) => b.key.localeCompare(
 
                             {post.data.category && (
                               <a
-                                href={`/categories/${encodeURIComponent(post.data.category)}`}
+                                href={`/categories/${encodeURIComponent(post.data.category)}/`}
                                 class="relative z-20"
                               >
                                 <Badge
@@ -107,7 +107,7 @@ const months = Array.from(monthMap.values()).sort((a, b) => b.key.localeCompare(
 
                             <div class="relative z-20 flex flex-wrap gap-2">
                               {post.data.tags?.map((tag: string) => (
-                                <a href={`/tags/${encodeURIComponent(tag)}`}>
+                                <a href={`/tags/${encodeURIComponent(tag)}/`}>
                                   <Badge
                                     variant="outline"
                                     class="hover:bg-primary hover:text-primary-foreground cursor-pointer text-xs transition-colors"

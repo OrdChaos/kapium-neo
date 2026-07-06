@@ -36,9 +36,9 @@ function pageHref(p: number) {
       {
         currentPosts.map((post) => {
           const readTime = estimateReadTime(post.body || '');
-          const href = `/posts/${post.data.abbrlink}`;
+          const href = `/posts/${post.data.abbrlink}/`;
           const catHref = post.data.category
-            ? `/categories/${encodeURIComponent(post.data.category)}`
+            ? `/categories/${encodeURIComponent(post.data.category)}/`
             : null;
           return (
             <Card class="group/card hover:border-primary/50 flex h-[280px] w-full max-w-full flex-col transition-all duration-300 hover:shadow-lg">
@@ -83,7 +83,7 @@ function pageHref(p: number) {
                 <div class="relative mt-3">
                   <div class="flex gap-2 overflow-hidden whitespace-nowrap">
                     {post.data.tags?.map((tag: string) => (
-                      <a href={`/tags/${encodeURIComponent(tag)}`}>
+                      <a href={`/tags/${encodeURIComponent(tag)}/`}>
                         <Badge
                           variant="outline"
                           class="hover:bg-primary hover:text-primary-foreground shrink-0 cursor-pointer text-xs transition-colors"

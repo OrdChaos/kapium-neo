@@ -6,15 +6,50 @@ const { websiteId, src, hostUrl, trackHostName } = umamiTrackingConfig;
 
 {
   import.meta.env.PROD && websiteId && (
-    <script
-      defer
-      is:inline
-      data-astro-rerun
-      src={src}
-      data-website-id={websiteId}
-      data-host-url={hostUrl}
-      data-domains={trackHostName}
-      data-do-not-track="true"
-    />
+    <>
+      <script is:inline>
+        {`
+          window.normalizeUmamiPayload = function normalizeUmamiPayload(type, payload) {
+            if (!payload || !payload.url) return payload;
+
+            try {
+              const url = new URL(payload.url, window.location.origin);
+              const pathname = url.pathname;
+
+              if (pathname === '/') {
+                payload.url = '/';
+                return payload;
+              }
+
+              const lastSegment = pathname.split('/').pop() || '';
+              const looksLikeFile = lastSegment.includes('.');
+
+              if (!looksLikeFile && !pathname.endsWith('/')) {
+                url.pathname = pathname + '/';
+              }
+
+              payload.url = url.pathname;
+            } catch {
+            }
+
+            return payload;
+          };
+        `}
+      </script>
+
+      <script
+        defer
+        is:inline
+        data-astro-rerun
+        src={src}
+        data-website-id={websiteId}
+        data-host-url={hostUrl}
+        data-domains={trackHostName}
+        data-do-not-track="true"
+        data-exclude-hash="true"
+        data-exclude-search="true"
+        data-before-send="normalizeUmamiPayload"
+      />
+    </>
   )
 }

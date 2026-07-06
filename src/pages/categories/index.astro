@@ -28,7 +28,7 @@ const categories = Array.from(categoryMap.entries())
     <div class="mx-auto grid max-w-4xl grid-cols-1 gap-2">
       {
         categories.map((cat) => (
-          <a href={`/categories/${encodeURIComponent(cat.name)}`}>
+          <a href={`/categories/${encodeURIComponent(cat.name)}/`}>
             <div class="group block">
               <Card class="hover:border-primary/50 px-4 py-3 transition-all duration-300 hover:shadow-lg">
                 <div class="flex items-center justify-between">

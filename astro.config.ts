@@ -2,6 +2,10 @@
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 
+import htmlMinifier from "astro-html-minifier-next";
+import browserslist from "browserslist";
+import { browserslistToTargets } from "lightningcss";
+
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 import icon from 'astro-icon';
@@ -23,6 +27,11 @@ import sitemap from '@astrojs/sitemap';
 import { siteConfig } from './src/config/site';
 
 export default defineConfig({
+  trailingSlash: 'always',
+  build: {
+    format: 'directory',
+  },
+  
   site: siteConfig.url,
 
   vite: {
@@ -38,6 +47,22 @@ export default defineConfig({
       imageGrid: false,
       exif: false,
       imageAlts: false,
+    }),
+    htmlMinifier({
+      caseSensitive: true,
+      collapseWhitespace: true,
+      preserveLineBreaks: false,
+      removeComments: true,
+      minifyJS: true,
+      minifyCSS: {
+        targets: browserslistToTargets(browserslist("defaults")),
+      },
+
+      removeOptionalTags: false,
+      removeAttributeQuotes: false,
+      removeEmptyElements: false,
+      sortAttributes: false,
+      sortClassNames: false,
     }),
   ],
 

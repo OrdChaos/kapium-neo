@@ -62,11 +62,11 @@ const readTime = remarkPluginFrontmatter.readTime || 1;
           </div>
           <div class="flex items-center gap-1">
             <Eye class="h-4 w-4" />
-            <UmamiPageViews path={`/posts/${post.data.abbrlink}`} />
+            <UmamiPageViews path={`/posts/${post.data.abbrlink}/`} />
           </div>
           {
             post.data.category && (
-              <a href={`/categories/${encodeURIComponent(post.data.category)}`}>
+              <a href={`/categories/${encodeURIComponent(post.data.category)}/`}>
                 <span class="bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground inline-flex cursor-pointer items-center justify-center rounded-md border border-transparent px-2 py-0.5 text-xs font-medium transition-colors">
                   {post.data.category}
                 </span>
@@ -81,7 +81,7 @@ const readTime = remarkPluginFrontmatter.readTime || 1;
               <Tag class="text-muted-foreground h-4 w-4" />
               <div class="flex flex-wrap gap-2">
                 {post.data.tags.map((tag) => (
-                  <a href={`/tags/${encodeURIComponent(tag)}`}>
+                  <a href={`/tags/${encodeURIComponent(tag)}/`}>
                     <span class="text-foreground hover:bg-primary hover:text-primary-foreground inline-flex cursor-pointer items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium transition-colors">
                       {tag}
                     </span>
@@ -115,7 +115,7 @@ const readTime = remarkPluginFrontmatter.readTime || 1;
 
       <LicenseBox
         title={post.data.title}
-        permalink={`${siteConfig.url}/posts/${post.data.abbrlink}`}
+        permalink={`${siteConfig.url}/posts/${post.data.abbrlink}/`}
         license={siteConfig.license}
         author={siteConfig.author.name}
         postedAt={post.data.date.toISOString().slice(0, 10)}
@@ -124,7 +124,7 @@ const readTime = remarkPluginFrontmatter.readTime || 1;
 
       <SocialShare
         title={post.data.title}
-        permalink={`${siteConfig.url}/posts/${post.data.abbrlink}`}
+        permalink={`${siteConfig.url}/posts/${post.data.abbrlink}/`}
       />
 
       <nav class="mt-4 mb-8 pt-2" aria-label="文章导航">
@@ -133,7 +133,7 @@ const readTime = remarkPluginFrontmatter.readTime || 1;
             {
               prevPost ? (
                 <a
-                  href={`/posts/${prevPost.data.abbrlink}`}
+                  href={`/posts/${prevPost.data.abbrlink}/`}
                   class="group border-border hover:border-primary/50 hover:bg-muted/50 block rounded-lg border p-4 transition-colors"
                 >
                   <div class="text-muted-foreground mb-1 flex items-center gap-2">
@@ -159,7 +159,7 @@ const readTime = remarkPluginFrontmatter.readTime || 1;
             {
               nextPost ? (
                 <a
-                  href={`/posts/${nextPost.data.abbrlink}`}
+                  href={`/posts/${nextPost.data.abbrlink}/`}
                   class="group border-border hover:border-primary/50 hover:bg-muted/50 block rounded-lg border p-4 transition-colors"
                 >
                   <div class="text-muted-foreground mb-1 flex items-center justify-end gap-2 sm:justify-start">
@@ -184,7 +184,7 @@ const readTime = remarkPluginFrontmatter.readTime || 1;
         </div>
       </nav>
 
-      <Twikoo path={`/posts/${post.data.abbrlink}`} client:visible />
+      <Twikoo path={`/posts/${post.data.abbrlink}/`} />
     </div>
 
     <Toc
@@ -243,7 +243,7 @@ const readTime = remarkPluginFrontmatter.readTime || 1;
 
         if (linkHostname !== siteHostname) {
           e.preventDefault();
-          const redirectUrl = `/redirect?url=${encodeURIComponent(link.href)}&from=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+          const redirectUrl = `/redirect/?url=${encodeURIComponent(link.href)}&from=${encodeURIComponent(window.location.pathname + window.location.search)}`;
           window.location.href = redirectUrl;
         }
       });

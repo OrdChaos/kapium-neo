@@ -1,8 +1,9 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { Button } from '@/components/ui/button.tsx';
 import ChevronLeft from '@lucide/astro/icons/chevron-left';
 import Search from '@lucide/astro/icons/search';
+
+export const trailingSlash = 'ignore';
 ---
 
 <BaseLayout title="页面未找到" description="页面未找到">
@@ -20,17 +21,28 @@ import Search from '@lucide/astro/icons/search';
       </p>
 
       <div class="flex flex-col gap-3 sm:flex-row sm:justify-center">
-        <a href="/">
-          <Button variant="outline" size="lg" className="w-full gap-2">
-            <ChevronLeft class="h-4 w-4" />
-            返回首页
-          </Button>
+        <a
+          href="/"
+          class="border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex w-full items-center justify-center gap-2 rounded-md border px-8 py-3 text-sm font-medium transition-colors sm:w-auto"
+        >
+          <ChevronLeft class="h-4 w-4" />
+          返回首页
         </a>
-        <Button size="lg" className="w-full gap-2" onClick={() => {}}>
+        <button
+          type="button"
+          id="search-trigger-404"
+          class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex w-full items-center justify-center gap-2 rounded-md px-8 py-3 text-sm font-medium transition-colors sm:w-auto"
+        >
           <Search class="h-4 w-4" />
           搜索内容
-        </Button>
+        </button>
       </div>
     </div>
   </div>
 </BaseLayout>
+
+<script>
+  document.getElementById('search-trigger-404')?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('open-search'));
+  });
+</script>

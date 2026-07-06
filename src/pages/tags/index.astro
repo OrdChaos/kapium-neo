@@ -30,7 +30,7 @@ const tags = Array.from(tagMap.entries())
       <div class="flex flex-wrap gap-2">
         {
           tags.map((t) => (
-            <a href={`/tags/${encodeURIComponent(t.name)}`}>
+            <a href={`/tags/${encodeURIComponent(t.name)}/`}>
               <div class="inline-block p-2">
                 <Badge
                   variant="outline"

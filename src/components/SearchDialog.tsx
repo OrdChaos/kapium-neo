@@ -306,7 +306,7 @@ export default function SearchDialog() {
                 displayResults.map((result) => (
                   <a
                     key={result.id}
-                    href={`/posts/${result.id}`}
+                    href={`/posts/${result.id}/`}
                     onClick={handleResultClick}
                     className="border-border bg-card hover:border-primary/50 block rounded-lg border p-4 transition-all duration-300 hover:shadow-lg"
                   >

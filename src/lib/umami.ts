@@ -5,17 +5,62 @@ export interface UmamiPageViewsResult {
   error: boolean;
 }
 
+type UmamiStatsResponse = {
+  pageviews?: number | { value?: number };
+};
+
+function normalizeUmamiPath(input: string): string {
+  const pathname = input.split('#')[0].split('?')[0] || '/';
+
+  if (pathname === '/') return '/';
+
+  const normalized = pathname.startsWith('/') ? pathname : `/${pathname}`;
+
+  if (normalized.startsWith('/posts/') && !normalized.endsWith('/')) {
+    return `${normalized}/`;
+  }
+
+  return normalized;
+}
+
+function joinUrl(base: string, pathname: string): string {
+  return `${base.replace(/\/+$/, '')}/${pathname.replace(/^\/+/, '')}`;
+}
+
+function getPageViewsValue(pageviews: UmamiStatsResponse['pageviews']): number {
+  if (typeof pageviews === 'number') return pageviews;
+  if (typeof pageviews?.value === 'number') return pageviews.value;
+  return 0;
+}
+
 export async function fetchUmamiPageViews(path: string): Promise<UmamiPageViewsResult> {
   const { apiUrl, websiteId, apiToken } = umamiPageViewConfig;
 
-  const startAt = new Date('2020-01-01').getTime().toString();
-  const endAt = Date.now().toString();
+  if (!apiUrl || !websiteId || !apiToken) {
+    console.error('Missing Umami page view config');
+    return { pageViews: null, error: true };
+  }
 
-  const params = new URLSearchParams({ startAt, endAt, path });
+  const startAt = new Date('2020-01-01T00:00:00+08:00').getTime().toString();
+  const endAt = Date.now().toString();
+  const pathname = normalizeUmamiPath(path);
+
+  const params = new URLSearchParams({
+    startAt,
+    endAt,
+    path: pathname,
+    _t: Date.now().toString(),
+  });
 
   try {
-    const res = await fetch(`${apiUrl}/websites/${websiteId}/stats?${params}`, {
-      headers: { Authorization: `Bearer ${apiToken}` },
+    const url = joinUrl(apiUrl, `/websites/${websiteId}/stats`);
+
+    const res = await fetch(`${url}?${params.toString()}`, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${apiToken}`,
+      },
+      cache: 'no-store',
     });
 
     if (!res.ok) {
@@ -23,13 +68,12 @@ export async function fetchUmamiPageViews(path: string): Promise<UmamiPageViewsR
       throw new Error(`Umami API error: ${res.status} - ${errText}`);
     }
 
-    const data = await res.json();
+    const data = (await res.json()) as UmamiStatsResponse;
+    const pageViews = getPageViewsValue(data.pageviews);
 
-    const pv = typeof data?.pageviews === 'number' ? data.pageviews : (data?.pageviews?.value ?? 0);
-
-    return { pageViews: pv, error: false };
+    return { pageViews, error: false };
   } catch (err) {
-    console.error('Failed to fetch Umami page views:', err);
+    console.error(`Failed to fetch Umami page views for path "${pathname}":`, err);
     return { pageViews: null, error: true };
   }
 }
