@@ -1,7 +1,9 @@
+import type { Root } from 'mdast';
+import type { VFile } from 'vfile';
 import { toString } from 'mdast-util-to-string';
 
 export function remarkReadingTime() {
-  return (tree, vfile) => {
+  return (tree: Root, vfile: VFile) => {
     const text = toString(tree);
 
     const cjkChars = (text.match(/[\u4e00-\u9fff\u3400-\u4dbf]/g) || []).length;

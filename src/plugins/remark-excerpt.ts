@@ -1,9 +1,11 @@
+import type { Root } from 'mdast';
+import type { VFile } from 'vfile';
 import { toString } from 'mdast-util-to-string';
 
 export function remarkExcerpt() {
-  return (tree, vfile) => {
+  return (tree: Root, vfile: VFile) => {
     const children = tree.children;
-    const excerptNodes = [];
+    const excerptNodes: typeof children = [];
 
     for (const node of children) {
       if (node.type === 'html' && /<!--\s*more\s*-->/.test(node.value)) {

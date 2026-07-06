@@ -1,28 +1,33 @@
+import type { Root, Element } from 'hast';
 import { visit } from 'unist-util-visit';
 
 export function rehypeFootnoteTooltip() {
-  return (tree) => {
-    const footnoteTexts = new Map();
+  return (tree: Root) => {
+    const footnoteTexts = new Map<string, string>();
 
-    visit(tree, 'element', (node) => {
-      if (node.properties?.id?.startsWith('user-content-fn-')) {
+    visit(tree, 'element', (node: Element) => {
+      if (
+        node.properties?.id &&
+        typeof node.properties.id === 'string' &&
+        node.properties.id.startsWith('user-content-fn-')
+      ) {
         footnoteTexts.set(node.properties.id, extractText(node));
       }
     });
 
     if (footnoteTexts.size === 0) return;
 
-    visit(tree, 'element', (node, index, parent) => {
+    visit(tree, 'element', (node: Element, index, parent) => {
       if (node.tagName !== 'a') return;
       const props = node.properties || {};
       const hasFootnoteRef = 'dataFootnoteRef' in props || 'data-footnote-ref' in props;
       if (!hasFootnoteRef || !props.href || index === undefined || !parent) return;
 
-      const targetId = props.href.replace('#', '');
+      const targetId = String(props.href).replace('#', '');
       const text = footnoteTexts.get(targetId);
       if (!text) return;
 
-      const tooltipSpan = {
+      const tooltipSpan: Element = {
         type: 'element',
         tagName: 'span',
         properties: {
@@ -31,7 +36,7 @@ export function rehypeFootnoteTooltip() {
         children: [{ type: 'text', value: text }],
       };
 
-      const wrapper = {
+      const wrapper: Element = {
         type: 'element',
         tagName: 'span',
         properties: {
@@ -40,20 +45,21 @@ export function rehypeFootnoteTooltip() {
         children: [node, tooltipSpan],
       };
 
-      parent.children[index] = wrapper;
+      (parent as { children: Element[] }).children[index] = wrapper;
     });
   };
 }
 
-function extractText(node) {
+function extractText(node: Element): string {
   let text = '';
 
   for (const child of node.children || []) {
     if (child.type === 'text') {
       text += child.value;
     } else if (child.type === 'element') {
-      if (child.properties?.dataFootnoteBackref === '') continue;
-      text += extractText(child);
+      const el = child as Element;
+      if (el.properties?.dataFootnoteBackref === '') continue;
+      text += extractText(el);
     }
   }
 

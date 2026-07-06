@@ -1,34 +1,31 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import Banner from '@/components/Banner.astro';
 import WifiOff from '@lucide/astro/icons/wifi-off';
 import RefreshCw from '@lucide/astro/icons/refresh-cw';
 ---
 
 <BaseLayout title="离线" description="暂无网络连接">
-  <Banner title="离线" subtitle="暂无网络连接" />
-
-  <div class="container mx-auto px-4 py-12">
-    <div
-      class="mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center text-center"
-    >
+  <div class="flex min-h-[70vh] flex-col items-center justify-center px-4">
+    <div class="w-full max-w-md text-center">
       <div class="mb-8">
-        <WifiOff class="text-muted-foreground mx-auto h-24 w-24 opacity-30" />
+        <WifiOff class="text-primary/20 mx-auto h-32 w-32" />
       </div>
 
-      <h2 class="text-foreground mb-4 text-2xl font-bold">暂无网络连接</h2>
+      <h2 class="text-foreground mb-4 text-3xl font-bold">暂无网络连接</h2>
 
-      <p class="text-muted-foreground mb-8 leading-relaxed">
+      <p class="text-muted-foreground mb-8">
         您当前处于离线状态。请检查网络连接后重试。
       </p>
 
-      <button
-        id="retry-btn"
-        class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-medium shadow transition-all duration-300 active:scale-[0.98]"
-      >
-        <RefreshCw class="h-4 w-4" />
-        重新连接
-      </button>
+      <div class="flex flex-col gap-3 sm:flex-row sm:justify-center">
+        <button
+          id="retry-btn"
+          class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex w-full items-center justify-center gap-2 rounded-md px-8 py-3 text-sm font-medium transition-colors sm:w-auto"
+        >
+          <RefreshCw class="h-4 w-4" />
+          重新连接
+        </button>
+      </div>
     </div>
   </div>
 </BaseLayout>

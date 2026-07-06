@@ -15,7 +15,7 @@ const crc32Table = (() => {
   return table;
 })();
 
-function crc32(str) {
+function crc32(str: string): number {
   let crc = 0xffffffff;
   for (let i = 0; i < str.length; i++) {
     crc = crc32Table[(crc ^ str.charCodeAt(i)) & 0xff] ^ (crc >>> 8);
@@ -23,11 +23,11 @@ function crc32(str) {
   return (crc ^ 0xffffffff) >>> 0;
 }
 
-function genAbbrlink(dateStr) {
+function genAbbrlink(dateStr: string): string {
   return crc32(dateStr).toString(16).padStart(8, '0');
 }
 
-async function processFile(filePath) {
+async function processFile(filePath: string): Promise<void> {
   const content = await readFile(filePath, 'utf-8');
 
   const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);

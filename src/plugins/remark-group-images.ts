@@ -1,13 +1,27 @@
+import type { Root, Image, Paragraph, Link } from 'mdast';
+import type { Node } from 'unist';
+
+interface ImageInfo {
+  url: string;
+  alt: string;
+}
+
+interface GiInfo {
+  total: number;
+  rows: number[];
+  endgiInSameNode: boolean;
+}
+
 export function remarkGroupImages() {
-  return (tree) => {
+  return (tree: Root) => {
     const children = tree.children;
-    const newChildren = [];
+    const newChildren: typeof children = [];
     let i = 0;
 
     while (i < children.length) {
       const node = children[i];
 
-      const giInfo = findGiMarker(node);
+      const giInfo = findGiMarker(node as Paragraph);
 
       if (!giInfo) {
         newChildren.push(node);
@@ -32,8 +46,8 @@ export function remarkGroupImages() {
       while (j < children.length) {
         const candidate = children[j];
 
-        if (hasEndgiMarker(candidate)) {
-          const imgs = extractImagesBeforeEndgi(candidate);
+        if (hasEndgiMarker(candidate as Paragraph)) {
+          const imgs = extractImagesBeforeEndgi(candidate as Paragraph);
           images.push(...imgs);
           endIdx = j;
           break;
@@ -59,10 +73,10 @@ export function remarkGroupImages() {
   };
 }
 
-function findGiMarker(node) {
-  if (node.type !== 'paragraph') return null;
+function findGiMarker(node: Paragraph | null): GiInfo | null {
+  if (node?.type !== 'paragraph') return null;
 
-  const fullText = (node.children || []).map((c) => c.value || '').join('');
+  const fullText = (node.children || []).map((c) => ('value' in c ? c.value : '')).join('');
 
   const giMatch = fullText.match(/\{%\s*gi\s+(\d+)\s*([\d-]*)\s*%\}/);
   if (!giMatch) return null;
@@ -70,13 +84,13 @@ function findGiMarker(node) {
   const total = parseInt(giMatch[1], 10);
   const rowsStr = giMatch[2];
 
-  let rows;
+  let rows: number[];
   if (rowsStr) {
     rows = rowsStr.split('-').map((n) => parseInt(n, 10));
     const sum = rows.reduce((a, b) => a + b, 0);
-    if (sum !== total) rows = null;
+    if (sum !== total) rows = [];
   }
-  if (!rows) {
+  if (!rows!) {
     rows = [];
     let remaining = total;
     while (remaining > 0) {
@@ -90,29 +104,32 @@ function findGiMarker(node) {
   return { total, rows, endgiInSameNode };
 }
 
-function hasEndgiMarker(node) {
+function hasEndgiMarker(node: Paragraph): boolean {
   if (node.type !== 'paragraph') return false;
-  const text = (node.children || []).map((c) => c.value || '').join('');
+  const text = (node.children || []).map((c) => ('value' in c ? c.value : '')).join('');
   return /\{%\s*endgi\s*%\}/.test(text);
 }
 
-function extractImagesFromNode(node) {
-  const images = [];
+function extractImagesFromNode(node: Node): ImageInfo[] {
+  const images: ImageInfo[] = [];
 
   if (node.type === 'image') {
-    images.push({ url: node.url, alt: node.alt || '' });
+    const img = node as Image;
+    images.push({ url: img.url, alt: img.alt || '' });
     return images;
   }
 
   if (node.type === 'paragraph') {
-    for (const child of node.children || []) {
+    for (const child of (node as Paragraph).children || []) {
       if (child.type === 'image') {
-        images.push({ url: child.url, alt: child.alt || '' });
+        const img = child as Image;
+        images.push({ url: img.url, alt: img.alt || '' });
       }
       if (child.type === 'link') {
-        for (const inner of child.children || []) {
+        for (const inner of (child as Link).children || []) {
           if (inner.type === 'image') {
-            images.push({ url: inner.url, alt: inner.alt || '' });
+            const img = inner as Image;
+            images.push({ url: img.url, alt: img.alt || '' });
           }
         }
       }
@@ -122,21 +139,23 @@ function extractImagesFromNode(node) {
   return images;
 }
 
-function extractImagesBeforeEndgi(node) {
-  const images = [];
+function extractImagesBeforeEndgi(node: Paragraph): ImageInfo[] {
+  const images: ImageInfo[] = [];
   if (node.type !== 'paragraph') return images;
 
   for (const child of node.children || []) {
-    if (typeof child.value === 'string' && /\{%\s*endgi\s*%\}/.test(child.value)) {
+    if ('value' in child && typeof child.value === 'string' && /\{%\s*endgi\s*%\}/.test(child.value)) {
       break;
     }
     if (child.type === 'image') {
-      images.push({ url: child.url, alt: child.alt || '' });
+      const img = child as Image;
+      images.push({ url: img.url, alt: img.alt || '' });
     }
     if (child.type === 'link') {
-      for (const inner of child.children || []) {
+      for (const inner of (child as Link).children || []) {
         if (inner.type === 'image') {
-          images.push({ url: inner.url, alt: inner.alt || '' });
+          const img = inner as Image;
+          images.push({ url: img.url, alt: img.alt || '' });
         }
       }
     }
@@ -145,7 +164,7 @@ function extractImagesBeforeEndgi(node) {
   return images;
 }
 
-function buildGridHtml(images, total, rows) {
+function buildGridHtml(images: ImageInfo[], total: number, rows: number[]): string {
   const actualTotal = Math.min(total, images.length);
   let html = '<div class="gi-container">';
 

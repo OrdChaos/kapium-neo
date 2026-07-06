@@ -15,11 +15,11 @@ import remarkPangu from 'remark-pangu';
 import rehypeKatex from 'rehype-katex';
 import rehypeSlug from 'rehype-slug';
 
-import { remarkGroupImages } from './src/plugins/remark-group-images.mjs';
-import { remarkExcerpt } from './src/plugins/remark-excerpt.mjs';
-import { remarkReadingTime } from './src/plugins/remark-reading-time.mjs';
-import { rehypeFootnoteTooltip } from './src/plugins/rehype-footnote-tooltip.mjs';
-import { rehypeCodeBlockWrapper } from './src/plugins/rehype-code-block-wrapper.mjs';
+import { remarkGroupImages } from './src/plugins/remark-group-images.ts';
+import { remarkExcerpt } from './src/plugins/remark-excerpt.ts';
+import { remarkReadingTime } from './src/plugins/remark-reading-time.ts';
+import { rehypeFootnoteTooltip } from './src/plugins/rehype-footnote-tooltip.ts';
+import { rehypeCodeBlockWrapper } from './src/plugins/rehype-code-block-wrapper.ts';
 
 import photosuite from 'photosuite';
 import sitemap from '@astrojs/sitemap';

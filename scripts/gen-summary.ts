@@ -9,7 +9,7 @@ const MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 
 const SYSTEM_PROMPT = `你是专业总结助手，请用一句话精炼总结文章（忽略截断）；须用第三人称，原博文中"我"统一称为"博主"，用"这篇博文"指代文章本身；严禁以"这篇文章由博主撰写"等废话开头，直接陈述核心内容。`;
 
-function stripNoise(md) {
+function stripNoise(md: string): string {
   return md
     .replace(/<!--[\s\S]*?-->/g, '')
     .replace(/<[^>]+>/g, '')
@@ -22,7 +22,7 @@ function stripNoise(md) {
     .trim();
 }
 
-async function genSummary(postContent) {
+async function genSummary(postContent: string): Promise<string> {
   if (!API_KEY) {
     throw new Error('OPENAI_API_KEY not found');
   }
@@ -51,13 +51,13 @@ async function genSummary(postContent) {
     throw new Error(`API request failed: (${res.status}): ${err}`);
   }
 
-  const data = await res.json();
+  const data = (await res.json()) as { choices: { message: { content: string } }[] };
   const summary = data.choices[0].message.content.trim();
 
   return summary.replace(/^["'""]|["'""]$/g, '');
 }
 
-async function processFile(filePath) {
+async function processFile(filePath: string): Promise<void> {
   const content = await readFile(filePath, 'utf-8');
 
   const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
