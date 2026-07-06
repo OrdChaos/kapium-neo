@@ -6,7 +6,8 @@ import Copy from '@lucide/astro/icons/copy';
 import Rss from '@lucide/astro/icons/rss';
 import ExternalLink from '@lucide/astro/icons/external-link';
 
-const feedUrl = `${siteConfig.url}/rss.xml`;
+const rssUrl = `${siteConfig.url}/rss.xml`;
+const atomUrl = `${siteConfig.url}/atom.xml`;
 
 const readers = [
   { name: 'Feedly', url: 'https://feedly.com', platforms: 'Web / iOS / Android' },
@@ -38,20 +39,24 @@ const readers = [
 
           <div class="flex flex-col gap-3 sm:flex-row">
             <input
-              value={feedUrl}
+              value={rssUrl}
               readonly
-              data-feed-input
+              data-feed-input="rss"
               class="border-input bg-muted/30 focus-visible:border-ring focus-visible:ring-ring/50 flex h-10 w-full min-w-0 rounded-lg border px-3 py-2 font-mono text-sm transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
             />
             <button
               data-copy-feed
-              data-feed-url={feedUrl}
+              data-feed-url={rssUrl}
               class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg px-5 py-2 text-sm font-medium whitespace-nowrap shadow transition-all duration-300 active:scale-[0.98]"
             >
               <Copy class="h-4 w-4" />
               复制链接
             </button>
           </div>
+
+          <p class="text-muted-foreground mt-3 text-xs">
+            也支持 <a href={atomUrl} class="text-primary underline underline-offset-2">Atom 格式</a>，兼容所有主流阅读器。
+          </p>
         </div>
       </div>
 
@@ -95,13 +100,17 @@ const readers = [
     import { copyToClipboard } from '@/lib/clipboard';
 
     document.addEventListener('astro:page-load', () => {
-      const feedInput = document.querySelector('[data-feed-input]') as HTMLInputElement | null;
-      feedInput?.addEventListener('click', () => feedInput.select());
+      const feedInputs = document.querySelectorAll('[data-feed-input]');
+      feedInputs.forEach((input) => {
+        input.addEventListener('click', () => (input as HTMLInputElement).select());
+      });
 
-      const copyBtn = document.querySelector('[data-copy-feed]');
-      copyBtn?.addEventListener('click', () => {
-        const url = copyBtn.getAttribute('data-feed-url')!;
-        copyToClipboard(url, '链接已复制');
+      const copyBtns = document.querySelectorAll('[data-copy-feed]');
+      copyBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const url = btn.getAttribute('data-feed-url')!;
+          copyToClipboard(url, '链接已复制');
+        });
       });
     });
   </script>

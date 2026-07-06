@@ -7,7 +7,6 @@ export const GET: APIRoute = async ({ site: siteUrl }) => {
   const posts = await getCollection('posts');
 
   const sortedPosts = posts
-    .filter((post) => !post.data.draft)
     .sort((a, b) => {
       return new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
     })
