@@ -179,7 +179,7 @@ export default function Toc({ headings }: TocProps) {
                     className={`block border-l-2 py-1 pl-4 text-xs transition-colors ${
                       activeId === h3.id
                         ? 'border-primary text-primary font-medium'
-                        : 'text-muted-foreground border-transparent'
+                        : 'text-muted-foreground hover:text-foreground border-transparent'
                     }`}
                   >
                     {h3.text}
@@ -196,8 +196,8 @@ export default function Toc({ headings }: TocProps) {
   return (
     <>
       <aside className="hidden w-64 xl:block">
-        <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
-          <div className="border-border bg-card hover:border-primary/50 overflow-hidden rounded-lg border shadow-md transition-all duration-300 hover:shadow-lg">
+        <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto rounded-lg shadow-md transition-all duration-300 hover:shadow-lg">
+          <div className="border-border bg-card hover:border-primary/50 rounded-lg border transition-colors duration-300">
             <div className="p-5">
               <div className="mb-4 text-sm font-bold">目录</div>
               <nav>{renderTocList()}</nav>

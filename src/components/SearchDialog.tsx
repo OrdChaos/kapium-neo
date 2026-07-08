@@ -308,10 +308,12 @@ export default function SearchDialog() {
                     key={result.id}
                     href={`/posts/${result.id}/`}
                     onClick={handleResultClick}
-                    className="border-border bg-card hover:border-primary/50 block rounded-lg border p-4 transition-all duration-300 hover:shadow-lg"
+                    className="group border-border hover:border-primary/50 hover:bg-muted/50 block rounded-lg border p-4 transition-colors"
                   >
                     <div className="mb-2 flex items-center gap-2">
-                      <h3 className="font-semibold">{highlightText(result.title, searchQuery)}</h3>
+                      <h3 className="group-hover:text-primary font-semibold transition-colors">
+                        {highlightText(result.title, searchQuery)}
+                      </h3>
                     </div>
                     <p className="text-muted-foreground line-clamp-2 text-sm">
                       {highlightText(result.excerpt, searchQuery)}
