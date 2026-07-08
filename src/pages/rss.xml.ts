@@ -24,11 +24,10 @@ export const GET: APIRoute = async ({ site: siteUrl }) => {
       content: post.body,
       pubDate: new Date(post.data.date),
       link: `/posts/${post.data.abbrlink}/`,
-      categories: [
-        post.data.category,
-        ...(post.data.tags ?? []),
-      ].filter((category): category is string => Boolean(category)),
+      categories: [post.data.category, ...(post.data.tags ?? [])].filter(
+        (category): category is string => Boolean(category),
+      ),
     })),
     customData: `<language>zh-CN</language>`,
   });
-}
+};

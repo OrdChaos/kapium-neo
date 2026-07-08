@@ -6,7 +6,8 @@ import { siteConfig } from '@/config/site';
   <div class="container mx-auto px-4 py-8">
     <div class="text-muted-foreground flex flex-col gap-2 text-center text-sm">
       <p>
-        {'©'} <span data-current-year></span>
+        {'©'}
+        <span data-current-year></span>
         <a href="/" class="hover:text-primary transition-colors duration-300">
           {` ${siteConfig.title}`}
         </a>
@@ -42,10 +43,14 @@ import { siteConfig } from '@/config/site';
 
       <p>
         {'本站已稳定运行 '}
-        <span data-uptime-days>0</span> {' 天 '}
-        <span data-uptime-hours>0</span> {' 时 '}
-        <span data-uptime-minutes>0</span> {' 分 '}
-        <span data-uptime-seconds>0</span> {' 秒'}
+        <span data-uptime-days>0</span>
+        {' 天 '}
+        <span data-uptime-hours>0</span>
+        {' 时 '}
+        <span data-uptime-minutes>0</span>
+        {' 分 '}
+        <span data-uptime-seconds>0</span>
+        {' 秒'}
       </p>
 
       <p>

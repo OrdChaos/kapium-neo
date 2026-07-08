@@ -2,9 +2,9 @@
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 
-import htmlMinifier from "astro-html-minifier-next";
-import browserslist from "browserslist";
-import { browserslistToTargets } from "lightningcss";
+import htmlMinifier from 'astro-html-minifier-next';
+import browserslist from 'browserslist';
+import { browserslistToTargets } from 'lightningcss';
 
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
@@ -31,7 +31,7 @@ export default defineConfig({
   build: {
     format: 'directory',
   },
-  
+
   site: siteConfig.url,
 
   vite: {
@@ -55,7 +55,7 @@ export default defineConfig({
       removeComments: true,
       minifyJS: true,
       minifyCSS: {
-        targets: browserslistToTargets(browserslist("defaults")),
+        targets: browserslistToTargets(browserslist('defaults')),
       },
 
       removeOptionalTags: false,

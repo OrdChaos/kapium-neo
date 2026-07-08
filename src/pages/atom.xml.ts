@@ -40,9 +40,7 @@ export const GET: APIRoute = async ({ site: siteUrl, url: requestUrl }) => {
   const authorEmail = siteConfig.author.email;
 
   const feedUpdated =
-    sortedPosts.length > 0
-      ? toRFC3339(new Date(sortedPosts[0].data.date))
-      : toRFC3339(new Date());
+    sortedPosts.length > 0 ? toRFC3339(new Date(sortedPosts[0].data.date)) : toRFC3339(new Date());
 
   const atomUrl = new URL('/atom.xml', requestUrl ?? site).href;
 
@@ -51,18 +49,13 @@ export const GET: APIRoute = async ({ site: siteUrl, url: requestUrl }) => {
       const postUrl = new URL(`/posts/${post.data.abbrlink}/`, site).href;
       const pubDate = new Date(post.data.date);
       const published = toRFC3339(pubDate);
-      const updated = post.data.updated
-        ? toRFC3339(new Date(post.data.updated))
-        : published;
+      const updated = post.data.updated ? toRFC3339(new Date(post.data.updated)) : published;
 
       const title = escapeXml(post.data.title);
       const summary = escapeXml(post.data.excerpt ?? post.data.summary ?? '');
       const content = escapeXml(post.body ?? '');
 
-      const categories = [
-        post.data.category,
-        ...(post.data.tags ?? []),
-      ]
+      const categories = [post.data.category, ...(post.data.tags ?? [])]
         .filter((c): c is string => Boolean(c))
         .map((c) => `    <category term="${escapeXml(c)}"/>`)
         .join('\n');

@@ -41,9 +41,9 @@ function pageHref(p: number) {
             ? `/categories/${encodeURIComponent(post.data.category)}/`
             : null;
           return (
-            <Card class="group/card hover:border-primary/50 flex h-[280px] w-full max-w-full flex-col transition-all duration-300 hover:shadow-lg">
+            <Card class="group/card hover:border-primary/50 relative flex h-[280px] w-full max-w-full flex-col transition-all duration-300 hover:shadow-lg">
               <CardHeader>
-                <div class="mb-2 flex items-center gap-2">
+                <div class="relative z-10 mb-2 flex items-center gap-2">
                   {catHref && (
                     <a href={catHref}>
                       <Badge
@@ -56,7 +56,7 @@ function pageHref(p: number) {
                   )}
                 </div>
 
-                <a href={href}>
+                <a href={href} class="after:absolute after:inset-0">
                   <CardTitle class="group-hover/card:text-primary line-clamp-2 h-[3rem] leading-6 transition-colors">
                     {post.data.title}
                   </CardTitle>
@@ -81,7 +81,7 @@ function pageHref(p: number) {
                 </div>
 
                 <div class="relative mt-3">
-                  <div class="flex gap-2 overflow-hidden whitespace-nowrap">
+                  <div class="relative z-10 flex gap-2 overflow-hidden whitespace-nowrap">
                     {post.data.tags?.map((tag: string) => (
                       <a href={`/tags/${encodeURIComponent(tag)}/`}>
                         <Badge

@@ -144,7 +144,11 @@ function extractImagesBeforeEndgi(node: Paragraph): ImageInfo[] {
   if (node.type !== 'paragraph') return images;
 
   for (const child of node.children || []) {
-    if ('value' in child && typeof child.value === 'string' && /\{%\s*endgi\s*%\}/.test(child.value)) {
+    if (
+      'value' in child &&
+      typeof child.value === 'string' &&
+      /\{%\s*endgi\s*%\}/.test(child.value)
+    ) {
       break;
     }
     if (child.type === 'image') {
