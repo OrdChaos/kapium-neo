@@ -104,16 +104,10 @@ export const profile: ProfileData = {
   ],
   projects: [
     {
-      name: 'kapium',
-      desc: '本博客——静态站点生成器与前端',
-      url: 'https://github.com/OrdChaos/kapium',
+      name: 'Kapium-Neo',
+      desc: 'Astro博客ssg与前端',
+      url: 'https://github.com/OrdChaos/kapium-neo',
       tech: ['C++', 'TypeScript', 'React'],
-    },
-    {
-      name: 'blogpusher',
-      desc: '一键推流工具，帮你推送博客或任意 git 仓库',
-      url: 'https://github.com/OrdChaos/blogpusher',
-      tech: ['C++'],
     },
     {
       name: 'ordchaosgpt-cloud-function',
@@ -126,12 +120,6 @@ export const profile: ProfileData = {
       desc: 'Clipcc 词典扩展',
       url: 'https://github.com/OrdChaos/clipcc-extension-dictionary',
       tech: ['JavaScript'],
-    },
-    {
-      name: 'MXSERVER_Restart',
-      desc: '定时重启邮件服务',
-      url: 'https://github.com/OrdChaos/MXSERVER_Restart',
-      tech: ['Shell'],
     },
   ],
   education: [
