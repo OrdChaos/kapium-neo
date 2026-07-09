@@ -43,7 +43,7 @@ export const friendLinks: FriendLink[] = [
     description: '一定会和喜欢的人在夏日夜晚牵手慢步',
   },
   {
-    name: '白熊阿丸的小屋',
+    name: '白熊阿丸',
     url: 'https://www.bxaw.name/',
     avatar: 'https://base.pics.ordchaos.com/2024/08/fc38ef85055c37d0d876d5a4ca38a423.png',
     description: '在这里可以看到一个真实的我，我会在这里书写我的一切',

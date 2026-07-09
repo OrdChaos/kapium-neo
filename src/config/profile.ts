@@ -92,6 +92,11 @@ export const profile: ProfileData = {
       icon: 'simple-icons:stackoverflow',
     },
     {
+      platform: 'Mastodon',
+      url: 'https://social.ordchaos.com/@ordchaos',
+      icon: 'mastodon',
+    },
+    {
       platform: 'Steam',
       url: 'https://steamcommunity.com/id/OrdChaos',
       icon: 'ri:steam-line',
