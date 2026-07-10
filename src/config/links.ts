@@ -26,7 +26,7 @@ export const friendLinks: FriendLink[] = [
   },
   {
     name: 'Tianli',
-    url: 'https://tianli-blog.club',
+    url: 'https://blog.tianli0.top/',
     avatar: 'https://base.pics.ordchaos.com/2023/07/f982025551e24c8ddaf9d34825cc3e7b.png',
     description: '惟其不可能，所以才相信。',
   },
@@ -37,22 +37,10 @@ export const friendLinks: FriendLink[] = [
     description: '欢迎光临糖果屋',
   },
   {
-    name: '朽丘博',
-    url: 'https://koxiuqiu.cn/',
-    avatar: 'https://base.pics.ordchaos.com/2024/08/0fa8f189472fa99b6679ae12737068ed.png',
-    description: '一定会和喜欢的人在夏日夜晚牵手慢步',
-  },
-  {
     name: '白熊阿丸',
     url: 'https://www.bxaw.name/',
     avatar: 'https://base.pics.ordchaos.com/2024/08/fc38ef85055c37d0d876d5a4ca38a423.png',
     description: '在这里可以看到一个真实的我，我会在这里书写我的一切',
-  },
-  {
-    name: 'Mello的赛博本子',
-    url: 'https://www.dmxvx.cc/',
-    avatar: 'https://base.pics.ordchaos.com/2024/08/054ec55418e8b7fddc7e2ba24183d3e2.png',
-    description: '在本子上写写画画',
   },
   {
     name: '风记星辰',
