@@ -119,6 +119,11 @@ export class ArtalkClient {
     }
     return (await res.text()) as unknown as T;
   }
+
+  /** 验证码 iframe URL（Turnstile 等 iframe 型验证码使用） */
+  getCaptchaUrl(): string {
+    return `${this.server}/api/v2/captcha/?t=${Date.now()}`;
+  }
 }
 
 /** 默认客户端实例 */

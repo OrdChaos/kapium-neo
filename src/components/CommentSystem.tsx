@@ -10,6 +10,7 @@ import { ArtalkClient } from '@/lib/artalk/client';
 import type { CommentItem } from '@/lib/artalk/adapter';
 import { fetchComments, postComment } from '@/lib/artalk/adapter';
 import { getConf } from '@/lib/artalk/system';
+import { getCaptchaStatus } from '@/lib/artalk/captcha';
 import { artalkConfig } from '@/config/artalk';
 
 // ---- 类型 ----
@@ -704,6 +705,55 @@ function ReplySection({
   );
 }
 
+// ---- 验证码弹窗（Turnstile iframe） ----
+
+function CaptchaDialog({
+  captchaUrl,
+  client,
+  onVerified,
+  onCancel,
+}: {
+  captchaUrl: string;
+  client: ArtalkClient;
+  onVerified: () => void;
+  onCancel: () => void;
+}) {
+  const [polling, setPolling] = useState(true);
+
+  useEffect(() => {
+    if (!polling) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await getCaptchaStatus(client);
+        if (res.is_pass) {
+          setPolling(false);
+          onVerified();
+        }
+      } catch {
+        // 继续轮询
+      }
+    }, 1500);
+    return () => clearInterval(interval);
+  }, [polling, client, onVerified]);
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50" onClick={onCancel}>
+      <div className="bg-background rounded-xl shadow-2xl overflow-hidden w-[360px]" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <span className="text-sm font-medium">人机验证</span>
+          <button onClick={onCancel} className="text-muted-foreground hover:text-foreground text-lg leading-none">&times;</button>
+        </div>
+        <iframe
+          src={captchaUrl}
+          referrerPolicy="strict-origin-when-cross-origin"
+          className="w-full h-[420px] border-0"
+          title="Captcha"
+        />
+      </div>
+    </div>
+  );
+}
+
 // ---- 主组件 ----
 
 export default function CommentSystem({ path }: { path: string }) {
@@ -717,6 +767,8 @@ export default function CommentSystem({ path }: { path: string }) {
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [nextCursor, setNextCursor] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showCaptcha, setShowCaptcha] = useState(false);
+  const pendingSubmit = useRef<(() => Promise<void>) | null>(null);
 
   // 拉取后端配置
   useEffect(() => {
@@ -824,7 +876,7 @@ export default function CommentSystem({ path }: { path: string }) {
   const totalComments = comments.reduce((acc, c) => acc + 1 + c.replies.length, 0);
 
   const handleSubmitComment = async (data: FormData) => {
-    try {
+    const doSubmit = async () => {
       setSubmitting(true);
       await postComment(client, {
         path,
@@ -837,17 +889,24 @@ export default function CommentSystem({ path }: { path: string }) {
       });
       showToast('评论发表成功！', 2000, 'success');
       await loadComments();
+      setSubmitting(false);
+    };
+    try {
+      await doSubmit();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '发表评论失败';
-      showToast(msg, 3000, 'error');
-      throw err;
-    } finally {
+      if (msg.includes('验证码') || msg.includes('captcha')) {
+        pendingSubmit.current = doSubmit;
+        setShowCaptcha(true);
+      } else {
+        showToast(msg, 3000, 'error');
+      }
       setSubmitting(false);
     }
   };
 
   const handleSubmitReply = async (parentId: number, data: FormData) => {
-    try {
+    const doSubmit = async () => {
       setSubmitting(true);
       await postComment(client, {
         path,
@@ -862,11 +921,18 @@ export default function CommentSystem({ path }: { path: string }) {
       setReplyingTo(null);
       showToast('回复发表成功！', 2000, 'success');
       await loadComments();
+      setSubmitting(false);
+    };
+    try {
+      await doSubmit();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '发表回复失败';
-      showToast(msg, 3000, 'error');
-      throw err;
-    } finally {
+      if (msg.includes('验证码') || msg.includes('captcha')) {
+        pendingSubmit.current = doSubmit;
+        setShowCaptcha(true);
+      } else {
+        showToast(msg, 3000, 'error');
+      }
       setSubmitting(false);
     }
   };
@@ -928,10 +994,23 @@ export default function CommentSystem({ path }: { path: string }) {
       )}
 
       {!loading && comments.length === 0 && !error && (
-        <div
-          className="text-muted-foreground py-12 text-center"
-          dangerouslySetInnerHTML={{
-            __html: sanitizeHtml(conf.noComment || '暂无评论，来抢沙发吧～'),
+        <div className="text-muted-foreground py-12 text-center">
+          {conf.noComment || '暂无评论，来抢沙发吧～'}
+        </div>
+      )}
+
+      {showCaptcha && (
+        <CaptchaDialog
+          captchaUrl={client.getCaptchaUrl()}
+          client={client}
+          onVerified={() => {
+            setShowCaptcha(false);
+            pendingSubmit.current?.();
+            pendingSubmit.current = null;
+          }}
+          onCancel={() => {
+            setShowCaptcha(false);
+            pendingSubmit.current = null;
           }}
         />
       )}
