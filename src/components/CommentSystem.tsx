@@ -1116,7 +1116,7 @@ export default function CommentSystem({ path }: { path: string }) {
         if (msg.includes('验证码') || msg.includes('captcha')) {
           pendingSubmit.current = doSubmit;
           setCaptchaState({
-            url: client.getCaptchaUrl(),
+            url: client.getCaptchaUrl(path),
             onVerified: () => {
               setCaptchaState(null);
               pendingSubmit.current?.();
@@ -1167,7 +1167,7 @@ export default function CommentSystem({ path }: { path: string }) {
         if (msg.includes('验证码') || msg.includes('captcha')) {
           pendingSubmit.current = doSubmit;
           setCaptchaState({
-            url: client.getCaptchaUrl(),
+            url: client.getCaptchaUrl(path),
             onVerified: () => {
               setCaptchaState(null);
               pendingSubmit.current?.();

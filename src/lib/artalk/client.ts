@@ -117,7 +117,6 @@ export class ArtalkClient {
       }
       throw new Error(`[Artalk] ${msg}`);
     }
-    // 某些接口可能返回 HTML 或空内容
     const contentType = res.headers.get('content-type') ?? '';
     if (contentType.includes('application/json')) {
       return (await res.json()) as T;
@@ -125,11 +124,11 @@ export class ArtalkClient {
     return (await res.text()) as unknown as T;
   }
 
-  /** 验证码 iframe URL（Turnstile 等 iframe 型验证码使用） */
-  getCaptchaUrl(): string {
-    return `${this.server}/api/v2/captcha/?t=${Date.now()}`;
+  getCaptchaUrl(pageKey?: string): string {
+    const params = new URLSearchParams({ t: String(Date.now()) });
+    if (pageKey) params.set('page_key', pageKey);
+    return `${this.server}/api/v2/captcha/?${params.toString()}`;
   }
 }
 
-/** 默认客户端实例 */
 export const artalk = new ArtalkClient();
