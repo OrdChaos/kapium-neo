@@ -124,10 +124,9 @@ export class ArtalkClient {
     return (await res.text()) as unknown as T;
   }
 
-  getCaptchaUrl(pageKey?: string): string {
-    const params = new URLSearchParams({ t: String(Date.now()) });
-    if (pageKey) params.set('page_key', pageKey);
-    return `${this.server}/api/v2/captcha/?${params.toString()}`;
+  /** 验证码 iframe URL */
+  getCaptchaUrl(): string {
+    return `${this.server}/api/v2/captcha/?t=${Date.now()}`;
   }
 }
 
