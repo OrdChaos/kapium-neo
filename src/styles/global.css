@@ -64,6 +64,12 @@ body[data-btt-visible='true'] .toc-mobile-btn {
   .prose a {
     @apply text-primary underline-offset-4 hover:underline;
   }
+
+  img[atk-emoticon] {
+    height: 1.2em;
+    vertical-align: -0.2em;
+    display: inline;
+  }
 }
 
 @keyframes fade-in {

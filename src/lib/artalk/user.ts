@@ -1,7 +1,7 @@
 /**
  * Artalk 用户管理 API（管理员接口）
  *
- * 覆盖：用户列表、创建、更新、删除。
+ * 覆盖：用户列表、创建、更新、删除、登录。
  */
 import type { ArtalkClient } from './client';
 import type {
@@ -11,6 +11,8 @@ import type {
   CookedUserForAdmin,
   UserUpdateParams,
   UserListType,
+  UserLoginParams,
+  UserLoginResponse,
 } from './types';
 
 /** 获取用户列表 */
@@ -40,4 +42,9 @@ export function updateUser(
 /** 删除用户 */
 export function deleteUser(c: ArtalkClient, id: number): Promise<unknown> {
   return c.delete(`/users/${id}`);
+}
+
+/** 管理员登录，返回 token */
+export function login(c: ArtalkClient, data: UserLoginParams): Promise<UserLoginResponse> {
+  return c.post('/user/access_token', data);
 }

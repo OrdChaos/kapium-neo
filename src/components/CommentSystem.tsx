@@ -12,6 +12,7 @@ import type { CommentItem } from '@/lib/artalk/adapter';
 import { fetchComments, postComment } from '@/lib/artalk/adapter';
 import { getConf } from '@/lib/artalk/system';
 import { getCaptchaStatus } from '@/lib/artalk/captcha';
+import { login as adminLogin } from '@/lib/artalk/user';
 import { artalkConfig } from '@/config/artalk';
 
 // ---- 类型 ----
@@ -112,11 +113,49 @@ function sanitizeCommentHtml(html: string): string {
     return fn(html, {
       allowedSchemes: ['http', 'https', 'mailto'],
       allowedTags: [
-        'a', 'abbr', 'b', 'blockquote', 'br', 'caption', 'code',
-        'del', 'details', 'div', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-        'hr', 'i', 'img', 'ins', 'kbd', 'li', 'main', 'mark', 'ol',
-        'p', 'pre', 'section', 'span', 'strike', 'strong', 'sub',
-        'summary', 'sup', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul',
+        'a',
+        'abbr',
+        'b',
+        'blockquote',
+        'br',
+        'caption',
+        'code',
+        'del',
+        'details',
+        'div',
+        'em',
+        'h1',
+        'h2',
+        'h3',
+        'h4',
+        'h5',
+        'h6',
+        'hr',
+        'i',
+        'img',
+        'ins',
+        'kbd',
+        'li',
+        'main',
+        'mark',
+        'ol',
+        'p',
+        'pre',
+        'section',
+        'span',
+        'strike',
+        'strong',
+        'sub',
+        'summary',
+        'sup',
+        'table',
+        'tbody',
+        'td',
+        'th',
+        'thead',
+        'tr',
+        'u',
+        'ul',
       ],
       allowedAttributes: {
         '*': ['title'],
@@ -366,11 +405,14 @@ function CommentForm({
 
   // 持久化昵称/邮箱/网址到 localStorage
   useEffect(() => {
-    localStorage.setItem('artalk-form', JSON.stringify({
-      nickname: formData.nickname,
-      email: formData.email,
-      website: formData.website,
-    }));
+    localStorage.setItem(
+      'artalk-form',
+      JSON.stringify({
+        nickname: formData.nickname,
+        email: formData.email,
+        website: formData.website,
+      }),
+    );
   }, [formData.nickname, formData.email, formData.website]);
 
   // 构建 key→url 映射（用于预览中 :[key] → 图片）
@@ -417,7 +459,13 @@ function CommentForm({
       showToast('请填写昵称、邮箱和评论内容', 2000, 'error');
       return;
     }
-    await onSubmit(formData);
+    try {
+      await onSubmit(formData);
+    } catch {
+      // 提交失败（验证码/权限等），父组件已 toast，不清理内容
+      return;
+    }
+    // 仅成功时清空
     setFormData((prev) => ({ ...prev, content: '' }));
     setShowPreview(false);
   };
@@ -491,7 +539,9 @@ function CommentForm({
               type="button"
               variant="ghost"
               size="sm"
-              onClick={() => { if (!locked) setShowEmoticons(!showEmoticons); }}
+              onClick={() => {
+                if (!locked) setShowEmoticons(!showEmoticons);
+              }}
               disabled={locked || loading}
               className={showEmoticons ? 'text-primary' : ''}
             >
@@ -593,18 +643,12 @@ function CommentForm({
 
         {/* 验证码内联显示 */}
         {captchaState && (
-          <div className="mt-4 rounded-xl border border-border bg-muted/20 overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-2 border-b border-border/50 bg-muted/30">
-              <span className="text-xs font-medium text-muted-foreground">人机验证</span>
-              <button onClick={captchaState.onCancel} className="text-muted-foreground hover:text-foreground text-sm">&times; 取消</button>
-            </div>
-            <iframe
-              src={captchaState.url}
-              referrerPolicy="strict-origin-when-cross-origin"
-              className="w-full h-[420px] border-0"
-              title="Captcha"
-            />
-          </div>
+          <iframe
+            src={captchaState.url}
+            referrerPolicy="strict-origin-when-cross-origin"
+            className="mt-4 h-[420px] w-full border-0"
+            title="Captcha"
+          />
         )}
       </form>
     </div>
@@ -778,11 +822,15 @@ export default function CommentSystem({ path }: { path: string }) {
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [nextCursor, setNextCursor] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [topFormKey, setTopFormKey] = useState(0);
   const [captchaState, setCaptchaState] = useState<{
     url: string;
     onVerified: () => void;
     onCancel: () => void;
   } | null>(null);
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [adminLoginErr, setAdminLoginErr] = useState('');
+  const [adminForm, setAdminForm] = useState({ email: '', password: '' });
   const pendingSubmit = useRef<(() => Promise<void>) | null>(null);
 
   // 拉取后端配置
@@ -857,6 +905,28 @@ export default function CommentSystem({ path }: { path: string }) {
     });
   }, []);
 
+  const handleAdminLogin = async () => {
+    try {
+      const res = await adminLogin(client, adminForm);
+      client.setToken(res.token);
+      localStorage.setItem('artalk-admin-token', res.token);
+      setShowAdminLogin(false);
+      setAdminLoginErr('');
+      showToast('登录成功', 2000, 'success');
+      pendingSubmit.current?.();
+      pendingSubmit.current = null;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : '登录失败';
+      setAdminLoginErr(msg);
+    }
+  };
+
+  // 初始化时恢复已保存的 token
+  useEffect(() => {
+    const saved = localStorage.getItem('artalk-admin-token');
+    if (saved) client.setToken(saved);
+  }, [client]);
+
   const pageSize = conf.pagination?.pageSize ?? 20;
 
   const loadComments = useCallback(
@@ -919,6 +989,7 @@ export default function CommentSystem({ path }: { path: string }) {
       showToast('评论发表成功！', 2000, 'success');
       await loadComments();
       setSubmitting(false);
+      setTopFormKey((k) => k + 1);
     };
     try {
       await doSubmit();
@@ -938,11 +1009,15 @@ export default function CommentSystem({ path }: { path: string }) {
             pendingSubmit.current = null;
           },
         });
-        setSubmitting(false);
-      } else {
-        showToast(msg, 3000, 'error');
-        setSubmitting(false);
+        throw err;
       }
+      if (msg.includes('管理员') || msg.includes('admin')) {
+        pendingSubmit.current = doSubmit;
+        setShowAdminLogin(true);
+        throw err;
+      }
+      showToast(msg, 3000, 'error');
+      throw err;
     }
   };
 
@@ -982,17 +1057,27 @@ export default function CommentSystem({ path }: { path: string }) {
             pendingSubmit.current = null;
           },
         });
-        setSubmitting(false);
-      } else {
-        showToast(msg, 3000, 'error');
-        setSubmitting(false);
+        throw err;
       }
+      if (msg.includes('管理员') || msg.includes('admin')) {
+        pendingSubmit.current = doSubmit;
+        setShowAdminLogin(true);
+        throw err;
+      }
+      showToast(msg, 3000, 'error');
+      throw err;
     }
   };
 
   return (
     <div className="w-full">
-      <CommentForm onSubmit={handleSubmitComment} loading={submitting} conf={conf} captchaState={captchaState} />
+      <CommentForm
+        key={topFormKey}
+        onSubmit={handleSubmitComment}
+        loading={submitting}
+        conf={conf}
+        captchaState={captchaState}
+      />
 
       <hr className="border-border my-8" />
 
@@ -1049,6 +1134,46 @@ export default function CommentSystem({ path }: { path: string }) {
       {!loading && comments.length === 0 && !error && (
         <div className="text-muted-foreground py-12 text-center">
           {conf.noComment || '暂无评论，来抢沙发吧～'}
+        </div>
+      )}
+
+      {/* 管理员登录弹窗 */}
+      {showAdminLogin && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50"
+          onClick={() => setShowAdminLogin(false)}
+        >
+          <div
+            className="bg-background w-[360px] rounded-xl p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="mb-4 text-lg font-semibold">管理员登录</h3>
+            <div className="space-y-3">
+              <input
+                className="border-input bg-background focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm focus-visible:ring-2 focus-visible:outline-none"
+                type="email"
+                placeholder="邮箱"
+                value={adminForm.email}
+                onChange={(e) => setAdminForm({ ...adminForm, email: e.target.value })}
+                onKeyDown={(e) => e.key === 'Enter' && handleAdminLogin()}
+              />
+              <input
+                className="border-input bg-background focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm focus-visible:ring-2 focus-visible:outline-none"
+                type="password"
+                placeholder="密码"
+                value={adminForm.password}
+                onChange={(e) => setAdminForm({ ...adminForm, password: e.target.value })}
+                onKeyDown={(e) => e.key === 'Enter' && handleAdminLogin()}
+              />
+              {adminLoginErr && <p className="text-destructive text-sm">{adminLoginErr}</p>}
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setShowAdminLogin(false)}>
+                  取消
+                </Button>
+                <Button onClick={handleAdminLogin}>登录</Button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
