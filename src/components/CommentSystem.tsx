@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, Loader2, Smile } from 'lucide-react';
+import { MessageCircle, Loader2, Smile, MapPin, Globe, Monitor } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -15,8 +15,6 @@ import { getCaptchaStatus } from '@/lib/artalk/captcha';
 import { login as adminLogin } from '@/lib/artalk/user';
 import { artalkConfig } from '@/config/artalk';
 
-// ---- 类型 ----
-
 interface FormData {
   nickname: string;
   email: string;
@@ -26,13 +24,9 @@ interface FormData {
 
 interface NestedComment extends CommentItem {
   replies: NestedComment[];
-  /** 若本条是对某条回复的回复（非直接回复顶层），记录被回复者的昵称 */
   replyToNick?: string;
 }
 
-// ---- 工具函数 ----
-
-/** 构建评论树，最多嵌套1层——所有回复平铺到顶层评论下 */
 function buildCommentTree(flat: CommentItem[]): NestedComment[] {
   const map = new Map<number, NestedComment>();
   const roots: NestedComment[] = [];
@@ -47,10 +41,8 @@ function buildCommentTree(flat: CommentItem[]): NestedComment[] {
       const parent = map.get(c.parentId);
       if (!parent) continue;
       if (parent.parentId === null) {
-        // 直接回复顶层 → 挂在顶层下
         parent.replies.push(node);
       } else {
-        // 回复的是某条回复 → 找到顶层祖先，平铺并标记 @xxx
         let root = parent;
         while (root.parentId !== null) {
           const p = map.get(root.parentId);
@@ -62,7 +54,7 @@ function buildCommentTree(flat: CommentItem[]): NestedComment[] {
       }
     }
   }
-  // 按时间倒序排列根评论（最新在前），每个根评论下的回复按时间正序
+
   for (const root of roots) {
     root.replies.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
   }
@@ -71,18 +63,43 @@ function buildCommentTree(flat: CommentItem[]): NestedComment[] {
 
 function formatTime(ts: string): string {
   const diff = Date.now() - new Date(ts).getTime();
-  const m = Math.floor(diff / 60000);
-  const h = Math.floor(diff / 3600000);
-  const d = Math.floor(diff / 86400000);
-  if (d > 0) return `${d}天前`;
-  if (h > 0) return `${h}小时前`;
-  if (m > 0) return `${m}分钟前`;
-  return '刚刚';
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  if (seconds < 60) return '刚刚';
+  if (minutes < 60) return `${minutes}分钟前`;
+  if (hours < 24) return `${hours}小时前`;
+  if (days <= 3) return `${days}天前`;
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-// ---- 后端配置 ----
+type UaInfo = { os: string; browser: string };
 
-/** Artalk /conf → frontend_conf 中本组件使用的字段 */
+function parseUa(ua: string): UaInfo {
+  const info: UaInfo = { os: '', browser: '' };
+  if (!ua) return info;
+  if (ua.includes('Windows')) info.os = 'Windows';
+  else if (ua.includes('Mac OS') || ua.includes('Macintosh')) info.os = 'macOS';
+  else if (ua.includes('Linux') && !ua.includes('Android')) info.os = 'Linux';
+  else if (ua.includes('Android')) info.os = 'Android';
+  else if (ua.includes('iPhone') || ua.includes('iPad')) info.os = 'iOS';
+  if (ua.includes('Edg/')) info.browser = 'Edge';
+  else if (ua.includes('Firefox/')) info.browser = 'Firefox';
+  else if (ua.includes('Chrome/')) info.browser = 'Chrome';
+  else if (ua.includes('Safari/')) info.browser = 'Safari';
+  return info;
+}
+
+const OS_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  Windows: Monitor,
+  macOS: Monitor,
+  Linux: Monitor,
+  Android: Monitor,
+  iOS: Monitor,
+};
+
 interface FrontendConf {
   emoticons?: string;
   gravatar?: { mirror?: string; params?: string };
@@ -96,16 +113,13 @@ interface FrontendConf {
 const DEFAULT_CONF: FrontendConf = {
   emoticons: 'https://www.ordchaos.com/owo.json',
   gravatar: { mirror: 'https://www.gravatar.com/avatar/', params: 'd=identicon&s=80' },
-  pagination: { pageSize: 20, readMore: true, autoLoad: false },
+  pagination: { pageSize: 10, readMore: true, autoLoad: false },
   noComment: '',
   placeholder: '',
   sendBtn: '',
   preview: true,
 };
 
-/**
- * 清洗评论内容 HTML（对齐 Artalk 官方 insane 配置），用于 rehype-raw 渲染前
- */
 function sanitizeCommentHtml(html: string): string {
   try {
     const fn = typeof insane === 'function' ? insane : (insane as any)?.default;
@@ -170,7 +184,6 @@ function sanitizeCommentHtml(html: string): string {
   }
 }
 
-/** ReactMarkdown + rehype-raw 渲染前清洗，防止 XSS */
 function safeMarkdownRender(content: string) {
   return (
     <ReactMarkdown
@@ -183,10 +196,8 @@ function safeMarkdownRender(content: string) {
   );
 }
 
-/** 允许的 URL 协议白名单 */
 const ALLOWED_SCHEMES = ['http:', 'https:', 'mailto:'];
 
-/** 校验并清洗用户提供的 URL，阻断 javascript: / data: 等危险协议 */
 function safeUrl(url: string | null | undefined): string | undefined {
   if (!url) return undefined;
   let parsed: URL;
@@ -203,10 +214,6 @@ function safeUrl(url: string | null | undefined): string | undefined {
   return parsed.href;
 }
 
-/**
- * 清洗 HTML 字符串，移除危险属性和事件处理器
- * 使用 insane（Artalk 官方同款 sanitizer，兼容 SSR）
- */
 function sanitizeHtml(html: string): string {
   try {
     const fn = typeof insane === 'function' ? insane : (insane as any)?.default;
@@ -232,13 +239,16 @@ function sanitizeHtml(html: string): string {
   }
 }
 
-/**
- * ReactMarkdown 自定义组件：
- * - 非 ordchaos.com 图片 → 屏蔽并显示占位文字
- * - 外部链接 → 经 /redirect-comment 中转
- */
 const ALLOWED_IMAGE_HOST = 'www.ordchaos.com';
 const REDIRECT_COMMENT = '/redirect-comment/';
+
+const TRUSTED_HOST_SUFFIXES = ['ordchaos.com', 'ordchaos.top'];
+
+function isTrustedHost(hostname: string): boolean {
+  return TRUSTED_HOST_SUFFIXES.some(
+    (suffix) => hostname === suffix || hostname.endsWith('.' + suffix),
+  );
+}
 
 const MARKDOWN_COMPONENTS = {
   img: ({ src, alt, class: _, ...rest }: any) => {
@@ -248,22 +258,20 @@ const MARKDOWN_COMPONENTS = {
         if (u.hostname === ALLOWED_IMAGE_HOST) {
           return <img src={src} alt={alt} loading="lazy" {...rest} />;
         }
-      } catch {
-        /* invalid URL, block */
-      }
+      } catch {}
     }
     return null;
   },
   a: ({ href, children, class: _, ...rest }: any) => {
     if (!href) return <>{children}</>;
-    let isExternal = false;
+    let needsRedirect = false;
     try {
+      const parsed = new URL(href);
       const host = typeof window !== 'undefined' ? window.location.hostname : '';
-      isExternal = !!host && new URL(href).hostname !== host;
-    } catch {
-      /* invalid URL, pass through as-is */
-    }
-    if (isExternal) {
+      const isExternal = !!host && parsed.hostname !== host;
+      needsRedirect = isExternal && !isTrustedHost(parsed.hostname);
+    } catch {}
+    if (needsRedirect) {
       return (
         <a
           href={`${REDIRECT_COMMENT}?url=${encodeURIComponent(href)}`}
@@ -282,8 +290,6 @@ const MARKDOWN_COMPONENTS = {
   },
 };
 
-// ---- 工具函数 ----
-
 function buildGravatarUrl(md5: string | null, conf: FrontendConf): string | undefined {
   if (!md5) return undefined;
   const g = conf.gravatar ?? {};
@@ -291,8 +297,6 @@ function buildGravatarUrl(md5: string | null, conf: FrontendConf): string | unde
   const params = g.params ?? 'd=identicon&s=80';
   return `${mirror.replace(/\/?$/, '/')}${md5}?${params}`;
 }
-
-// ---- 表情包 ----
 
 interface EmoticonItem {
   key: string;
@@ -305,14 +309,11 @@ interface EmoticonGroup {
   items: EmoticonItem[];
 }
 
-/** 解析 val 字段：纯文本直接返回，<img> 提取 src */
 function parseEmoticonVal(val: string): { text?: string; imgSrc?: string } {
   const imgMatch = val.match(/<img[^>]+src=['"]([^'"]+)['"]/i);
   if (imgMatch) return { imgSrc: imgMatch[1] };
   return { text: val };
 }
-
-// ---- 评论表单 ----
 
 function CommentForm({
   onSubmit,
@@ -323,7 +324,7 @@ function CommentForm({
   conf,
   captchaState,
 }: {
-  onSubmit: (data: FormData) => Promise<void>;
+  onSubmit: (data: FormData) => Promise<boolean>;
   onCancel?: () => void;
   isReply?: boolean;
   replyTo?: string;
@@ -332,25 +333,44 @@ function CommentForm({
   captchaState?: { url: string; onVerified: () => void; onCancel: () => void } | null;
 }) {
   const locked = !!captchaState;
-  const [formData, setFormData] = useState<FormData>(() => {
-    try {
-      const saved = localStorage.getItem('artalk-form');
-      if (saved) return { nickname: '', email: '', website: '', content: '', ...JSON.parse(saved) };
-    } catch {}
-    return { nickname: '', email: '', website: '', content: '' };
+  const [formData, setFormData] = useState<FormData>({
+    nickname: '',
+    email: '',
+    website: '',
+    content: '',
   });
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('artalk-form') || '{}');
+      if (saved.nickname || saved.email || saved.website) {
+        setFormData((prev) => ({
+          nickname: saved.nickname || prev.nickname,
+          email: saved.email || prev.email,
+          website: saved.website || prev.website,
+          content: prev.content,
+        }));
+      }
+    } catch {}
+  }, []);
   const [showPreview, setShowPreview] = useState(false);
   const [showEmoticons, setShowEmoticons] = useState(false);
   const [emoticonGroups, setEmoticonGroups] = useState<EmoticonGroup[]>([]);
   const [activeEmoticonTab, setActiveEmoticonTab] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const pickerRef = useRef<HTMLDivElement>(null);
+  const emoticonBtnRef = useRef<HTMLButtonElement>(null);
 
-  // 点击表情选择器外部时自动关闭
   useEffect(() => {
     if (!showEmoticons) return;
     const handler = (e: MouseEvent) => {
-      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        pickerRef.current &&
+        !pickerRef.current.contains(target) &&
+        emoticonBtnRef.current &&
+        !emoticonBtnRef.current.contains(target)
+      ) {
         setShowEmoticons(false);
       }
     };
@@ -360,10 +380,8 @@ function CommentForm({
 
   const url = conf.emoticons ?? DEFAULT_CONF.emoticons!;
 
-  // 将 OwO 对象格式转为 Artalk 数组格式
   const normalizeEmoticonData = (data: any): EmoticonGroup[] => {
     if (Array.isArray(data)) return data;
-    // OwO 格式: { "groupName": { type, container: [{ icon, text }] } }
     if (typeof data === 'object' && data !== null) {
       return Object.entries(data).map(([name, grp]: [string, any]) => ({
         name,
@@ -377,7 +395,6 @@ function CommentForm({
     return [];
   };
 
-  // 加载表情包（用于表情选择器 UI）
   const loadEmoticons = useCallback(async (fetchUrl: string): Promise<EmoticonGroup[]> => {
     const r = await fetch(fetchUrl);
     const data = await r.json();
@@ -391,7 +408,6 @@ function CommentForm({
         if (data.length > 0) setActiveEmoticonTab(data[0].name);
       })
       .catch(() => {
-        // 远程加载失败，fallback 到本地 owo.json
         loadEmoticons('/owo.json')
           .then((data) => {
             setEmoticonGroups(data);
@@ -403,7 +419,6 @@ function CommentForm({
 
   const activeGroup = emoticonGroups.find((g) => g.name === activeEmoticonTab);
 
-  // 持久化昵称/邮箱/网址到 localStorage
   useEffect(() => {
     localStorage.setItem(
       'artalk-form',
@@ -415,7 +430,6 @@ function CommentForm({
     );
   }, [formData.nickname, formData.email, formData.website]);
 
-  // 构建 key→url 映射（用于预览中 :[key] → 图片）
   const emoticonImgMap = useMemo(() => {
     const map: Record<string, string> = {};
     for (const grp of emoticonGroups) {
@@ -427,19 +441,17 @@ function CommentForm({
     return map;
   }, [emoticonGroups]);
 
-  // 预览用：:[key] → ![key](url) Markdown 图片语法
   const previewTransform = (raw: string) =>
     raw.replace(/:\[([^\]]+)\]/g, (_, key: string) => {
       const url = emoticonImgMap[key];
-      return url ? `![${key}](${url})` : _;
+      return url ? `<img atk-emoticon="${key}" src="${url}">` : _;
     });
 
-  // 插入表情到光标位置
   const insertEmoticon = (item: EmoticonItem) => {
     const el = textareaRef.current;
     if (!el) return;
     const { text, imgSrc } = parseEmoticonVal(item.val);
-    // 对齐官方：图片表情插入 :[key]，文字表情插入原文
+
     const insertText = imgSrc ? `:[${item.key}]` : (text ?? item.key);
     const start = el.selectionStart;
     const end = el.selectionEnd;
@@ -459,20 +471,15 @@ function CommentForm({
       showToast('请填写昵称、邮箱和评论内容', 2000, 'error');
       return;
     }
-    try {
-      await onSubmit(formData);
-    } catch {
-      // 提交失败（验证码/权限等），父组件已 toast，不清理内容
-      return;
+    const ok = await onSubmit(formData);
+    if (ok) {
+      setFormData((prev) => ({ ...prev, content: '' }));
+      setShowPreview(false);
     }
-    // 仅成功时清空
-    setFormData((prev) => ({ ...prev, content: '' }));
-    setShowPreview(false);
   };
 
   return (
     <div className={isReply ? 'bg-muted/50 mt-4 ml-12 rounded-lg p-4' : ''}>
-      {!isReply && <h3 className="mb-4 text-lg font-semibold">发表评论</h3>}
       {isReply && replyTo && (
         <div className="text-muted-foreground mb-4 text-sm">
           回复 <span className="text-foreground font-medium">{replyTo}</span>
@@ -511,7 +518,10 @@ function CommentForm({
           <textarea
             ref={textareaRef}
             className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-            placeholder={conf.placeholder || '写下你的评论... 支持 Markdown 语法 *'}
+            placeholder={(conf.placeholder || '写下你的评论... 支持 Markdown 语法 *').replace(
+              /<br\s*\/?>/gi,
+              '\n',
+            )}
             value={formData.content}
             onChange={(e) => setFormData({ ...formData, content: e.target.value })}
             rows={4}
@@ -520,18 +530,24 @@ function CommentForm({
           />
         </div>
 
-        {showPreview && (
-          <div className="border-border bg-muted/30 mt-4 rounded-lg border p-4">
-            <div className="text-muted-foreground mb-2 text-sm font-medium">预览</div>
-            <div className="prose prose-sm dark:prose-invert max-w-none">
-              {formData.content ? (
-                safeMarkdownRender(previewTransform(formData.content))
-              ) : (
-                <p className="text-muted-foreground">暂无内容</p>
-              )}
+        <div
+          className={`grid transition-all duration-300 ease-out ${
+            showPreview ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+          }`}
+        >
+          <div className="overflow-hidden">
+            <div className="border-border bg-muted/30 mt-4 rounded-lg border p-4">
+              <div className="text-muted-foreground mb-2 text-sm font-medium">预览</div>
+              <div className="prose prose-sm dark:prose-invert max-w-none">
+                {formData.content ? (
+                  safeMarkdownRender(previewTransform(formData.content))
+                ) : (
+                  <p className="text-muted-foreground">暂无内容</p>
+                )}
+              </div>
             </div>
           </div>
-        )}
+        </div>
 
         <div className="flex items-center justify-between">
           <div className="relative">
@@ -539,16 +555,17 @@ function CommentForm({
               type="button"
               variant="ghost"
               size="sm"
+              ref={emoticonBtnRef}
               onClick={() => {
                 if (!locked) setShowEmoticons(!showEmoticons);
               }}
               disabled={locked || loading}
               className={showEmoticons ? 'text-primary' : ''}
             >
-              <Smile className="h-4 w-4" />
+              <Smile className="h-5 w-5" />
             </Button>
 
-            {/* 表情选择器 popover */}
+            {}
             <div
               ref={pickerRef}
               className={`bg-popover border-border absolute bottom-full left-0 z-50 mb-2 flex w-80 origin-bottom-left flex-col overflow-hidden rounded-xl border text-sm shadow-xl transition-all duration-200 ease-out select-none ${
@@ -641,21 +658,21 @@ function CommentForm({
           </div>
         </div>
 
-        {/* 验证码内联显示 */}
+        {}
         {captchaState && (
-          <iframe
-            src={captchaState.url}
-            referrerPolicy="strict-origin-when-cross-origin"
-            className="mt-4 h-[420px] w-full border-0"
-            title="Captcha"
-          />
+          <div className="mt-2 flex justify-end">
+            <iframe
+              src={captchaState.url}
+              referrerPolicy="strict-origin-when-cross-origin"
+              className="h-[78px] w-[300px] border-0"
+              title="Captcha"
+            />
+          </div>
         )}
       </form>
     </div>
   );
 }
-
-// ---- 单条评论 ----
 
 function CommentItemComponent({
   comment,
@@ -669,17 +686,19 @@ function CommentItemComponent({
 }: {
   comment: NestedComment;
   isReply?: boolean;
-  onReply: (id: number) => void;
+  onReply: (id: number | null) => void;
   replyingTo: number | null;
-  onSubmitReply: (parentId: number, data: FormData) => Promise<void>;
+  onSubmitReply: (parentId: number, data: FormData) => Promise<boolean>;
   onCancelReply: () => void;
   loading: boolean;
   conf: FrontendConf;
 }) {
+  const ua = parseUa(comment.ua);
+  const OSIcon = ua.os ? OS_ICONS[ua.os] : null;
   return (
-    <div>
+    <div id={`atk-comment-${comment.id}`}>
       <div className={`flex gap-3 ${isReply ? 'py-3' : 'py-4'}`}>
-        {/* 纯 HTML Avatar，替代 shadcn Avatar */}
+        {}
         <div
           className={`relative flex shrink-0 overflow-hidden rounded-full ${isReply ? 'size-8' : 'size-10'}`}
         >
@@ -699,21 +718,42 @@ function CommentItemComponent({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             {comment.website ? (
-              <a
-                href={safeUrl(comment.website)}
-                target="_blank"
-                rel="noopener noreferrer nofollow ugc"
-                className={`hover:text-primary font-medium transition-colors ${isReply ? 'text-sm' : ''}`}
-              >
-                {comment.nickname}
-              </a>
+              (() => {
+                const safe = safeUrl(comment.website);
+                let needsRedirect = false;
+                if (safe) {
+                  try {
+                    needsRedirect = !isTrustedHost(new URL(safe).hostname);
+                  } catch {}
+                }
+                return (
+                  <a
+                    href={
+                      safe
+                        ? needsRedirect
+                          ? `${REDIRECT_COMMENT}?url=${encodeURIComponent(safe)}`
+                          : safe
+                        : undefined
+                    }
+                    target={needsRedirect ? undefined : '_blank'}
+                    rel="noopener noreferrer nofollow ugc"
+                    className={`hover:text-primary font-semibold transition-colors ${isReply ? 'text-sm' : ''}`}
+                  >
+                    {comment.nickname}
+                  </a>
+                );
+              })()
             ) : (
-              <span className={`font-medium ${isReply ? 'text-sm' : ''}`}>{comment.nickname}</span>
+              <span className={`font-semibold ${isReply ? 'text-sm' : ''}`}>
+                {comment.nickname}
+              </span>
             )}
             {comment.isAdmin && (
               <span className="bg-primary/10 text-primary rounded px-2 py-0.5 text-xs">博主</span>
             )}
-            <span className="text-muted-foreground text-xs">{formatTime(comment.createdAt)}</span>
+            <span className="text-muted-foreground relative top-[1px] text-xs">
+              {formatTime(comment.createdAt)}
+            </span>
             {comment.status === 'pending' && (
               <span className="rounded bg-yellow-500/10 px-2 py-0.5 text-xs text-yellow-600 dark:text-yellow-500">
                 审核中
@@ -722,7 +762,7 @@ function CommentItemComponent({
           </div>
 
           <div
-            className={`text-foreground prose prose-sm dark:prose-invert mt-2 max-w-none ${isReply ? 'text-sm' : ''}`}
+            className={`text-foreground prose prose-sm dark:prose-invert mt-1 max-w-none [&>p]:my-0.5 [&>p:first-child]:mt-0 [&>p:last-child]:mb-0 ${isReply ? 'text-sm' : ''}`}
           >
             {comment.replyToNick && (
               <span className="text-muted-foreground">回复 @{comment.replyToNick}：</span>
@@ -730,10 +770,30 @@ function CommentItemComponent({
             {safeMarkdownRender(comment.content)}
           </div>
 
-          <div className="mt-3 flex items-center gap-4">
+          <div className="mt-1 flex items-center justify-between">
+            <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-xs">
+              {comment.ipRegion && (
+                <span className="inline-flex items-center gap-0.5">
+                  <MapPin className="h-3 w-3" />
+                  {comment.ipRegion}
+                </span>
+              )}
+              {ua.os && OSIcon && (
+                <span className="inline-flex items-center gap-0.5">
+                  <OSIcon className="h-3 w-3" />
+                  {ua.os}
+                </span>
+              )}
+              {ua.browser && (
+                <span className="inline-flex items-center gap-0.5">
+                  <Globe className="h-3 w-3" />
+                  {ua.browser}
+                </span>
+              )}
+            </div>
             <button
-              onClick={() => onReply(comment.id)}
-              className="text-muted-foreground hover:text-primary flex items-center gap-1 text-sm transition-colors"
+              onClick={() => onReply(comment.id === replyingTo ? null : comment.id)}
+              className="text-muted-foreground hover:text-primary flex shrink-0 items-center gap-1 text-sm transition-colors"
             >
               <MessageCircle className="h-4 w-4" />
               <span>回复</span>
@@ -742,21 +802,27 @@ function CommentItemComponent({
         </div>
       </div>
 
-      {replyingTo === comment.id && (
-        <CommentForm
-          onSubmit={(data) => onSubmitReply(comment.id, data)}
-          onCancel={onCancelReply}
-          isReply
-          replyTo={comment.nickname}
-          loading={loading}
-          conf={conf}
-        />
-      )}
+      <div
+        className={`grid transition-all duration-300 ease-out ${
+          replyingTo === comment.id
+            ? 'grid-rows-[1fr] opacity-100'
+            : 'pointer-events-none grid-rows-[0fr] opacity-0'
+        }`}
+      >
+        <div className="min-h-0">
+          <CommentForm
+            onSubmit={(data) => onSubmitReply(comment.id, data)}
+            onCancel={onCancelReply}
+            isReply
+            replyTo={comment.nickname}
+            loading={loading}
+            conf={conf}
+          />
+        </div>
+      </div>
     </div>
   );
 }
-
-// ---- 回复区域（超过2条折叠） ----
 
 function ReplySection({
   replies,
@@ -768,9 +834,9 @@ function ReplySection({
   conf,
 }: {
   replies: NestedComment[];
-  onReply: (id: number) => void;
+  onReply: (id: number | null) => void;
   replyingTo: number | null;
-  onSubmitReply: (parentId: number, data: FormData) => Promise<void>;
+  onSubmitReply: (parentId: number, data: FormData) => Promise<boolean>;
   onCancelReply: () => void;
   loading: boolean;
   conf: FrontendConf;
@@ -779,12 +845,12 @@ function ReplySection({
   if (replies.length === 0) return null;
 
   const COLLAPSE_THRESHOLD = 2;
-  const displayed = expanded ? replies : replies.slice(0, COLLAPSE_THRESHOLD);
-  const hidden = replies.length - COLLAPSE_THRESHOLD;
+  const alwaysVisible = replies.slice(0, COLLAPSE_THRESHOLD);
+  const hiddenReplies = replies.slice(COLLAPSE_THRESHOLD);
 
   return (
-    <div className="border-border mt-2 ml-12 space-y-2 border-l-2 pl-4">
-      {displayed.map((r) => (
+    <div className="mt-2 ml-12 space-y-2">
+      {alwaysVisible.map((r) => (
         <CommentItemComponent
           key={r.id}
           comment={r}
@@ -797,24 +863,44 @@ function ReplySection({
           conf={conf}
         />
       ))}
-      {hidden > 0 && (
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="text-primary flex items-center gap-1 py-1 text-sm hover:underline"
-        >
-          {expanded ? '收起' : `展开 ${hidden} 条回复`}
-        </button>
+      {hiddenReplies.length > 0 && (
+        <>
+          <div
+            className={`grid transition-all duration-300 ease-out ${
+              expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+            }`}
+          >
+            <div className="space-y-2 overflow-hidden">
+              {hiddenReplies.map((r) => (
+                <CommentItemComponent
+                  key={r.id}
+                  comment={r}
+                  isReply
+                  onReply={onReply}
+                  replyingTo={replyingTo}
+                  onSubmitReply={onSubmitReply}
+                  onCancelReply={onCancelReply}
+                  loading={loading}
+                  conf={conf}
+                />
+              ))}
+            </div>
+          </div>
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="text-primary flex items-center gap-1 py-1 text-sm hover:underline"
+          >
+            {expanded ? '收起' : `展开 ${hiddenReplies.length} 条回复`}
+          </button>
+        </>
       )}
     </div>
   );
 }
 
-// ---- 主组件 ----
-
 export default function CommentSystem({ path }: { path: string }) {
   const [client] = useState(() => new ArtalkClient(artalkConfig));
   const [conf, setConf] = useState<FrontendConf>(DEFAULT_CONF);
-  /** 图片表情 key → URL 映射，用于提交前 :[key] → <img atk-emoticon> 转换 */
   const emoticonKey2Url = useRef<Record<string, string>>({});
   const [comments, setComments] = useState<NestedComment[]>([]);
   const [loading, setLoading] = useState(false);
@@ -822,6 +908,7 @@ export default function CommentSystem({ path }: { path: string }) {
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [nextCursor, setNextCursor] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const loaderRef = useRef<HTMLDivElement>(null);
   const [topFormKey, setTopFormKey] = useState(0);
   const [captchaState, setCaptchaState] = useState<{
     url: string;
@@ -831,9 +918,9 @@ export default function CommentSystem({ path }: { path: string }) {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminLoginErr, setAdminLoginErr] = useState('');
   const [adminForm, setAdminForm] = useState({ email: '', password: '' });
-  const pendingSubmit = useRef<(() => Promise<void>) | null>(null);
+  const [adminCaptchaUrl, setAdminCaptchaUrl] = useState<string | null>(null);
+  const pendingSubmit = useRef<(() => Promise<boolean>) | null>(null);
 
-  // 拉取后端配置
   useEffect(() => {
     getConf(client)
       .then((res) => {
@@ -856,10 +943,9 @@ export default function CommentSystem({ path }: { path: string }) {
       })
       .catch((e) => {
         console.warn('[CommentSystem] /conf FAIL:', e);
-      }); // 获取失败用默认值
+      });
   }, [client]);
 
-  // 加载表情包 key→url 映射（用于提交前 :[key] → <img atk-emoticon> 转换）
   useEffect(() => {
     const url = conf.emoticons ?? DEFAULT_CONF.emoticons!;
 
@@ -888,7 +974,6 @@ export default function CommentSystem({ path }: { path: string }) {
       .then((r) => r.json())
       .then(buildMap)
       .catch(() => {
-        // CORS 阻止则 fallback 到本地
         fetch('/owo.json')
           .then((r) => r.json())
           .then(buildMap)
@@ -896,7 +981,6 @@ export default function CommentSystem({ path }: { path: string }) {
       });
   }, [conf.emoticons]);
 
-  /** 对齐官方前端 Emoticons.transEmoticonImageText: :[key] → <img atk-emoticon> */
   const transformContent = useCallback((raw: string): string => {
     const map = emoticonKey2Url.current;
     return raw.replace(/:\[([^\]]+)\]/g, (_, key: string) => {
@@ -912,20 +996,31 @@ export default function CommentSystem({ path }: { path: string }) {
       localStorage.setItem('artalk-admin-token', res.token);
       setShowAdminLogin(false);
       setAdminLoginErr('');
+      setAdminCaptchaUrl(null);
       showToast('登录成功', 2000, 'success');
       pendingSubmit.current?.();
       pendingSubmit.current = null;
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '登录失败';
+      if (msg.includes('验证码') || msg.includes('captcha')) {
+        setAdminCaptchaUrl(client.getCaptchaUrl());
+        return;
+      }
       setAdminLoginErr(msg);
     }
   };
 
-  // 初始化时恢复已保存的 token
   useEffect(() => {
     const saved = localStorage.getItem('artalk-admin-token');
     if (saved) client.setToken(saved);
   }, [client]);
+
+  const closeAdminLogin = () => {
+    setShowAdminLogin(false);
+    setSubmitting(false);
+    setAdminCaptchaUrl(null);
+    pendingSubmit.current = null;
+  };
 
   const pageSize = conf.pagination?.pageSize ?? 20;
 
@@ -934,7 +1029,14 @@ export default function CommentSystem({ path }: { path: string }) {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetchComments(client, path, cursor, pageSize);
+        let userName: string | undefined;
+        let userEmail: string | undefined;
+        try {
+          const saved = JSON.parse(localStorage.getItem('artalk-form') || '{}');
+          userName = saved.nickname || undefined;
+          userEmail = saved.email || undefined;
+        } catch {}
+        const res = await fetchComments(client, path, cursor, pageSize, userName, userEmail);
         const tree = buildCommentTree(res.data);
         if (cursor) {
           setComments((prev) => [...prev, ...tree]);
@@ -958,119 +1060,142 @@ export default function CommentSystem({ path }: { path: string }) {
     loadComments();
   }, [loadComments]);
 
-  // 验证码 iframe 轮询：验证通过后自动提交
   useEffect(() => {
-    if (!captchaState) return;
+    if (!nextCursor || !conf.pagination?.readMore !== false) return;
+    const el = loaderRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) loadComments(nextCursor);
+      },
+      { rootMargin: '200px' },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [nextCursor, conf.pagination?.readMore, loadComments]);
+
+  useEffect(() => {
+    if (!captchaState && !adminCaptchaUrl) return;
     const interval = setInterval(async () => {
       try {
         const res = await getCaptchaStatus(client);
         if (res.is_pass) {
-          captchaState.onVerified();
+          if (captchaState) captchaState.onVerified();
+          else if (adminCaptchaUrl) {
+            setAdminCaptchaUrl(null);
+            handleAdminLogin();
+          }
         }
       } catch {}
     }, 1500);
     return () => clearInterval(interval);
-  }, [captchaState, client]);
+  }, [captchaState, adminCaptchaUrl, client]);
 
   const totalComments = comments.reduce((acc, c) => acc + 1 + c.replies.length, 0);
 
-  const handleSubmitComment = async (data: FormData) => {
+  const handleSubmitComment = async (data: FormData): Promise<boolean> => {
     const doSubmit = async () => {
       setSubmitting(true);
-      await postComment(client, {
-        path,
-        nickname: data.nickname,
-        email: data.email,
-        website: data.website || undefined,
-        content: transformContent(data.content),
-        ua: navigator.userAgent,
-        pageTitle: document.title,
-      });
-      showToast('评论发表成功！', 2000, 'success');
-      await loadComments();
-      setSubmitting(false);
-      setTopFormKey((k) => k + 1);
-    };
-    try {
-      await doSubmit();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : '发表评论失败';
-      if (msg.includes('验证码') || msg.includes('captcha')) {
-        pendingSubmit.current = doSubmit;
-        setCaptchaState({
-          url: client.getCaptchaUrl(),
-          onVerified: () => {
-            setCaptchaState(null);
-            pendingSubmit.current?.();
-            pendingSubmit.current = null;
-          },
-          onCancel: () => {
-            setCaptchaState(null);
-            pendingSubmit.current = null;
-          },
+      try {
+        await postComment(client, {
+          path,
+          nickname: data.nickname,
+          email: data.email,
+          website: data.website || undefined,
+          content: transformContent(data.content),
+          ua: navigator.userAgent,
+          pageTitle: document.title,
         });
-        throw err;
+        showToast('评论发表成功！', 2000, 'success');
+        await loadComments();
+        setSubmitting(false);
+        setTopFormKey((k) => k + 1);
+        return true;
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : '发表评论失败';
+        if (msg.includes('验证码') || msg.includes('captcha')) {
+          pendingSubmit.current = doSubmit;
+          setCaptchaState({
+            url: client.getCaptchaUrl(),
+            onVerified: () => {
+              setCaptchaState(null);
+              pendingSubmit.current?.();
+              pendingSubmit.current = null;
+            },
+            onCancel: () => {
+              setCaptchaState(null);
+              pendingSubmit.current = null;
+              setSubmitting(false);
+            },
+          });
+          return false;
+        }
+        if (msg.includes('管理员') || msg.includes('admin')) {
+          pendingSubmit.current = doSubmit;
+          setShowAdminLogin(true);
+          return false;
+        }
+        showToast(msg, 3000, 'error');
+        setSubmitting(false);
+        return false;
       }
-      if (msg.includes('管理员') || msg.includes('admin')) {
-        pendingSubmit.current = doSubmit;
-        setShowAdminLogin(true);
-        throw err;
-      }
-      showToast(msg, 3000, 'error');
-      throw err;
-    }
+    };
+    return await doSubmit();
   };
 
-  const handleSubmitReply = async (parentId: number, data: FormData) => {
+  const handleSubmitReply = async (parentId: number, data: FormData): Promise<boolean> => {
     const doSubmit = async () => {
       setSubmitting(true);
-      await postComment(client, {
-        path,
-        nickname: data.nickname,
-        email: data.email,
-        website: data.website || undefined,
-        content: transformContent(data.content),
-        parentId,
-        ua: navigator.userAgent,
-        pageTitle: document.title,
-      });
-      setReplyingTo(null);
-      showToast('回复发表成功！', 2000, 'success');
-      await loadComments();
-      setSubmitting(false);
-    };
-    try {
-      await doSubmit();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : '发表回复失败';
-      if (msg.includes('验证码') || msg.includes('captcha')) {
-        pendingSubmit.current = doSubmit;
-        setCaptchaState({
-          url: client.getCaptchaUrl(),
-          onVerified: () => {
-            setCaptchaState(null);
-            pendingSubmit.current?.();
-            pendingSubmit.current = null;
-          },
-          onCancel: () => {
-            setCaptchaState(null);
-            pendingSubmit.current = null;
-          },
+      try {
+        await postComment(client, {
+          path,
+          nickname: data.nickname,
+          email: data.email,
+          website: data.website || undefined,
+          content: transformContent(data.content),
+          parentId,
+          ua: navigator.userAgent,
+          pageTitle: document.title,
         });
-        throw err;
+        setReplyingTo(null);
+        showToast('回复发表成功！', 2000, 'success');
+        await loadComments();
+        setSubmitting(false);
+        return true;
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : '发表回复失败';
+        if (msg.includes('验证码') || msg.includes('captcha')) {
+          pendingSubmit.current = doSubmit;
+          setCaptchaState({
+            url: client.getCaptchaUrl(),
+            onVerified: () => {
+              setCaptchaState(null);
+              pendingSubmit.current?.();
+              pendingSubmit.current = null;
+            },
+            onCancel: () => {
+              setCaptchaState(null);
+              pendingSubmit.current = null;
+              setSubmitting(false);
+            },
+          });
+          return false;
+        }
+        if (msg.includes('管理员') || msg.includes('admin')) {
+          pendingSubmit.current = doSubmit;
+          setShowAdminLogin(true);
+          return false;
+        }
+        showToast(msg, 3000, 'error');
+        setSubmitting(false);
+        return false;
       }
-      if (msg.includes('管理员') || msg.includes('admin')) {
-        pendingSubmit.current = doSubmit;
-        setShowAdminLogin(true);
-        throw err;
-      }
-      showToast(msg, 3000, 'error');
-      throw err;
-    }
+    };
+    return await doSubmit();
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full" suppressHydrationWarning>
       <CommentForm
         key={topFormKey}
         onSubmit={handleSubmitComment}
@@ -1079,9 +1204,9 @@ export default function CommentSystem({ path }: { path: string }) {
         captchaState={captchaState}
       />
 
-      <hr className="border-border my-8" />
+      <div className="mt-6" />
 
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold">
           评论 <span className="text-muted-foreground">({totalComments})</span>
         </h3>
@@ -1117,17 +1242,15 @@ export default function CommentSystem({ path }: { path: string }) {
                 loading={submitting}
                 conf={conf}
               />
-              {index < comments.length - 1 && <hr className="border-border my-1" />}
+              {index < comments.length - 1 && <div className="mb-1" />}
             </div>
           ))}
         </div>
       )}
 
-      {conf.pagination?.readMore !== false && nextCursor && !loading && (
-        <div className="mt-6 flex justify-center">
-          <Button variant="outline" onClick={() => loadComments(nextCursor)} disabled={loading}>
-            加载更多
-          </Button>
+      {conf.pagination?.readMore !== false && nextCursor && (
+        <div ref={loaderRef} className="flex justify-center py-8">
+          <Loader2 className="text-primary h-6 w-6 animate-spin" />
         </div>
       )}
 
@@ -1137,11 +1260,11 @@ export default function CommentSystem({ path }: { path: string }) {
         </div>
       )}
 
-      {/* 管理员登录弹窗 */}
+      {}
       {showAdminLogin && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50"
-          onClick={() => setShowAdminLogin(false)}
+          onClick={closeAdminLogin}
         >
           <div
             className="bg-background w-[360px] rounded-xl p-6 shadow-2xl"
@@ -1167,11 +1290,21 @@ export default function CommentSystem({ path }: { path: string }) {
               />
               {adminLoginErr && <p className="text-destructive text-sm">{adminLoginErr}</p>}
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setShowAdminLogin(false)}>
+                <Button variant="outline" onClick={closeAdminLogin}>
                   取消
                 </Button>
                 <Button onClick={handleAdminLogin}>登录</Button>
               </div>
+              {adminCaptchaUrl && (
+                <div className="mt-3 flex justify-end">
+                  <iframe
+                    src={adminCaptchaUrl}
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    className="h-[78px] w-[300px] border-0"
+                    title="Captcha"
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>

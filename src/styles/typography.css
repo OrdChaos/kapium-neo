@@ -15,7 +15,6 @@ html {
   scroll-margin-top: 90px;
 }
 
-/* ========== 脚注 ========== */
 .footnote-ref a {
   text-decoration: none;
   color: var(--primary);
@@ -23,7 +22,6 @@ html {
   cursor: help;
 }
 
-/* 脚注 tooltip：与 tooltip.astro 一致的纯 CSS group-hover 模式 */
 .footnote-tooltip {
   pointer-events: none;
   position: absolute;
@@ -52,7 +50,6 @@ html {
   transform: translateX(-50%) scale(1);
 }
 
-/* Footnote section at end of document */
 section.footnotes {
   margin-top: 2em;
   padding-top: 1em;

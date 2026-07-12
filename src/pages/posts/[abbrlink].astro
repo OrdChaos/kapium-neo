@@ -186,7 +186,7 @@ const readTime = remarkPluginFrontmatter.readTime || 1;
       </nav>
 
       <!-- <Twikoo path={`/posts/${post.data.abbrlink}/`} /> -->
-      <CommentSystem client:load path={`/posts/${post.data.abbrlink}/`} />
+      <CommentSystem client:only="react" path={`/posts/${post.data.abbrlink}/`} />
     </div>
 
     <Toc
@@ -228,6 +228,11 @@ const readTime = remarkPluginFrontmatter.readTime || 1;
       if (article.dataset.linkIntercepted === 'true') return;
       article.dataset.linkIntercepted = 'true';
 
+      const TRUSTED_SUFFIXES = ['ordchaos.com', 'ordchaos.top'];
+      function isTrusted(hostname: string) {
+        return TRUSTED_SUFFIXES.some((s) => hostname === s || hostname.endsWith('.' + s));
+      }
+
       article.addEventListener('click', (e) => {
         if ((e.target as HTMLElement).tagName === 'IMG') return;
 
@@ -243,7 +248,7 @@ const readTime = remarkPluginFrontmatter.readTime || 1;
         const linkHostname = new URL(link.href, window.location.origin).hostname;
         const siteHostname = window.location.hostname;
 
-        if (linkHostname !== siteHostname) {
+        if (linkHostname !== siteHostname && !isTrusted(linkHostname)) {
           e.preventDefault();
           const redirectUrl = `/redirect-post/?url=${encodeURIComponent(link.href)}&from=${encodeURIComponent(window.location.pathname + window.location.search)}`;
           window.location.href = redirectUrl;

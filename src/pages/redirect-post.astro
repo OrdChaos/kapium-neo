@@ -5,6 +5,22 @@ import AlertCircle from '@lucide/astro/icons/circle-alert';
 import ChevronLeft from '@lucide/astro/icons/chevron-left';
 ---
 
+<style>
+  @keyframes redirect-in {
+    from {
+      opacity: 0;
+      transform: translateY(1.25rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .redirect-animate-in {
+    animation: redirect-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+</style>
+
 <BaseLayout title="文章外链跳转确认">
   <div class="flex min-h-[70vh] flex-col items-center justify-center px-4">
     <div id="redirect-invalid" class="hidden w-full max-w-md text-center">
@@ -67,58 +83,75 @@ import ChevronLeft from '@lucide/astro/icons/chevron-left';
 
   <script>
     (function () {
-      const params = new URLSearchParams(window.location.search);
-      const url = params.get('url') || '';
-      const from = params.get('from') || '';
+      function init() {
+        const validEl = document.getElementById('redirect-valid');
+        const invalidEl = document.getElementById('redirect-invalid');
+        if (validEl && !validEl.classList.contains('hidden')) return;
+        if (invalidEl && !invalidEl.classList.contains('hidden')) return;
 
-      let isValid = false;
-      if (url) {
-        try {
-          const urlObj = new URL(url);
-          isValid =
-            urlObj.hostname !== window.location.hostname &&
-            urlObj.hostname !== 'localhost' &&
-            urlObj.hostname !== '127.0.0.1';
-        } catch {
-          /* invalid URL */
+        const params = new URLSearchParams(window.location.search);
+        const url = params.get('url') || '';
+        const from = params.get('from') || '';
+
+        let isValid = false;
+        if (url) {
+          try {
+            const urlObj = new URL(url);
+            isValid =
+              urlObj.hostname !== window.location.hostname &&
+              urlObj.hostname !== 'localhost' &&
+              urlObj.hostname !== '127.0.0.1';
+          } catch {
+            /* invalid URL */
+          }
         }
-      }
 
-      const backUrl = from || '/';
+        const backUrl = from || '/';
 
-      const onCancel = (e: Event) => {
-        e.preventDefault();
-        if (window.history.length > 1) {
-          window.history.back();
+        const onCancel = (e: Event) => {
+          e.preventDefault();
+          if (window.history.length > 1) {
+            window.history.back();
+          } else {
+            window.location.href = backUrl;
+          }
+        };
+
+        if (isValid) {
+          if (validEl) {
+            validEl.classList.remove('hidden');
+            validEl.classList.add('redirect-animate-in');
+          }
+          const targetEl = document.getElementById(
+            'redirect-target-url',
+          ) as HTMLInputElement | null;
+          if (targetEl) {
+            targetEl.value = url;
+            targetEl.addEventListener('click', () => targetEl.select());
+          }
+          const confirmEl = document.getElementById('redirect-confirm');
+          if (confirmEl) confirmEl.setAttribute('href', url);
+          const cancelEl = document.getElementById('redirect-cancel');
+          if (cancelEl) {
+            cancelEl.setAttribute('href', backUrl);
+            cancelEl.addEventListener('click', onCancel);
+          }
         } else {
-          window.location.href = backUrl;
-        }
-      };
-
-      if (isValid) {
-        const el = document.getElementById('redirect-valid');
-        if (el) el.classList.remove('hidden');
-        const targetEl = document.getElementById('redirect-target-url') as HTMLInputElement | null;
-        if (targetEl) {
-          targetEl.value = url;
-          targetEl.addEventListener('click', () => targetEl.select());
-        }
-        const confirmEl = document.getElementById('redirect-confirm');
-        if (confirmEl) confirmEl.setAttribute('href', url);
-        const cancelEl = document.getElementById('redirect-cancel');
-        if (cancelEl) {
-          cancelEl.setAttribute('href', backUrl);
-          cancelEl.addEventListener('click', onCancel);
-        }
-      } else {
-        const el = document.getElementById('redirect-invalid');
-        if (el) el.classList.remove('hidden');
-        const backEl = document.getElementById('redirect-invalid-back');
-        if (backEl) {
-          backEl.setAttribute('href', backUrl);
-          backEl.addEventListener('click', onCancel);
+          if (invalidEl) {
+            invalidEl.classList.remove('hidden');
+            invalidEl.classList.add('redirect-animate-in');
+          }
+          const backEl = document.getElementById('redirect-invalid-back');
+          if (backEl) {
+            backEl.setAttribute('href', backUrl);
+            backEl.addEventListener('click', onCancel);
+          }
         }
       }
+
+      init();
+      document.addEventListener('astro:after-swap', init);
+      window.addEventListener('pageshow', init);
     })();
   </script>
 </BaseLayout>

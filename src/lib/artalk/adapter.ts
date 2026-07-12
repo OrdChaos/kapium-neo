@@ -25,6 +25,8 @@ export interface CommentItem {
   dislikes: number;
   userVote: 1 | -1 | 0;
   emailMd5: string | null;
+  ipRegion: string;
+  ua: string;
 }
 
 export interface CommentListResponse {
@@ -52,8 +54,10 @@ function mapComment(c: CookedComment): CommentItem {
     status,
     likes: c.vote_up,
     dislikes: c.vote_down,
-    userVote: 0, // Artalk 评论列表不返回投票状态
+    userVote: 0,
     emailMd5: c.email_encrypted || null,
+    ipRegion: c.ip_region || '',
+    ua: c.ua || '',
   };
 }
 
@@ -71,6 +75,8 @@ export async function fetchComments(
   pageKey: string,
   cursor?: number,
   limit = 20,
+  userName?: string,
+  userEmail?: string,
 ): Promise<CommentListResponse> {
   const offset = cursor ?? 0;
 
@@ -80,6 +86,8 @@ export async function fetchComments(
     sort_by: 'date_desc',
     limit,
     offset,
+    name: userName,
+    email: userEmail,
   });
 
   const list = result.comments.map(mapComment);

@@ -36,7 +36,6 @@ body:not(.heimu_toggle_on) .new:hover .heimu.off {
   color: #ba0000;
 }
 
-/* Dark mode styles */
 :is(.dark *) span.heimu a.external,
 :is(.dark *) span.heimu a.external:visited,
 :is(.dark *) span.heimu a.extiw,
