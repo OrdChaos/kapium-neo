@@ -58,11 +58,20 @@ body[data-btt-visible='true'] .toc-mobile-btn {
   }
 
   .prose hr {
-    @apply border-border my-8;
+    @apply border-border my-3;
   }
 
   .prose a {
     @apply text-primary underline-offset-4 hover:underline;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 

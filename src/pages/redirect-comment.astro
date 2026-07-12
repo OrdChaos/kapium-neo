@@ -5,7 +5,7 @@ import AlertCircle from '@lucide/astro/icons/circle-alert';
 import ChevronLeft from '@lucide/astro/icons/chevron-left';
 ---
 
-<BaseLayout title="外部链接跳转确认">
+<BaseLayout title="评论外链跳转确认">
   <div class="flex min-h-[70vh] flex-col items-center justify-center px-4">
     <div id="redirect-invalid" class="hidden w-full max-w-md text-center">
       <div class="mb-8">
@@ -25,13 +25,12 @@ import ChevronLeft from '@lucide/astro/icons/chevron-left';
       </div>
     </div>
 
-    <!-- 有效链接状态 -->
     <div id="redirect-valid" class="hidden w-full max-w-md text-center">
       <div class="mb-8">
         <ExternalLink class="text-primary/20 mx-auto h-32 w-32" />
       </div>
-      <h2 class="text-foreground mb-4 text-3xl font-bold">外部链接跳转确认</h2>
-      <p class="text-muted-foreground mb-6">提醒您，即将离开本网站并访问以下链接：</p>
+      <h2 class="text-foreground mb-4 text-3xl font-bold">评论外链跳转确认</h2>
+      <p class="text-muted-foreground mb-6">提醒您，即将离开本网站并访问评论中的以下外部链接：</p>
 
       <input
         id="redirect-target-url"
@@ -40,8 +39,8 @@ import ChevronLeft from '@lucide/astro/icons/chevron-left';
       />
 
       <p class="text-muted-foreground mb-8 text-sm">
-        博主只能保证在编写此博文时该链接的有效和安全。<br />
-        请自行确认该链接的有效性和安全性，避免遭受损失。
+        本站不对评论区的任何外部链接内容负责。<br />
+        该链接由评论者提供，不代表本站立场，请自行判断其安全性和真实性。
       </p>
 
       <div class="flex flex-col gap-3 sm:flex-row sm:justify-center">

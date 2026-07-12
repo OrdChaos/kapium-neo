@@ -1,0 +1,124 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ExternalLink from '@lucide/astro/icons/external-link';
+import AlertCircle from '@lucide/astro/icons/circle-alert';
+import ChevronLeft from '@lucide/astro/icons/chevron-left';
+---
+
+<BaseLayout title="文章外链跳转确认">
+  <div class="flex min-h-[70vh] flex-col items-center justify-center px-4">
+    <div id="redirect-invalid" class="hidden w-full max-w-md text-center">
+      <div class="mb-8">
+        <AlertCircle class="text-primary/20 mx-auto h-32 w-32" />
+      </div>
+      <h2 class="text-foreground mb-4 text-3xl font-bold">无效的链接</h2>
+      <p class="text-muted-foreground mb-8">很抱歉，无法获取有效的链接信息。</p>
+      <div class="flex flex-col gap-3 sm:flex-row sm:justify-center">
+        <a
+          id="redirect-invalid-back"
+          href="/"
+          class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex w-full items-center justify-center gap-2 rounded-md px-8 py-3 text-sm font-medium transition-colors sm:w-auto"
+        >
+          <ChevronLeft class="h-4 w-4" />
+          返回首页
+        </a>
+      </div>
+    </div>
+
+    <!-- 有效链接状态 -->
+    <div id="redirect-valid" class="hidden w-full max-w-md text-center">
+      <div class="mb-8">
+        <ExternalLink class="text-primary/20 mx-auto h-32 w-32" />
+      </div>
+      <h2 class="text-foreground mb-4 text-3xl font-bold">外部链接跳转确认</h2>
+      <p class="text-muted-foreground mb-6">提醒您，即将离开本网站并访问文章中的以下外部链接：</p>
+
+      <input
+        id="redirect-target-url"
+        readonly
+        class="border-primary/30 bg-primary/5 focus-visible:border-primary focus-visible:ring-primary/50 mb-6 flex h-10 w-full min-w-0 rounded-lg border px-3 py-2 font-mono text-sm transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
+      />
+
+      <p class="text-muted-foreground mb-8 text-sm">
+        博主只能保证在编写此博文时该链接的有效和安全。<br />
+        请自行确认该链接的有效性和安全性，避免遭受损失。
+      </p>
+
+      <div class="flex flex-col gap-3 sm:flex-row sm:justify-center">
+        <a
+          id="redirect-cancel"
+          href="/"
+          class="border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex w-full items-center justify-center gap-2 rounded-md border px-8 py-3 text-sm font-medium transition-colors sm:w-auto"
+        >
+          取消
+        </a>
+        <a
+          id="redirect-confirm"
+          href="#"
+          rel="noopener noreferrer"
+          class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex w-full items-center justify-center gap-2 rounded-md px-8 py-3 text-sm font-medium transition-colors sm:w-auto"
+        >
+          <ExternalLink class="h-4 w-4" />
+          确认跳转
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const url = params.get('url') || '';
+      const from = params.get('from') || '';
+
+      let isValid = false;
+      if (url) {
+        try {
+          const urlObj = new URL(url);
+          isValid =
+            urlObj.hostname !== window.location.hostname &&
+            urlObj.hostname !== 'localhost' &&
+            urlObj.hostname !== '127.0.0.1';
+        } catch {
+          /* invalid URL */
+        }
+      }
+
+      const backUrl = from || '/';
+
+      const onCancel = (e: Event) => {
+        e.preventDefault();
+        if (window.history.length > 1) {
+          window.history.back();
+        } else {
+          window.location.href = backUrl;
+        }
+      };
+
+      if (isValid) {
+        const el = document.getElementById('redirect-valid');
+        if (el) el.classList.remove('hidden');
+        const targetEl = document.getElementById('redirect-target-url') as HTMLInputElement | null;
+        if (targetEl) {
+          targetEl.value = url;
+          targetEl.addEventListener('click', () => targetEl.select());
+        }
+        const confirmEl = document.getElementById('redirect-confirm');
+        if (confirmEl) confirmEl.setAttribute('href', url);
+        const cancelEl = document.getElementById('redirect-cancel');
+        if (cancelEl) {
+          cancelEl.setAttribute('href', backUrl);
+          cancelEl.addEventListener('click', onCancel);
+        }
+      } else {
+        const el = document.getElementById('redirect-invalid');
+        if (el) el.classList.remove('hidden');
+        const backEl = document.getElementById('redirect-invalid-back');
+        if (backEl) {
+          backEl.setAttribute('href', backUrl);
+          backEl.addEventListener('click', onCancel);
+        }
+      }
+    })();
+  </script>
+</BaseLayout>

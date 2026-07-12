@@ -73,7 +73,7 @@ export default function Navbar({ postIds = [] }: NavbarProps) {
     <>
       <div className="h-16 w-full" />
       <nav
-        class="border-border/40 bg-background/95 fixed top-0 left-0 z-50 w-full border-b backdrop-blur"
+        className="border-border/40 bg-background/95 fixed top-0 left-0 z-50 w-full border-b backdrop-blur"
         aria-label="主导航"
       >
         <div className="container mx-auto px-4">
