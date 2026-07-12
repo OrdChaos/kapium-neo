@@ -4,6 +4,7 @@ import { MessageCircle, Loader2, Smile } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
+import rehypeRaw from 'rehype-raw';
 import { showToast } from '@/lib/toast';
 import insane from 'insane';
 import { ArtalkClient } from '@/lib/artalk/client';
@@ -101,7 +102,47 @@ const DEFAULT_CONF: FrontendConf = {
   preview: true,
 };
 
-// ---- 安全工具（对齐 Artalk 官方前端的 XSS 防护） ----
+/**
+ * 清洗评论内容 HTML（对齐 Artalk 官方 insane 配置），用于 rehype-raw 渲染前
+ */
+function sanitizeCommentHtml(html: string): string {
+  try {
+    const fn = typeof insane === 'function' ? insane : (insane as any)?.default;
+    if (typeof fn !== 'function') return html.replace(/<[^>]*>/g, '');
+    return fn(html, {
+      allowedSchemes: ['http', 'https', 'mailto'],
+      allowedTags: [
+        'a', 'abbr', 'b', 'blockquote', 'br', 'caption', 'code',
+        'del', 'details', 'div', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'hr', 'i', 'img', 'ins', 'kbd', 'li', 'main', 'mark', 'ol',
+        'p', 'pre', 'section', 'span', 'strike', 'strong', 'sub',
+        'summary', 'sup', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul',
+      ],
+      allowedAttributes: {
+        '*': ['title'],
+        a: ['href', 'name', 'target', 'rel'],
+        img: ['src', 'alt', 'atk-emoticon', 'loading'],
+        code: ['class'],
+        span: ['class', 'style'],
+      },
+    });
+  } catch {
+    return html.replace(/<[^>]*>/g, '');
+  }
+}
+
+/** ReactMarkdown + rehype-raw 渲染前清洗，防止 XSS */
+function safeMarkdownRender(content: string) {
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm, remarkBreaks]}
+      rehypePlugins={[rehypeRaw]}
+      components={MARKDOWN_COMPONENTS}
+    >
+      {sanitizeCommentHtml(content)}
+    </ReactMarkdown>
+  );
+}
 
 /** 允许的 URL 协议白名单 */
 const ALLOWED_SCHEMES = ['http:', 'https:', 'mailto:'];
@@ -241,6 +282,7 @@ function CommentForm({
   replyTo,
   loading = false,
   conf,
+  captchaState,
 }: {
   onSubmit: (data: FormData) => Promise<void>;
   onCancel?: () => void;
@@ -248,12 +290,15 @@ function CommentForm({
   replyTo?: string;
   loading?: boolean;
   conf: FrontendConf;
+  captchaState?: { url: string; onVerified: () => void; onCancel: () => void } | null;
 }) {
-  const [formData, setFormData] = useState<FormData>({
-    nickname: '',
-    email: '',
-    website: '',
-    content: '',
+  const locked = !!captchaState;
+  const [formData, setFormData] = useState<FormData>(() => {
+    try {
+      const saved = localStorage.getItem('artalk-form');
+      if (saved) return { nickname: '', email: '', website: '', content: '', ...JSON.parse(saved) };
+    } catch {}
+    return { nickname: '', email: '', website: '', content: '' };
   });
   const [showPreview, setShowPreview] = useState(false);
   const [showEmoticons, setShowEmoticons] = useState(false);
@@ -319,6 +364,15 @@ function CommentForm({
 
   const activeGroup = emoticonGroups.find((g) => g.name === activeEmoticonTab);
 
+  // 持久化昵称/邮箱/网址到 localStorage
+  useEffect(() => {
+    localStorage.setItem('artalk-form', JSON.stringify({
+      nickname: formData.nickname,
+      email: formData.email,
+      website: formData.website,
+    }));
+  }, [formData.nickname, formData.email, formData.website]);
+
   // 构建 key→url 映射（用于预览中 :[key] → 图片）
   const emoticonImgMap = useMemo(() => {
     const map: Record<string, string> = {};
@@ -364,7 +418,7 @@ function CommentForm({
       return;
     }
     await onSubmit(formData);
-    setFormData({ nickname: '', email: '', website: '', content: '' });
+    setFormData((prev) => ({ ...prev, content: '' }));
     setShowPreview(false);
   };
 
@@ -383,7 +437,7 @@ function CommentForm({
             placeholder="昵称 *"
             value={formData.nickname}
             onChange={(e) => setFormData({ ...formData, nickname: e.target.value })}
-            disabled={loading}
+            disabled={locked || loading}
             required
           />
           <input
@@ -392,7 +446,7 @@ function CommentForm({
             placeholder="邮箱 *"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            disabled={loading}
+            disabled={locked || loading}
             required
           />
           <input
@@ -401,7 +455,7 @@ function CommentForm({
             placeholder="网站（可选）"
             value={formData.website}
             onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-            disabled={loading}
+            disabled={locked || loading}
           />
         </div>
 
@@ -413,7 +467,7 @@ function CommentForm({
             value={formData.content}
             onChange={(e) => setFormData({ ...formData, content: e.target.value })}
             rows={4}
-            disabled={loading}
+            disabled={locked || loading}
             required
           />
         </div>
@@ -423,12 +477,7 @@ function CommentForm({
             <div className="text-muted-foreground mb-2 text-sm font-medium">预览</div>
             <div className="prose prose-sm dark:prose-invert max-w-none">
               {formData.content ? (
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm, remarkBreaks]}
-                  components={MARKDOWN_COMPONENTS}
-                >
-                  {previewTransform(formData.content)}
-                </ReactMarkdown>
+                safeMarkdownRender(previewTransform(formData.content))
               ) : (
                 <p className="text-muted-foreground">暂无内容</p>
               )}
@@ -442,8 +491,8 @@ function CommentForm({
               type="button"
               variant="ghost"
               size="sm"
-              onClick={() => setShowEmoticons(!showEmoticons)}
-              disabled={loading}
+              onClick={() => { if (!locked) setShowEmoticons(!showEmoticons); }}
+              disabled={locked || loading}
               className={showEmoticons ? 'text-primary' : ''}
             >
               <Smile className="h-4 w-4" />
@@ -530,17 +579,33 @@ function CommentForm({
                 type="button"
                 variant="outline"
                 onClick={() => setShowPreview(!showPreview)}
-                disabled={loading}
+                disabled={locked || loading}
               >
                 {showPreview ? '编辑' : '预览'}
               </Button>
             )}
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={locked || loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {conf.sendBtn || '发表评论'}
             </Button>
           </div>
         </div>
+
+        {/* 验证码内联显示 */}
+        {captchaState && (
+          <div className="mt-4 rounded-xl border border-border bg-muted/20 overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-2 border-b border-border/50 bg-muted/30">
+              <span className="text-xs font-medium text-muted-foreground">人机验证</span>
+              <button onClick={captchaState.onCancel} className="text-muted-foreground hover:text-foreground text-sm">&times; 取消</button>
+            </div>
+            <iframe
+              src={captchaState.url}
+              referrerPolicy="strict-origin-when-cross-origin"
+              className="w-full h-[420px] border-0"
+              title="Captcha"
+            />
+          </div>
+        )}
       </form>
     </div>
   );
@@ -618,12 +683,7 @@ function CommentItemComponent({
             {comment.replyToNick && (
               <span className="text-muted-foreground">回复 @{comment.replyToNick}：</span>
             )}
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm, remarkBreaks]}
-              components={MARKDOWN_COMPONENTS}
-            >
-              {comment.content}
-            </ReactMarkdown>
+            {safeMarkdownRender(comment.content)}
           </div>
 
           <div className="mt-3 flex items-center gap-4">
@@ -705,55 +765,6 @@ function ReplySection({
   );
 }
 
-// ---- 验证码弹窗（Turnstile iframe） ----
-
-function CaptchaDialog({
-  captchaUrl,
-  client,
-  onVerified,
-  onCancel,
-}: {
-  captchaUrl: string;
-  client: ArtalkClient;
-  onVerified: () => void;
-  onCancel: () => void;
-}) {
-  const [polling, setPolling] = useState(true);
-
-  useEffect(() => {
-    if (!polling) return;
-    const interval = setInterval(async () => {
-      try {
-        const res = await getCaptchaStatus(client);
-        if (res.is_pass) {
-          setPolling(false);
-          onVerified();
-        }
-      } catch {
-        // 继续轮询
-      }
-    }, 1500);
-    return () => clearInterval(interval);
-  }, [polling, client, onVerified]);
-
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50" onClick={onCancel}>
-      <div className="bg-background rounded-xl shadow-2xl overflow-hidden w-[360px]" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-          <span className="text-sm font-medium">人机验证</span>
-          <button onClick={onCancel} className="text-muted-foreground hover:text-foreground text-lg leading-none">&times;</button>
-        </div>
-        <iframe
-          src={captchaUrl}
-          referrerPolicy="strict-origin-when-cross-origin"
-          className="w-full h-[420px] border-0"
-          title="Captcha"
-        />
-      </div>
-    </div>
-  );
-}
-
 // ---- 主组件 ----
 
 export default function CommentSystem({ path }: { path: string }) {
@@ -767,7 +778,11 @@ export default function CommentSystem({ path }: { path: string }) {
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [nextCursor, setNextCursor] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [showCaptcha, setShowCaptcha] = useState(false);
+  const [captchaState, setCaptchaState] = useState<{
+    url: string;
+    onVerified: () => void;
+    onCancel: () => void;
+  } | null>(null);
   const pendingSubmit = useRef<(() => Promise<void>) | null>(null);
 
   // 拉取后端配置
@@ -873,6 +888,20 @@ export default function CommentSystem({ path }: { path: string }) {
     loadComments();
   }, [loadComments]);
 
+  // 验证码 iframe 轮询：验证通过后自动提交
+  useEffect(() => {
+    if (!captchaState) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await getCaptchaStatus(client);
+        if (res.is_pass) {
+          captchaState.onVerified();
+        }
+      } catch {}
+    }, 1500);
+    return () => clearInterval(interval);
+  }, [captchaState, client]);
+
   const totalComments = comments.reduce((acc, c) => acc + 1 + c.replies.length, 0);
 
   const handleSubmitComment = async (data: FormData) => {
@@ -897,11 +926,23 @@ export default function CommentSystem({ path }: { path: string }) {
       const msg = err instanceof Error ? err.message : '发表评论失败';
       if (msg.includes('验证码') || msg.includes('captcha')) {
         pendingSubmit.current = doSubmit;
-        setShowCaptcha(true);
+        setCaptchaState({
+          url: client.getCaptchaUrl(),
+          onVerified: () => {
+            setCaptchaState(null);
+            pendingSubmit.current?.();
+            pendingSubmit.current = null;
+          },
+          onCancel: () => {
+            setCaptchaState(null);
+            pendingSubmit.current = null;
+          },
+        });
+        setSubmitting(false);
       } else {
         showToast(msg, 3000, 'error');
+        setSubmitting(false);
       }
-      setSubmitting(false);
     }
   };
 
@@ -929,17 +970,29 @@ export default function CommentSystem({ path }: { path: string }) {
       const msg = err instanceof Error ? err.message : '发表回复失败';
       if (msg.includes('验证码') || msg.includes('captcha')) {
         pendingSubmit.current = doSubmit;
-        setShowCaptcha(true);
+        setCaptchaState({
+          url: client.getCaptchaUrl(),
+          onVerified: () => {
+            setCaptchaState(null);
+            pendingSubmit.current?.();
+            pendingSubmit.current = null;
+          },
+          onCancel: () => {
+            setCaptchaState(null);
+            pendingSubmit.current = null;
+          },
+        });
+        setSubmitting(false);
       } else {
         showToast(msg, 3000, 'error');
+        setSubmitting(false);
       }
-      setSubmitting(false);
     }
   };
 
   return (
     <div className="w-full">
-      <CommentForm onSubmit={handleSubmitComment} loading={submitting} conf={conf} />
+      <CommentForm onSubmit={handleSubmitComment} loading={submitting} conf={conf} captchaState={captchaState} />
 
       <hr className="border-border my-8" />
 
@@ -997,22 +1050,6 @@ export default function CommentSystem({ path }: { path: string }) {
         <div className="text-muted-foreground py-12 text-center">
           {conf.noComment || '暂无评论，来抢沙发吧～'}
         </div>
-      )}
-
-      {showCaptcha && (
-        <CaptchaDialog
-          captchaUrl={client.getCaptchaUrl()}
-          client={client}
-          onVerified={() => {
-            setShowCaptcha(false);
-            pendingSubmit.current?.();
-            pendingSubmit.current = null;
-          }}
-          onCancel={() => {
-            setShowCaptcha(false);
-            pendingSubmit.current = null;
-          }}
-        />
       )}
     </div>
   );

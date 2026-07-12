@@ -55,6 +55,7 @@ export class ArtalkClient {
     const res = await fetch(this.url(path, params), {
       method: 'GET',
       headers: this.headers(),
+      credentials: 'include',
     });
     return this.handleResponse<T>(res);
   }
@@ -65,6 +66,7 @@ export class ArtalkClient {
       method: 'POST',
       headers: this.headers('application/json'),
       body: body !== undefined ? JSON.stringify(body) : undefined,
+      credentials: 'include',
     });
     return this.handleResponse<T>(res);
   }
@@ -75,6 +77,7 @@ export class ArtalkClient {
       method: 'PUT',
       headers: this.headers('application/json'),
       body: body !== undefined ? JSON.stringify(body) : undefined,
+      credentials: 'include',
     });
     return this.handleResponse<T>(res);
   }
@@ -84,6 +87,7 @@ export class ArtalkClient {
     const res = await fetch(this.url(path), {
       method: 'DELETE',
       headers: this.headers(),
+      credentials: 'include',
     });
     return this.handleResponse<T>(res);
   }
@@ -96,6 +100,7 @@ export class ArtalkClient {
       method: 'POST',
       headers: this.token ? { Authorization: `Bearer ${this.token}` } : {},
       body: formData,
+      credentials: 'include',
     });
     return this.handleResponse<T>(res);
   }
