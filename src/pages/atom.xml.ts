@@ -1,5 +1,6 @@
 import { getCollection } from 'astro:content';
 import { siteConfig } from '@/config/site';
+import { getPostExcerpt } from '@/lib/utils';
 import type { APIRoute } from 'astro';
 
 function escapeXml(s: string): string {
@@ -52,7 +53,7 @@ export const GET: APIRoute = async ({ site: siteUrl, url: requestUrl }) => {
       const updated = post.data.updated ? toRFC3339(new Date(post.data.updated)) : published;
 
       const title = escapeXml(post.data.title);
-      const summary = escapeXml(post.data.excerpt ?? post.data.summary ?? '');
+      const summary = escapeXml(getPostExcerpt(post));
       const content = escapeXml(post.body ?? '');
 
       const categories = [post.data.category, ...(post.data.tags ?? [])]

@@ -1,6 +1,7 @@
 import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
 import { siteConfig } from '@/config/site';
+import { getPostExcerpt } from '@/lib/utils';
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async ({ site: siteUrl }) => {
@@ -20,7 +21,7 @@ export const GET: APIRoute = async ({ site: siteUrl }) => {
     site,
     items: sortedPosts.map((post) => ({
       title: post.data.title,
-      description: post.data.excerpt ?? post.data.summary ?? '',
+      description: getPostExcerpt(post),
       content: post.body,
       pubDate: new Date(post.data.date),
       link: `/posts/${post.data.abbrlink}/`,

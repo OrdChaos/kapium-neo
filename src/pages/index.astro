@@ -4,7 +4,7 @@ import BannerLayout from '@/layouts/BannerLayout.astro';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import Badge from '@/components/ui/badge.astro';
 import { siteConfig } from '@/config/site';
-import { estimateReadTime } from '@/lib/utils';
+import { estimateReadTime, getPostExcerpt } from '@/lib/utils';
 
 import Calendar from '@lucide/astro/icons/calendar';
 import Clock from '@lucide/astro/icons/clock';
@@ -62,7 +62,7 @@ function pageHref(p: number) {
                   </CardTitle>
 
                   <CardDescription class="mt-2 line-clamp-2 h-[3rem] leading-6">
-                    {post.data.excerpt || post.data.summary || ''}
+                    {getPostExcerpt(post)}
                   </CardDescription>
                 </a>
               </CardHeader>

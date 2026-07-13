@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import BannerLayout from '@/layouts/BannerLayout.astro';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import Badge from '@/components/ui/badge.astro';
-import { estimateReadTime } from '@/lib/utils';
+import { estimateReadTime, getPostExcerpt } from '@/lib/utils';
 
 import Calendar from '@lucide/astro/icons/calendar';
 import Clock from '@lucide/astro/icons/clock';
@@ -55,7 +55,7 @@ const categoryPosts = allPosts.filter((p) => p.data.category === category);
                   <CardTitle class="group-hover/card:text-primary transition-colors">
                     {post.data.title}
                   </CardTitle>
-                  <CardDescription>{post.data.excerpt || post.data.summary || ''}</CardDescription>
+                  <CardDescription>{getPostExcerpt(post)}</CardDescription>
                 </CardHeader>
 
                 <CardContent class="pointer-events-none relative z-10">

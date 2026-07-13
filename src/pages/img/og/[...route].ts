@@ -1,6 +1,7 @@
 import { OGImageRoute } from 'astro-og-canvas';
 import { getCollection } from 'astro:content';
 import { siteConfig } from '@/config/site';
+import { getPostExcerpt } from '@/lib/utils';
 
 const posts = await getCollection('posts');
 
@@ -49,7 +50,7 @@ const categoriesSet = new Set<string>();
 posts.forEach((post) => {
   pages[`posts/${post.data.abbrlink}`] = {
     title: post.data.title,
-    description: post.data.excerpt ?? post.data.summary ?? siteConfig.description,
+    description: getPostExcerpt(post) || siteConfig.description,
   };
 
   if (post.data.category) {

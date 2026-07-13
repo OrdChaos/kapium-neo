@@ -9,6 +9,8 @@ import UmamiPageViews from '@/components/UmamiPageViews.astro';
 import Toc from '@/components/Toc.tsx';
 import { siteConfig } from '@/config/site';
 
+import { getPostExcerpt } from '@/lib/utils';
+
 import Calendar from '@lucide/astro/icons/calendar';
 import Clock from '@lucide/astro/icons/clock';
 import Eye from '@lucide/astro/icons/eye';
@@ -41,7 +43,7 @@ const readTime = remarkPluginFrontmatter.readTime || 1;
 
 <BannerLayout
   title={post.data.title}
-  description={post.data.excerpt || post.data.summary || ''}
+  description={getPostExcerpt(post)}
   ogImage={`/img/og/posts/${post.data.abbrlink}.png`}
   ogType="article"
 >
