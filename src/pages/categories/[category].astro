@@ -1,7 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import Banner from '@/components/Banner.astro';
+import BannerLayout from '@/layouts/BannerLayout.astro';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import Badge from '@/components/ui/badge.astro';
 import { estimateReadTime } from '@/lib/utils';
@@ -32,13 +31,12 @@ const allPosts = (await getCollection('posts')).sort(
 const categoryPosts = allPosts.filter((p) => p.data.category === category);
 ---
 
-<BaseLayout
+<BannerLayout
   title={`分类：${category}`}
   description={`浏览分类下的所有文章：${category}`}
   ogImage={`/img/og/categories/${category}.png`}
+  subtitle={`共 ${categoryPosts.length} 篇文章`}
 >
-  <Banner title={`分类：${category}`} subtitle={`共 ${categoryPosts.length} 篇文章`} />
-
   <div class="container mx-auto px-4 py-12">
     <div class="mx-auto max-w-4xl space-y-2">
       {
@@ -109,4 +107,4 @@ const categoryPosts = allPosts.filter((p) => p.data.category === category);
       }
     </div>
   </div>
-</BaseLayout>
+</BannerLayout>

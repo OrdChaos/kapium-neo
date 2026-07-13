@@ -1,7 +1,6 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import Banner from '@/components/Banner.astro';
-import Twikoo from '@/components/Twikoo.astro';
+import BannerLayout from '@/layouts/BannerLayout.astro';
+import Artalk from '@/components/Artalk';
 import { friendLinks } from '@/config/links';
 
 import ExternalLink from '@lucide/astro/icons/external-link';
@@ -9,9 +8,7 @@ import Info from '@lucide/astro/icons/info';
 import Users from '@lucide/astro/icons/users';
 ---
 
-<BaseLayout title="友链" description="朋友们" ogImage="/img/og/links.png">
-  <Banner title="友链" subtitle="朋友们" />
-
+<BannerLayout title="友链" description="朋友们" ogImage="/img/og/links.png" subtitle="朋友们">
   <div class="container mx-auto px-4 py-12">
     <div class="mx-auto max-w-6xl space-y-12">
       <section aria-label="友情链接">
@@ -90,8 +87,8 @@ import Users from '@lucide/astro/icons/users';
       </section>
 
       <section aria-label="评论区域">
-        <Twikoo path="/links" />
+        <Artalk client:only="react" path={`/links/`} />
       </section>
     </div>
   </div>
-</BaseLayout>
+</BannerLayout>

@@ -1,6 +1,5 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import Banner from '@/components/Banner.astro';
+import BannerLayout from '@/layouts/BannerLayout.astro';
 import { siteConfig } from '@/config/site';
 import Copy from '@lucide/astro/icons/copy';
 import Rss from '@lucide/astro/icons/rss';
@@ -16,9 +15,11 @@ const readers = [
 ];
 ---
 
-<BaseLayout title="订阅" description="通过 RSS 随时获取最新文章，无广告、无算法干扰">
-  <Banner title="订阅" subtitle="通过 RSS 随时获取最新文章，无广告、无算法干扰" />
-
+<BannerLayout
+  title="订阅"
+  description="通过 RSS 随时获取最新文章，无广告、无算法干扰"
+  subtitle="通过 RSS 随时获取最新文章，无广告、无算法干扰"
+>
   <div class="container mx-auto px-4 py-12">
     <div class="mx-auto max-w-2xl space-y-8">
       <div class="border-border bg-card relative overflow-hidden rounded-xl border shadow-lg">
@@ -115,4 +116,4 @@ const readers = [
       });
     });
   </script>
-</BaseLayout>
+</BannerLayout>

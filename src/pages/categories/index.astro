@@ -1,7 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import Banner from '@/components/Banner.astro';
+import BannerLayout from '@/layouts/BannerLayout.astro';
 import { Card } from '@/components/ui/card';
 import Badge from '@/components/ui/badge.astro';
 import ChevronRight from '@lucide/astro/icons/chevron-right';
@@ -21,9 +20,12 @@ const categories = Array.from(categoryMap.entries())
   .sort((a, b) => b.count - a.count);
 ---
 
-<BaseLayout title="文章分类" description="浏览本站所有文章分类" ogImage="/img/og/categories.png">
-  <Banner title="文章分类" subtitle="按主题浏览文章" />
-
+<BannerLayout
+  title="文章分类"
+  description="浏览本站所有文章分类"
+  ogImage="/img/og/categories.png"
+  subtitle="按主题浏览文章"
+>
   <div class="container mx-auto px-4 py-12">
     <div class="mx-auto grid max-w-4xl grid-cols-1 gap-2">
       {
@@ -49,4 +51,4 @@ const categories = Array.from(categoryMap.entries())
       }
     </div>
   </div>
-</BaseLayout>
+</BannerLayout>

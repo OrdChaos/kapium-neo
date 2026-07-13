@@ -1,0 +1,20 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Banner from '@/components/Banner.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+  ogType?: string;
+  subtitle?: string;
+  bannerHeight?: string;
+}
+
+const { title, description, ogImage, ogType, subtitle, bannerHeight } = Astro.props;
+---
+
+<BaseLayout title={title} description={description} ogImage={ogImage} ogType={ogType}>
+  <Banner title={title} subtitle={subtitle} height={bannerHeight} />
+  <slot />
+</BaseLayout>

@@ -1,7 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import Banner from '@/components/Banner.astro';
+import BannerLayout from '@/layouts/BannerLayout.astro';
 import Badge from '@/components/ui/badge.astro';
 
 import Hash from '@lucide/astro/icons/hash';
@@ -22,9 +21,12 @@ const tags = Array.from(tagMap.entries())
   .sort((a, b) => b.count - a.count);
 ---
 
-<BaseLayout title="标签" description="浏览本站所有标签" ogImage="/img/og/tags.png">
-  <Banner title="标签" subtitle="按标签浏览文章" />
-
+<BannerLayout
+  title="标签"
+  description="浏览本站所有标签"
+  ogImage="/img/og/tags.png"
+  subtitle="按标签浏览文章"
+>
   <div class="container mx-auto px-4 py-12">
     <div class="mx-auto max-w-4xl">
       <div class="flex flex-wrap gap-2">
@@ -50,4 +52,4 @@ const tags = Array.from(tagMap.entries())
       </div>
     </div>
   </div>
-</BaseLayout>
+</BannerLayout>

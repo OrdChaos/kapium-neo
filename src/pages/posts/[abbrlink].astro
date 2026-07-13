@@ -1,12 +1,10 @@
 ---
 import { getCollection, render } from 'astro:content';
 import 'katex/dist/katex.min.css';
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import Banner from '@/components/Banner.astro';
+import BannerLayout from '@/layouts/BannerLayout.astro';
 import LicenseBox from '@/components/LicenseBox.astro';
 import SocialShare from '@/components/SocialShare.astro';
-import Twikoo from '@/components/Twikoo.astro';
-import CommentSystem from '@/components/CommentSystem';
+import Artalk from '@/components/Artalk';
 import UmamiPageViews from '@/components/UmamiPageViews.astro';
 import Toc from '@/components/Toc.tsx';
 import { siteConfig } from '@/config/site';
@@ -41,14 +39,12 @@ const nextPost = currentIdx > 0 ? allPosts[currentIdx - 1] : null;
 const readTime = remarkPluginFrontmatter.readTime || 1;
 ---
 
-<BaseLayout
+<BannerLayout
   title={post.data.title}
   description={post.data.excerpt || post.data.summary || ''}
   ogImage={`/img/og/posts/${post.data.abbrlink}.png`}
   ogType="article"
 >
-  <Banner title={post.data.title} />
-
   <div class="grid grid-cols-1 px-4 py-12 xl:grid-cols-[1fr_768px_1fr] xl:gap-x-6">
     <div class="mx-auto w-full max-w-[768px] xl:col-start-2 xl:mx-0">
       <div class="mb-8 space-y-4">
@@ -185,8 +181,7 @@ const readTime = remarkPluginFrontmatter.readTime || 1;
         </div>
       </nav>
 
-      <!-- <Twikoo path={`/posts/${post.data.abbrlink}/`} /> -->
-      <CommentSystem client:only="react" path={`/posts/${post.data.abbrlink}/`} />
+      <Artalk client:only="react" path={`/posts/${post.data.abbrlink}/`} />
     </div>
 
     <Toc
@@ -259,4 +254,4 @@ const readTime = remarkPluginFrontmatter.readTime || 1;
     initExternalLinkInterception();
     document.addEventListener('astro:page-load', initExternalLinkInterception);
   </script>
-</BaseLayout>
+</BannerLayout>

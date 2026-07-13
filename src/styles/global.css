@@ -146,8 +146,8 @@ body[data-btt-visible='true'] .toc-mobile-btn {
   --destructive: oklch(0.6 0.22 25);
   --destructive-foreground: oklch(0.95 0.01 250);
 
-  --border: oklch(0.3 0.03 250);
-  --input: oklch(0.3 0.03 250);
+  --border: oklch(0.38 0.03 250);
+  --input: oklch(0.38 0.03 250);
   --ring: oklch(0.8 0.22 250);
 
   --chart-1: oklch(0.65 0.2 250);

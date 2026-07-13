@@ -1,10 +1,12 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import Banner from '@/components/Banner.astro';
+import BannerLayout from '@/layouts/BannerLayout.astro';
 ---
 
-<BaseLayout title="Cookies 政策" description="关于我们使用 Cookies 的说明">
-  <Banner title="Cookies 政策" subtitle="关于我们使用 Cookies 的说明" />
+<BannerLayout
+  title="Cookies 政策"
+  description="关于我们使用 Cookies 的说明"
+  subtitle="关于我们使用 Cookies 的说明"
+>
   <div class="container mx-auto px-4 py-12">
     <article aria-label="Cookies 政策内容">
       <div class="prose prose-lg dark:prose-invert mx-auto max-w-4xl">
@@ -78,4 +80,4 @@ import Banner from '@/components/Banner.astro';
       </div>
     </article>
   </div>
-</BaseLayout>
+</BannerLayout>

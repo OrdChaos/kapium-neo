@@ -1,7 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import Banner from '@/components/Banner.astro';
+import BannerLayout from '@/layouts/BannerLayout.astro';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import Badge from '@/components/ui/badge.astro';
 import { estimateReadTime } from '@/lib/utils';
@@ -34,13 +33,12 @@ const allPosts = (await getCollection('posts')).sort(
 const tagPosts = allPosts.filter((p) => p.data.tags?.includes(tag));
 ---
 
-<BaseLayout
+<BannerLayout
   title={`标签：${tag}`}
   description={`浏览标签下的所有文章：${tag}`}
   ogImage={`/img/og/tags/${tag}.png`}
+  subtitle={`共 ${tagPosts.length} 篇文章`}
 >
-  <Banner title={`标签：${tag}`} subtitle={`共 ${tagPosts.length} 篇文章`} />
-
   <div class="container mx-auto px-4 py-12">
     <div class="mx-auto max-w-4xl space-y-2">
       {
@@ -114,4 +112,4 @@ const tagPosts = allPosts.filter((p) => p.data.tags?.includes(tag));
       }
     </div>
   </div>
-</BaseLayout>
+</BannerLayout>

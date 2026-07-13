@@ -1,10 +1,8 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import Banner from '@/components/Banner.astro';
+import BannerLayout from '@/layouts/BannerLayout.astro';
 ---
 
-<BaseLayout title="版权政策" description="谐元场域内容使用说明">
-  <Banner title="版权政策" subtitle="谐元场域内容使用说明" />
+<BannerLayout title="版权政策" description="谐元场域内容使用说明" subtitle="谐元场域内容使用说明">
   <div class="container mx-auto px-4 py-12">
     <article aria-label="版权政策内容">
       <div class="prose prose-lg dark:prose-invert mx-auto max-w-4xl">
@@ -98,4 +96,4 @@ import Banner from '@/components/Banner.astro';
       </div>
     </article>
   </div>
-</BaseLayout>
+</BannerLayout>
