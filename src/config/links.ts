@@ -7,28 +7,10 @@ export interface FriendLink {
 
 export const friendLinks: FriendLink[] = [
   {
-    name: '张洪 Heo',
-    url: 'https://blog.zhheo.com/',
-    avatar: 'https://base.pics.ordchaos.com/2022/12/c6c21206be07e810b13d0e53ec23c04c.png',
-    description: '分享设计与科技生活',
-  },
-  {
-    name: "CyanFalse's Weblog",
-    url: 'https://blog.eurekac.cn',
-    avatar: 'https://base.pics.ordchaos.com/2024/08/5043867532127a1cb6f4ac6b11f3b255.png',
-    description: "I'm CyanFalse, New to Here.",
-  },
-  {
-    name: '潘高的小站',
-    url: 'https://blog.pangao.vip',
-    avatar: 'https://base.pics.ordchaos.com/2024/08/d4e64f83c47cb4b3e63897b7257850c5.png',
-    description: 'IT套路深，必须瞎折腾',
-  },
-  {
-    name: 'Tianli',
-    url: 'https://blog.tianli0.top/',
-    avatar: 'https://base.pics.ordchaos.com/2023/07/f982025551e24c8ddaf9d34825cc3e7b.png',
-    description: '惟其不可能，所以才相信。',
+    name: 'Admibrill',
+    url: 'https://blog.qyadbr.top',
+    avatar: 'https://base.pics.ordchaos.com/2026/03/94f584c38b1800c8e60709e094c5f9e0.png',
+    description: '有志者,事竟成.',
   },
   {
     name: 'Akilarの糖果屋',
@@ -43,34 +25,22 @@ export const friendLinks: FriendLink[] = [
     description: '在这里可以看到一个真实的我，我会在这里书写我的一切',
   },
   {
+    name: 'CrisQ',
+    url: 'https://crisq.top',
+    avatar: 'https://base.pics.ordchaos.com/2026/03/1e28e86b1354da521aaca1d0cc5dd6fe.png',
+    description: 'Superbia',
+  },
+  {
+    name: "CyanFalse's Weblog",
+    url: 'https://blog.eurekac.cn',
+    avatar: 'https://base.pics.ordchaos.com/2024/08/5043867532127a1cb6f4ac6b11f3b255.png',
+    description: "I'm CyanFalse, New to Here.",
+  },
+  {
     name: '风记星辰',
     url: 'https://www.thyuu.com',
     avatar: 'https://base.pics.ordchaos.com/2024/08/4756d87bf9c1330363a96fa018fdcc1e.png',
     description: '热爱你来过的每度温暖',
-  },
-  {
-    name: 'Kloudy Shape',
-    url: 'https://shape.kloudy.cn/',
-    avatar: 'https://base.pics.ordchaos.com/2024/08/5225e8e48877bfb9ab367567d244ffae.png',
-    description: 'Stay Hungry, Stay Foolish',
-  },
-  {
-    name: 'Leonus',
-    url: 'https://blog.leonus.cn/',
-    avatar: 'https://base.pics.ordchaos.com/2024/08/1672cb54fae2146d10102b1637ca7174.png',
-    description: '进一寸有进一寸的欢喜',
-  },
-  {
-    name: "Zeruns's Blog",
-    url: 'https://blog.zeruns.tech',
-    avatar: 'https://base.pics.ordchaos.com/2024/08/813637eabe33fcf6151961a010b4fef4.png',
-    description: '爱折腾软件和硬件的技术宅',
-  },
-  {
-    name: '岚天小窝',
-    url: 'https://blog.ltya.top',
-    avatar: 'https://base.pics.ordchaos.com/2024/08/5f361efacf7b1fbbc3993fe85591c37f.png',
-    description: '一只鸽子住在这里~',
   },
   {
     name: '光速大佬的小站',
@@ -79,10 +49,22 @@ export const friendLinks: FriendLink[] = [
     description: '独步天下，吾心自洁，无欲无求，如林中之象。',
   },
   {
-    name: 'Admibrill',
-    url: 'https://blog.qyadbr.top',
-    avatar: 'https://base.pics.ordchaos.com/2026/03/94f584c38b1800c8e60709e094c5f9e0.png',
-    description: '有志者,事竟成.',
+    name: 'Kloudy Shape',
+    url: 'https://shape.kloudy.cn/',
+    avatar: 'https://base.pics.ordchaos.com/2024/08/5225e8e48877bfb9ab367567d244ffae.png',
+    description: 'Stay Hungry, Stay Foolish',
+  },
+  {
+    name: '岚天小窝',
+    url: 'https://blog.ltya.top',
+    avatar: 'https://base.pics.ordchaos.com/2024/08/5f361efacf7b1fbbc3993fe85591c37f.png',
+    description: '一只鸽子住在这里~',
+  },
+  {
+    name: 'Leonus',
+    url: 'https://blog.leonus.cn/',
+    avatar: 'https://base.pics.ordchaos.com/2024/08/1672cb54fae2146d10102b1637ca7174.png',
+    description: '进一寸有进一寸的欢喜',
   },
   {
     name: "Liu Zijian's Blog",
@@ -91,9 +73,33 @@ export const friendLinks: FriendLink[] = [
     description: '道阻且长，行则将至',
   },
   {
-    name: 'CrisQ',
-    url: 'https://crisq.top',
-    avatar: 'https://base.pics.ordchaos.com/2026/03/1e28e86b1354da521aaca1d0cc5dd6fe.png',
-    description: 'Superbia',
+    name: 'Mello的赛博本子',
+    url: 'https://rua.ink',
+    avatar: 'https://base.pics.ordchaos.com/2026/07/65ff214db6b1df5efd0df5ec08a16a9a.jpg',
+    description: '在本子上写写画画',
+  },
+  {
+    name: '潘高的小站',
+    url: 'https://blog.pangao.vip',
+    avatar: 'https://base.pics.ordchaos.com/2024/08/d4e64f83c47cb4b3e63897b7257850c5.png',
+    description: 'IT套路深，必须瞎折腾',
+  },
+  {
+    name: 'Tianli',
+    url: 'https://blog.tianli0.top/',
+    avatar: 'https://base.pics.ordchaos.com/2023/07/f982025551e24c8ddaf9d34825cc3e7b.png',
+    description: '惟其不可能，所以才相信。',
+  },
+  {
+    name: "Zeruns's Blog",
+    url: 'https://blog.zeruns.tech',
+    avatar: 'https://base.pics.ordchaos.com/2024/08/813637eabe33fcf6151961a010b4fef4.png',
+    description: '爱折腾软件和硬件的技术宅',
+  },
+  {
+    name: '张洪 Heo',
+    url: 'https://blog.zhheo.com/',
+    avatar: 'https://base.pics.ordchaos.com/2022/12/c6c21206be07e810b13d0e53ec23c04c.png',
+    description: '分享设计与科技生活',
   },
 ];

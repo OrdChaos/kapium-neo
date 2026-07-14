@@ -11,7 +11,7 @@ import { ArtalkClient } from '@/lib/artalk/client';
 import type { CommentItem } from '@/lib/artalk/adapter';
 import { fetchComments, postComment } from '@/lib/artalk/adapter';
 import { getConf } from '@/lib/artalk/system';
-import { getCaptchaStatus } from '@/lib/artalk/captcha';
+import { getCaptchaStatus, getCaptcha, verifyCaptcha } from '@/lib/artalk/captcha';
 import { login as adminLogin } from '@/lib/artalk/user';
 import { artalkConfig } from '@/config/artalk';
 
@@ -198,6 +198,24 @@ function safeMarkdownRender(content: string) {
 
 const ALLOWED_SCHEMES = ['http:', 'https:', 'mailto:'];
 
+type CaptchaState =
+  | {
+      type: 'image';
+      imgData: string;
+      target: 'top' | number;
+      onVerify: (code: string) => Promise<void>;
+      onRefresh: () => Promise<void>;
+      onCancel: () => void;
+    }
+  | {
+      type: 'iframe';
+      url: string;
+      target: 'top' | number;
+      onVerified: () => void;
+      onCancel: () => void;
+    }
+  | null;
+
 function safeUrl(url: string | null | undefined): string | undefined {
   if (!url) return undefined;
   let parsed: URL;
@@ -330,7 +348,7 @@ function CommentForm({
   replyTo?: string;
   loading?: boolean;
   conf: FrontendConf;
-  captchaState?: { url: string; onVerified: () => void; onCancel: () => void } | null;
+  captchaState?: CaptchaState;
 }) {
   const locked = !!captchaState;
   const [formData, setFormData] = useState<FormData>({
@@ -339,6 +357,10 @@ function CommentForm({
     website: '',
     content: '',
   });
+  // 图片验证码状态
+  const [captchaCode, setCaptchaCode] = useState('');
+  const [captchaError, setCaptchaError] = useState('');
+  const [captchaVerifying, setCaptchaVerifying] = useState(false);
 
   useEffect(() => {
     try {
@@ -471,7 +493,12 @@ function CommentForm({
       showToast('请填写昵称、邮箱和评论内容', 2000, 'error');
       return;
     }
-    const ok = await onSubmit(formData);
+    const normalizedWebsite = formData.website.trim()
+      ? formData.website.includes('://')
+        ? formData.website.trim()
+        : `https://${formData.website.trim()}`
+      : '';
+    const ok = await onSubmit({ ...formData, website: normalizedWebsite });
     if (ok) {
       setFormData((prev) => ({ ...prev, content: '' }));
       setShowPreview(false);
@@ -506,7 +533,8 @@ function CommentForm({
           />
           <input
             className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-            type="url"
+            type="text"
+            inputMode="url"
             placeholder="网站（可选）"
             value={formData.website}
             onChange={(e) => setFormData({ ...formData, website: e.target.value })}
@@ -661,12 +689,77 @@ function CommentForm({
         {}
         {captchaState && (
           <div className="mt-2 flex justify-end">
-            <iframe
-              src={captchaState.url}
-              referrerPolicy="strict-origin-when-cross-origin"
-              className="h-[78px] w-[300px] border-0"
-              title="Captcha"
-            />
+            {captchaState.type === 'iframe' ? (
+              <iframe
+                src={captchaState.url}
+                referrerPolicy="strict-origin-when-cross-origin"
+                className="h-[78px] w-[300px] border-0"
+                title="Captcha"
+              />
+            ) : (
+              <div>
+                <div className="flex items-center gap-2">
+                  <img
+                    src={captchaState.imgData}
+                    alt="验证码"
+                    className="h-9 w-[120px] cursor-pointer rounded border object-contain"
+                    onClick={() => captchaState.onRefresh()}
+                    title="点击刷新验证码"
+                  />
+                  <input
+                    className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring h-9 w-28 rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                    placeholder="验证码"
+                    value={captchaCode}
+                    onChange={(e) => {
+                      setCaptchaCode(e.target.value);
+                      setCaptchaError('');
+                    }}
+                    onKeyDown={async (e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        setCaptchaVerifying(true);
+                        setCaptchaError('');
+                        try {
+                          await captchaState.onVerify(captchaCode.trim());
+                          setCaptchaCode('');
+                        } catch {
+                          setCaptchaError('验证码错误');
+                          setCaptchaCode('');
+                          await captchaState.onRefresh();
+                        } finally {
+                          setCaptchaVerifying(false);
+                        }
+                      }
+                    }}
+                    disabled={captchaVerifying}
+                    autoFocus
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={captchaVerifying || !captchaCode.trim()}
+                    onClick={async () => {
+                      setCaptchaVerifying(true);
+                      setCaptchaError('');
+                      try {
+                        await captchaState.onVerify(captchaCode.trim());
+                        setCaptchaCode('');
+                      } catch {
+                        setCaptchaError('验证码错误');
+                        setCaptchaCode('');
+                        await captchaState.onRefresh();
+                      } finally {
+                        setCaptchaVerifying(false);
+                      }
+                    }}
+                  >
+                    {captchaVerifying && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
+                    验证
+                  </Button>
+                </div>
+                {captchaError && <p className="text-destructive mt-1 text-xs">{captchaError}</p>}
+              </div>
+            )}
           </div>
         )}
       </form>
@@ -683,6 +776,7 @@ function CommentItemComponent({
   onCancelReply,
   loading,
   conf,
+  captchaState,
 }: {
   comment: NestedComment;
   isReply?: boolean;
@@ -692,6 +786,7 @@ function CommentItemComponent({
   onCancelReply: () => void;
   loading: boolean;
   conf: FrontendConf;
+  captchaState?: CaptchaState;
 }) {
   const ua = parseUa(comment.ua);
   const OSIcon = ua.os ? OS_ICONS[ua.os] : null;
@@ -817,6 +912,7 @@ function CommentItemComponent({
             replyTo={comment.nickname}
             loading={loading}
             conf={conf}
+            captchaState={captchaState?.target === comment.id ? captchaState : null}
           />
         </div>
       </div>
@@ -832,6 +928,7 @@ function ReplySection({
   onCancelReply,
   loading,
   conf,
+  captchaState,
 }: {
   replies: NestedComment[];
   onReply: (id: number | null) => void;
@@ -840,6 +937,7 @@ function ReplySection({
   onCancelReply: () => void;
   loading: boolean;
   conf: FrontendConf;
+  captchaState?: CaptchaState;
 }) {
   const [expanded, setExpanded] = useState(false);
   if (replies.length === 0) return null;
@@ -861,6 +959,7 @@ function ReplySection({
           onCancelReply={onCancelReply}
           loading={loading}
           conf={conf}
+          captchaState={captchaState}
         />
       ))}
       {hiddenReplies.length > 0 && (
@@ -882,6 +981,7 @@ function ReplySection({
                   onCancelReply={onCancelReply}
                   loading={loading}
                   conf={conf}
+                  captchaState={captchaState}
                 />
               ))}
             </div>
@@ -910,15 +1010,16 @@ export default function CommentSystem({ path }: { path: string }) {
   const [error, setError] = useState<string | null>(null);
   const loaderRef = useRef<HTMLDivElement>(null);
   const [topFormKey, setTopFormKey] = useState(0);
-  const [captchaState, setCaptchaState] = useState<{
-    url: string;
-    onVerified: () => void;
-    onCancel: () => void;
-  } | null>(null);
+  const [captchaState, setCaptchaState] = useState<CaptchaState>(null);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminLoginErr, setAdminLoginErr] = useState('');
   const [adminForm, setAdminForm] = useState({ email: '', password: '' });
-  const [adminCaptchaUrl, setAdminCaptchaUrl] = useState<string | null>(null);
+  const [adminCaptcha, setAdminCaptcha] = useState<
+    { type: 'image'; imgData: string } | { type: 'iframe'; url: string } | null
+  >(null);
+  const [adminCaptchaCode, setAdminCaptchaCode] = useState('');
+  const [adminCaptchaError, setAdminCaptchaError] = useState('');
+  const [adminCaptchaLoading, setAdminCaptchaLoading] = useState(false);
   const pendingSubmit = useRef<(() => Promise<boolean>) | null>(null);
 
   useEffect(() => {
@@ -996,14 +1097,21 @@ export default function CommentSystem({ path }: { path: string }) {
       localStorage.setItem('artalk-admin-token', res.token);
       setShowAdminLogin(false);
       setAdminLoginErr('');
-      setAdminCaptchaUrl(null);
+      setAdminCaptcha(null);
       showToast('登录成功', 2000, 'success');
       pendingSubmit.current?.();
       pendingSubmit.current = null;
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '登录失败';
       if (msg.includes('验证码') || msg.includes('captcha')) {
-        setAdminCaptchaUrl(client.getCaptchaUrl());
+        try {
+          const captchaRes = await getCaptcha(client);
+          if (captchaRes.img_data) {
+            setAdminCaptcha({ type: 'image', imgData: captchaRes.img_data });
+            return;
+          }
+        } catch {}
+        setAdminCaptcha({ type: 'iframe', url: client.getCaptchaUrl() });
         return;
       }
       setAdminLoginErr(msg);
@@ -1018,7 +1126,9 @@ export default function CommentSystem({ path }: { path: string }) {
   const closeAdminLogin = () => {
     setShowAdminLogin(false);
     setSubmitting(false);
-    setAdminCaptchaUrl(null);
+    setAdminCaptcha(null);
+    setAdminCaptchaCode('');
+    setAdminCaptchaError('');
     pendingSubmit.current = null;
   };
 
@@ -1075,23 +1185,77 @@ export default function CommentSystem({ path }: { path: string }) {
   }, [nextCursor, conf.pagination?.readMore, loadComments]);
 
   useEffect(() => {
-    if (!captchaState && !adminCaptchaUrl) return;
+    const isIframeCaptcha = captchaState?.type === 'iframe';
+    const isAdminIframe = adminCaptcha?.type === 'iframe';
+    if (!isIframeCaptcha && !isAdminIframe) return;
     const interval = setInterval(async () => {
       try {
         const res = await getCaptchaStatus(client);
         if (res.is_pass) {
-          if (captchaState) captchaState.onVerified();
-          else if (adminCaptchaUrl) {
-            setAdminCaptchaUrl(null);
+          if (isIframeCaptcha && captchaState?.type === 'iframe') {
+            captchaState.onVerified();
+          } else if (isAdminIframe) {
+            setAdminCaptcha(null);
             handleAdminLogin();
           }
         }
       } catch {}
     }, 1500);
     return () => clearInterval(interval);
-  }, [captchaState, adminCaptchaUrl, client]);
+  }, [captchaState, adminCaptcha, client]);
 
   const totalComments = comments.reduce((acc, c) => acc + 1 + c.replies.length, 0);
+
+  /** 获取验证码类型并设置状态，优先图片，回退 iframe */
+  const setupCaptcha = useCallback(
+    async (target: 'top' | number) => {
+      try {
+        const res = await getCaptcha(client);
+        if (res.img_data) {
+          setCaptchaState({
+            type: 'image',
+            imgData: res.img_data,
+            target,
+            onVerify: async (code: string) => {
+              await verifyCaptcha(client, { value: code });
+              setCaptchaState(null);
+              pendingSubmit.current?.();
+              pendingSubmit.current = null;
+            },
+            onRefresh: async () => {
+              const fresh = await getCaptcha(client);
+              setCaptchaState((prev) =>
+                prev?.type === 'image' ? { ...prev, imgData: fresh.img_data } : prev,
+              );
+            },
+            onCancel: () => {
+              setCaptchaState(null);
+              pendingSubmit.current = null;
+              setSubmitting(false);
+            },
+          });
+          return;
+        }
+      } catch {}
+      // 回退到 iframe
+      setCaptchaState({
+        type: 'iframe',
+        url: client.getCaptchaUrl(),
+        target,
+        onVerified: () => {
+          setCaptchaState(null);
+          pendingSubmit.current?.();
+          pendingSubmit.current = null;
+        },
+        onCancel: () => {
+          setCaptchaState(null);
+          pendingSubmit.current = null;
+          setSubmitting(false);
+        },
+      });
+    },
+    [client],
+  );
 
   const handleSubmitComment = async (data: FormData): Promise<boolean> => {
     const doSubmit = async () => {
@@ -1115,19 +1279,7 @@ export default function CommentSystem({ path }: { path: string }) {
         const msg = err instanceof Error ? err.message : '发表评论失败';
         if (msg.includes('验证码') || msg.includes('captcha')) {
           pendingSubmit.current = doSubmit;
-          setCaptchaState({
-            url: client.getCaptchaUrl(),
-            onVerified: () => {
-              setCaptchaState(null);
-              pendingSubmit.current?.();
-              pendingSubmit.current = null;
-            },
-            onCancel: () => {
-              setCaptchaState(null);
-              pendingSubmit.current = null;
-              setSubmitting(false);
-            },
-          });
+          await setupCaptcha('top');
           return false;
         }
         if (msg.includes('管理员') || msg.includes('admin')) {
@@ -1166,19 +1318,7 @@ export default function CommentSystem({ path }: { path: string }) {
         const msg = err instanceof Error ? err.message : '发表回复失败';
         if (msg.includes('验证码') || msg.includes('captcha')) {
           pendingSubmit.current = doSubmit;
-          setCaptchaState({
-            url: client.getCaptchaUrl(),
-            onVerified: () => {
-              setCaptchaState(null);
-              pendingSubmit.current?.();
-              pendingSubmit.current = null;
-            },
-            onCancel: () => {
-              setCaptchaState(null);
-              pendingSubmit.current = null;
-              setSubmitting(false);
-            },
-          });
+          await setupCaptcha(parentId);
           return false;
         }
         if (msg.includes('管理员') || msg.includes('admin')) {
@@ -1201,7 +1341,7 @@ export default function CommentSystem({ path }: { path: string }) {
         onSubmit={handleSubmitComment}
         loading={submitting}
         conf={conf}
-        captchaState={captchaState}
+        captchaState={captchaState?.target === 'top' ? captchaState : null}
       />
 
       <div className="mt-6" />
@@ -1232,6 +1372,7 @@ export default function CommentSystem({ path }: { path: string }) {
                 onCancelReply={() => setReplyingTo(null)}
                 loading={submitting}
                 conf={conf}
+                captchaState={captchaState}
               />
               <ReplySection
                 replies={comment.replies}
@@ -1241,6 +1382,7 @@ export default function CommentSystem({ path }: { path: string }) {
                 onCancelReply={() => setReplyingTo(null)}
                 loading={submitting}
                 conf={conf}
+                captchaState={captchaState}
               />
               {index < comments.length - 1 && <div className="mb-1" />}
             </div>
@@ -1295,14 +1437,78 @@ export default function CommentSystem({ path }: { path: string }) {
                 </Button>
                 <Button onClick={handleAdminLogin}>登录</Button>
               </div>
-              {adminCaptchaUrl && (
-                <div className="mt-3 flex justify-end">
-                  <iframe
-                    src={adminCaptchaUrl}
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    className="h-[78px] w-[300px] border-0"
-                    title="Captcha"
-                  />
+              {adminCaptcha && (
+                <div className="mt-3 flex flex-col gap-2">
+                  {adminCaptcha.type === 'iframe' ? (
+                    <div className="flex justify-end">
+                      <iframe
+                        src={adminCaptcha.url}
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        className="h-[78px] w-[300px] border-0"
+                        title="Captcha"
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <img
+                          src={adminCaptcha.imgData}
+                          alt="验证码"
+                          className="h-9 w-[120px] cursor-pointer rounded border object-contain"
+                          onClick={async () => {
+                            try {
+                              const res = await getCaptcha(client);
+                              if (res.img_data)
+                                setAdminCaptcha({ type: 'image', imgData: res.img_data });
+                            } catch {}
+                          }}
+                          title="点击刷新验证码"
+                        />
+                        <input
+                          className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring h-9 w-28 rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                          placeholder="验证码"
+                          value={adminCaptchaCode}
+                          onChange={(e) => {
+                            setAdminCaptchaCode(e.target.value);
+                            setAdminCaptchaError('');
+                          }}
+                          disabled={adminCaptchaLoading}
+                          autoFocus
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          disabled={adminCaptchaLoading || !adminCaptchaCode.trim()}
+                          onClick={async () => {
+                            setAdminCaptchaLoading(true);
+                            setAdminCaptchaError('');
+                            try {
+                              await verifyCaptcha(client, { value: adminCaptchaCode.trim() });
+                              setAdminCaptcha(null);
+                              setAdminCaptchaCode('');
+                              await handleAdminLogin();
+                            } catch {
+                              setAdminCaptchaError('验证码错误');
+                              setAdminCaptchaCode('');
+                              try {
+                                const res = await getCaptcha(client);
+                                if (res.img_data)
+                                  setAdminCaptcha({ type: 'image', imgData: res.img_data });
+                              } catch {}
+                            } finally {
+                              setAdminCaptchaLoading(false);
+                            }
+                          }}
+                        >
+                          {adminCaptchaLoading && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
+                          验证
+                        </Button>
+                      </div>
+                      {adminCaptchaError && (
+                        <p className="text-destructive mt-1 text-xs">{adminCaptchaError}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
