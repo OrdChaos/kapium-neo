@@ -906,6 +906,7 @@ function CommentItemComponent({
       >
         <div className="min-h-0">
           <CommentForm
+            key={`reply-${comment.id}-${replyingTo === comment.id}`}
             onSubmit={(data) => onSubmitReply(comment.id, data)}
             onCancel={onCancelReply}
             isReply
