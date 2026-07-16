@@ -4,64 +4,78 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import Badge from '@/components/ui/badge.astro';
 import { Icon } from 'astro-icon/components';
 import { profile } from '@/config/profile';
+import { cn } from '@/lib/utils';
 
 import Sparkles from '@lucide/astro/icons/sparkles';
 import Briefcase from '@lucide/astro/icons/briefcase';
 import MapPin from '@lucide/astro/icons/map-pin';
 import Zap from '@lucide/astro/icons/zap';
 import Heart from '@lucide/astro/icons/heart';
-import Target from '@lucide/astro/icons/target';
 import Gamepad2 from '@lucide/astro/icons/gamepad-2';
 import FolderGit2 from '@lucide/astro/icons/folder-git-2';
 import ExternalLink from '@lucide/astro/icons/external-link';
 import Wrench from '@lucide/astro/icons/wrench';
 import GraduationCap from '@lucide/astro/icons/graduation-cap';
 
-const hasIdentity = profile.alignment || (profile.pursuits && profile.pursuits.length > 0);
+const hasMbti = !!profile.mbti;
+
+const hasIdentity = !!(profile.alignment || (profile.pursuits && profile.pursuits.length > 0));
+
 const hasInterests =
   (profile.games && profile.games.length > 0) ||
   (profile.interests && profile.interests.length > 0);
+
+const cardClass = 'gap-4 hover:border-primary/50 duration-300 hover:shadow-lg';
+
+const compactBadgeClass = 'px-2.5 py-1 font-normal';
 ---
 
 <BannerLayout title="关于" description="了解更多" ogImage="/img/og/about.png" subtitle="了解更多">
-  <div class="container mx-auto px-4 py-12">
-    <div class="mx-auto max-w-4xl">
-      <Card class="hover:border-primary/50 mb-8 duration-300 hover:shadow-lg">
-        <CardHeader>
-          <div class="flex flex-col items-center gap-6 md:flex-row">
+  <div class="container mx-auto px-4 py-10 md:py-12">
+    <div class="mx-auto max-w-4xl space-y-6">
+      <!-- 个人信息 -->
+      <Card class={cardClass}>
+        <CardHeader class="pb-2">
+          <div class="flex flex-col items-center gap-5 md:flex-row md:items-start">
             <img
               src={profile.avatar}
               alt={profile.name}
-              class="border-border h-24 w-24 shrink-0 rounded-full border-4 object-cover md:h-32 md:w-32"
+              width="128"
+              height="128"
+              decoding="async"
+              class="border-border h-24 w-24 shrink-0 rounded-full border-2 object-cover md:h-28 md:w-28"
             />
-            <div class="flex-1 text-center md:text-left">
-              <CardTitle class="mb-2 text-3xl">
+
+            <div class="min-w-0 flex-1 text-center md:text-left">
+              <CardTitle class="text-2xl font-semibold tracking-tight md:text-3xl">
                 {profile.name}
               </CardTitle>
 
               {
                 profile.titleFull && (
-                  <div class="text-primary mt-2 flex items-center justify-center gap-2 font-medium md:justify-start">
-                    <Sparkles class="h-4 w-4" />
+                  <div class="text-foreground mt-2 flex items-center justify-center gap-2 font-medium md:justify-start">
+                    <Sparkles class="text-primary h-4 w-4 shrink-0" />
                     <span>{profile.titleFull}</span>
                   </div>
                 )
               }
 
               {
-                profile.title && (
-                  <div class="text-muted-foreground mt-2 flex items-center justify-center gap-2 md:justify-start">
-                    <Briefcase class="h-4 w-4" />
-                    <span>{profile.title}</span>
-                  </div>
-                )
-              }
+                (profile.title || profile.location) && (
+                  <div class="text-muted-foreground mt-3 flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm md:justify-start">
+                    {profile.title && (
+                      <span class="flex items-center gap-1.5">
+                        <Briefcase class="h-4 w-4 shrink-0" />
+                        {profile.title}
+                      </span>
+                    )}
 
-              {
-                profile.location && (
-                  <div class="text-muted-foreground mt-2 flex items-center justify-center gap-2 md:justify-start">
-                    <MapPin class="h-4 w-4" />
-                    <span>{profile.location}</span>
+                    {profile.location && (
+                      <span class="flex items-center gap-1.5">
+                        <MapPin class="h-4 w-4 shrink-0" />
+                        {profile.location}
+                      </span>
+                    )}
                   </div>
                 )
               }
@@ -75,9 +89,10 @@ const hasInterests =
                         target="_blank"
                         rel="noopener noreferrer"
                         title={social.platform}
-                        class="border-border/70 bg-background text-foreground hover:border-primary/30 hover:bg-muted/30 flex h-9 w-9 items-center justify-center rounded-md border transition-all"
+                        aria-label={`访问 ${social.platform}`}
+                        class="border-border/70 text-muted-foreground hover:border-primary/30 hover:bg-muted/40 hover:text-foreground flex h-9 w-9 items-center justify-center rounded-md border transition-colors"
                       >
-                        <Icon name={social.icon} class="h-5 w-5" />
+                        <Icon name={social.icon} class="h-4.5 w-4.5" />
                       </a>
                     ))}
                   </div>
@@ -90,145 +105,90 @@ const hasInterests =
         {
           profile.bio && (
             <CardContent>
-              <p class="text-muted-foreground text-center leading-relaxed md:text-left">
-                {profile.bio}
-              </p>
+              <div class="border-border/70 border-t pt-5">
+                <p class="text-muted-foreground text-center text-sm leading-7 md:text-left md:text-base">
+                  {profile.bio}
+                </p>
+              </div>
             </CardContent>
           )
         }
       </Card>
 
+      <!-- MBTI 与身份认同 -->
       {
-        profile.mbti && (
-          <Card class="hover:border-primary/50 mb-8 duration-300 hover:shadow-lg">
-            <CardHeader>
-              <CardTitle class="flex items-center gap-2">
-                <Zap class="h-5 w-5" />
-                MBTI 人格
-              </CardTitle>
-            </CardHeader>
-            <CardContent class="space-y-4">
-              <div class="flex flex-wrap items-center gap-3">
-                <Badge variant="secondary" class="px-5 py-2 text-lg">
-                  {profile.mbti}
-                  {profile.mbtiTitle && (
-                    <span class="text-muted-foreground ml-2 text-sm">({profile.mbtiTitle})</span>
-                  )}
-                </Badge>
-                {profile.mbtiRole && (
-                  <Badge variant="outline" class="px-4 py-1.5 text-sm">
-                    角色：{profile.mbtiRole}
-                  </Badge>
-                )}
-                {profile.mbtiStrategy && (
-                  <Badge variant="outline" class="px-4 py-1.5 text-sm">
-                    策略：{profile.mbtiStrategy}
-                  </Badge>
-                )}
-              </div>
-
-              {profile.mbtiTraits && profile.mbtiTraits.length > 0 && (
-                <div class="space-y-3">
-                  <div class="text-muted-foreground text-sm font-medium">人格特征</div>
-                  {profile.mbtiTraits.map((trait) => (
-                    <div class="space-y-1">
-                      <div class="flex justify-between text-sm">
-                        <span>{trait.name}</span>
-                        <span class="text-muted-foreground">{trait.value}%</span>
-                      </div>
-                      <div class="bg-secondary h-2 w-full overflow-hidden rounded-full">
-                        <div
-                          class="bg-primary h-full transition-all duration-500"
-                          style={`width: ${trait.value}%`}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )
-      }
-
-      {
-        (hasIdentity || hasInterests) && (
-          <div class="mb-8 grid gap-8 md:grid-cols-2">
-            {hasIdentity && (
-              <Card class="hover:border-primary/50 duration-300 hover:shadow-lg">
-                <CardHeader>
-                  <CardTitle class="flex items-center gap-2">
-                    <Heart class="h-5 w-5" />
-                    身份认同
+        (hasMbti || hasIdentity) && (
+          <div class="grid items-stretch gap-6 md:grid-cols-2">
+            {hasMbti && (
+              <Card class={cn(cardClass, 'h-full')}>
+                <CardHeader class="pb-2">
+                  <CardTitle class="flex items-center gap-2 text-lg">
+                    <Zap class="text-muted-foreground h-5 w-5" />
+                    MBTI 人格
                   </CardTitle>
                 </CardHeader>
-                <CardContent class="space-y-4">
-                  {profile.alignment && (
-                    <div class="space-y-2">
-                      <div class="text-muted-foreground flex items-center gap-2 text-sm font-medium">
-                        <Target class="h-4 w-4" />
-                        阵营
-                      </div>
-                      <Badge variant="secondary" class="px-4 py-2 text-base">
-                        {profile.alignment}
-                      </Badge>
-                    </div>
-                  )}
 
-                  {profile.pursuits && profile.pursuits.length > 0 && (
-                    <div class="space-y-2">
-                      <div class="text-muted-foreground flex items-center gap-2 text-sm font-medium">
-                        <Heart class="h-4 w-4" />
-                        追求
-                      </div>
-                      <div class="flex flex-wrap gap-2">
-                        {profile.pursuits.map((pursuit) => (
-                          <Badge variant="secondary" class="px-3 py-1.5">
-                            {pursuit}
-                          </Badge>
-                        ))}
-                      </div>
+                <CardContent class="space-y-5">
+                  <div>
+                    <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                      <span class="text-primary text-2xl font-semibold tracking-tight">
+                        {profile.mbti}
+                      </span>
+
+                      {profile.mbtiTitle && (
+                        <span class="text-muted-foreground text-sm">{profile.mbtiTitle}</span>
+                      )}
                     </div>
+                  </div>
+
+                  {(profile.mbtiRole || profile.mbtiStrategy) && (
+                    <dl class="divide-border/70 divide-y text-sm">
+                      {profile.mbtiRole && (
+                        <div class="flex items-start justify-between gap-4 py-2.5 first:pt-0">
+                          <dt class="text-muted-foreground shrink-0">角色</dt>
+                          <dd class="text-foreground text-right font-medium">{profile.mbtiRole}</dd>
+                        </div>
+                      )}
+
+                      {profile.mbtiStrategy && (
+                        <div class="flex items-start justify-between gap-4 py-2.5 last:pb-0">
+                          <dt class="text-muted-foreground shrink-0">策略</dt>
+                          <dd class="text-foreground text-right font-medium">
+                            {profile.mbtiStrategy}
+                          </dd>
+                        </div>
+                      )}
+                    </dl>
                   )}
                 </CardContent>
               </Card>
             )}
 
-            {hasInterests && (
-              <Card class="hover:border-primary/50 duration-300 hover:shadow-lg">
-                <CardHeader>
-                  <CardTitle class="flex items-center gap-2">
-                    <Gamepad2 class="h-5 w-5" />
-                    兴趣爱好
+            {hasIdentity && (
+              <Card class={cn(cardClass, 'h-full')}>
+                <CardHeader class="pb-2">
+                  <CardTitle class="flex items-center gap-2 text-lg">
+                    <Heart class="text-muted-foreground h-5 w-5" />
+                    身份认同
                   </CardTitle>
                 </CardHeader>
-                <CardContent class="space-y-4">
-                  {profile.games && profile.games.length > 0 && (
+
+                <CardContent class="space-y-5">
+                  {profile.alignment && (
                     <div class="space-y-2">
-                      <div class="text-muted-foreground flex items-center gap-2 text-sm font-medium">
-                        <Gamepad2 class="h-4 w-4" />
-                        爱好游戏
-                      </div>
-                      <div class="flex flex-wrap gap-2">
-                        {profile.games.map((game) => (
-                          <Badge variant="secondary" class="px-3 py-1.5">
-                            {game}
-                          </Badge>
-                        ))}
-                      </div>
+                      <p class="text-muted-foreground text-sm">阵营</p>
+                      <p class="text-foreground font-medium">{profile.alignment}</p>
                     </div>
                   )}
 
-                  {profile.interests && profile.interests.length > 0 && (
-                    <div class="space-y-2">
-                      <div class="text-muted-foreground flex items-center gap-2 text-sm font-medium">
-                        <Sparkles class="h-4 w-4" />
-                        关注偏好
-                      </div>
+                  {profile.pursuits && profile.pursuits.length > 0 && (
+                    <div class="space-y-3">
+                      <p class="text-muted-foreground text-sm">追求</p>
+
                       <div class="flex flex-wrap gap-2">
-                        {profile.interests.map((interest) => (
-                          <Badge variant="secondary" class="px-3 py-1.5">
-                            {interest}
+                        {profile.pursuits.map((pursuit) => (
+                          <Badge variant="secondary" class={compactBadgeClass}>
+                            {pursuit}
                           </Badge>
                         ))}
                       </div>
@@ -241,44 +201,96 @@ const hasInterests =
         )
       }
 
+      <!-- 兴趣爱好 -->
+      {
+        hasInterests && (
+          <Card class={cardClass}>
+            <CardHeader class="pb-2">
+              <CardTitle class="flex items-center gap-2 text-lg">
+                <Gamepad2 class="text-muted-foreground h-5 w-5" />
+                兴趣爱好
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent>
+              <div class="grid gap-5 sm:grid-cols-2">
+                {profile.games && profile.games.length > 0 && (
+                  <div class="space-y-3">
+                    <p class="text-muted-foreground text-sm font-medium">爱好游戏</p>
+
+                    <div class="flex flex-wrap gap-2">
+                      {profile.games.map((game) => (
+                        <Badge variant="secondary" class={compactBadgeClass}>
+                          {game}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {profile.interests && profile.interests.length > 0 && (
+                  <div class="space-y-3">
+                    <p class="text-muted-foreground text-sm font-medium">关注偏好</p>
+
+                    <div class="flex flex-wrap gap-2">
+                      {profile.interests.map((interest) => (
+                        <Badge variant="secondary" class={compactBadgeClass}>
+                          {interest}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )
+      }
+
+      <!-- 个人项目 -->
       {
         profile.projects && profile.projects.length > 0 && (
-          <Card class="hover:border-primary/50 mb-8 duration-300 hover:shadow-lg">
-            <CardHeader>
-              <CardTitle class="flex items-center gap-2">
-                <FolderGit2 class="h-5 w-5" />
+          <Card class={cardClass}>
+            <CardHeader class="pb-2">
+              <CardTitle class="flex items-center gap-2 text-lg">
+                <FolderGit2 class="text-muted-foreground h-5 w-5" />
                 个人项目
               </CardTitle>
             </CardHeader>
+
             <CardContent>
-              <div class="space-y-4">
+              <div class="divide-border/70 divide-y">
                 {profile.projects.map((project) => (
                   <a
                     href={project.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="border-border/70 hover:border-primary/30 hover:bg-muted/30 group flex cursor-pointer flex-col gap-2 rounded-lg border p-4 transition-all"
+                    class="group flex items-start gap-4 py-4 first:pt-0 last:pb-0"
                   >
-                    <div class="flex items-start justify-between gap-2">
-                      <div class="flex-1">
-                        <span class="text-foreground group-hover:text-primary inline-flex items-center gap-1.5 font-semibold transition-colors">
-                          {project.name}
-                          <ExternalLink class="text-muted-foreground h-3.5 w-3.5" />
-                        </span>
-                        {project.desc && (
-                          <p class="text-muted-foreground mt-1 text-sm">{project.desc}</p>
-                        )}
-                      </div>
+                    <div class="min-w-0 flex-1">
+                      <h3 class="text-foreground group-hover:text-primary font-medium transition-colors">
+                        {project.name}
+                      </h3>
+
+                      {project.desc && (
+                        <p class="text-muted-foreground mt-1 text-sm leading-6">{project.desc}</p>
+                      )}
+
+                      {project.tech && project.tech.length > 0 && (
+                        <div class="mt-3 flex flex-wrap gap-1.5">
+                          {project.tech.map((tech) => (
+                            <Badge
+                              variant="outline"
+                              class="pointer-events-none px-2 py-0.5 text-xs font-normal"
+                            >
+                              {tech}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    {project.tech && project.tech.length > 0 && (
-                      <div class="flex flex-wrap gap-1.5">
-                        {project.tech.map((tech) => (
-                          <Badge variant="outline" class="pointer-events-none px-2 py-0 text-xs">
-                            {tech}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
+
+                    <ExternalLink class="text-muted-foreground group-hover:text-primary mt-1 h-4 w-4 shrink-0 transition-colors" />
                   </a>
                 ))}
               </div>
@@ -287,19 +299,21 @@ const hasInterests =
         )
       }
 
+      <!-- 技能 -->
       {
         profile.skills && profile.skills.length > 0 && (
-          <Card class="hover:border-primary/50 mb-8 duration-300 hover:shadow-lg">
-            <CardHeader>
-              <CardTitle class="flex items-center gap-2">
-                <Wrench class="h-5 w-5" />
+          <Card class={cardClass}>
+            <CardHeader class="pb-2">
+              <CardTitle class="flex items-center gap-2 text-lg">
+                <Wrench class="text-muted-foreground h-5 w-5" />
                 技能
               </CardTitle>
             </CardHeader>
+
             <CardContent>
               <div class="flex flex-wrap gap-2">
                 {profile.skills.map((skill) => (
-                  <Badge variant="secondary" class="px-3 py-1">
+                  <Badge variant="secondary" class={compactBadgeClass}>
                     {skill}
                   </Badge>
                 ))}
@@ -309,21 +323,24 @@ const hasInterests =
         )
       }
 
+      <!-- 教育背景 -->
       {
         profile.education && profile.education.length > 0 && (
-          <Card class="hover:border-primary/50 mb-8 duration-300 hover:shadow-lg">
-            <CardHeader>
-              <CardTitle class="flex items-center gap-2">
-                <GraduationCap class="h-5 w-5" />
+          <Card class={cardClass}>
+            <CardHeader class="pb-2">
+              <CardTitle class="flex items-center gap-2 text-lg">
+                <GraduationCap class="text-muted-foreground h-5 w-5" />
                 教育背景
               </CardTitle>
             </CardHeader>
+
             <CardContent>
-              <div class="space-y-4">
+              <div class="divide-border/70 divide-y">
                 {profile.education.map((edu) => (
-                  <div class="border-primary border-l-2 pl-4">
-                    <h3 class="font-semibold">{edu.degree}</h3>
-                    <p class="text-muted-foreground text-sm">
+                  <div class="py-4 first:pt-0 last:pb-0">
+                    <h3 class="text-foreground font-medium">{edu.degree}</h3>
+
+                    <p class="text-muted-foreground mt-1 text-sm">
                       {edu.school} · {edu.period}
                     </p>
                   </div>
@@ -334,24 +351,32 @@ const hasInterests =
         )
       }
 
+      <!-- 工作经历 -->
       {
         profile.experience && profile.experience.length > 0 && (
-          <Card class="hover:border-primary/50 mb-8 duration-300 hover:shadow-lg">
-            <CardHeader>
-              <CardTitle class="flex items-center gap-2">
-                <Briefcase class="h-5 w-5" />
+          <Card class={cardClass}>
+            <CardHeader class="pb-2">
+              <CardTitle class="flex items-center gap-2 text-lg">
+                <Briefcase class="text-muted-foreground h-5 w-5" />
                 工作经历
               </CardTitle>
             </CardHeader>
+
             <CardContent>
-              <div class="space-y-6">
+              <div class="divide-border/70 divide-y">
                 {profile.experience.map((exp) => (
-                  <div class="border-primary border-l-2 pl-4">
-                    <h3 class="font-semibold">{exp.position}</h3>
-                    <p class="text-muted-foreground text-sm">
-                      {exp.company} · {exp.period}
-                    </p>
-                    <p class="mt-2 text-sm">{exp.description}</p>
+                  <div class="py-5 first:pt-0 last:pb-0">
+                    <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+                      <h3 class="text-foreground font-medium">{exp.position}</h3>
+
+                      <span class="text-muted-foreground shrink-0 text-sm">{exp.period}</span>
+                    </div>
+
+                    <p class="text-muted-foreground mt-1 text-sm">{exp.company}</p>
+
+                    {exp.description && (
+                      <p class="text-foreground/90 mt-3 text-sm leading-6">{exp.description}</p>
+                    )}
                   </div>
                 ))}
               </div>

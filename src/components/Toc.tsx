@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { List, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface TocItem {
   id: string;
@@ -161,11 +162,12 @@ export default function Toc({ headings }: TocProps) {
           <a
             href={`#${h2.id}`}
             onClick={(e) => handleTocClick(e, h2.id, null)}
-            className={`block border-l-2 py-1.5 pl-3 text-sm transition-all ${
+            className={cn(
+              'block border-l-2 py-1.5 pl-3 text-sm transition-all',
               activeId === h2.id
                 ? 'border-primary text-primary bg-primary/5 font-bold'
-                : 'text-muted-foreground hover:text-foreground border-transparent'
-            }`}
+                : 'text-muted-foreground hover:text-foreground border-transparent',
+            )}
           >
             {h2.text}
           </a>
@@ -176,11 +178,12 @@ export default function Toc({ headings }: TocProps) {
                   <a
                     href={`#${h3.id}`}
                     onClick={(e) => handleTocClick(e, h3.id, h2.id)}
-                    className={`block border-l-2 py-1 pl-4 text-xs transition-colors ${
+                    className={cn(
+                      'block border-l-2 py-1 pl-4 text-xs transition-colors',
                       activeId === h3.id
                         ? 'border-primary text-primary font-medium'
-                        : 'text-muted-foreground hover:text-foreground border-transparent'
-                    }`}
+                        : 'text-muted-foreground hover:text-foreground border-transparent',
+                    )}
                   >
                     {h3.text}
                   </a>
@@ -215,16 +218,18 @@ export default function Toc({ headings }: TocProps) {
       </button>
 
       <div
-        className={`fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm transition-opacity duration-300 xl:hidden ${
-          mobileTocOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
-        }`}
+        className={cn(
+          'fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm transition-opacity duration-300 xl:hidden',
+          mobileTocOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
+        )}
         onClick={() => setMobileTocOpen(false)}
       />
 
       <div
-        className={`bg-card border-border fixed top-0 right-0 z-[70] h-full w-72 max-w-[85vw] border-l shadow-2xl transition-transform duration-300 ease-out xl:hidden ${
-          mobileTocOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+        className={cn(
+          'bg-card border-border fixed top-0 right-0 z-[70] h-full w-72 max-w-[85vw] border-l shadow-2xl transition-transform duration-300 ease-out xl:hidden',
+          mobileTocOpen ? 'translate-x-0' : 'translate-x-full',
+        )}
       >
         <div className="border-border flex items-center justify-between border-b p-4">
           <h3 className="text-sm font-bold">目录</h3>

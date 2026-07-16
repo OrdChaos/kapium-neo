@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Search, Clock, X } from 'lucide-react';
 import MiniSearch from 'minisearch';
+import { cn } from '@/lib/utils';
 
 interface SearchResult {
   id: string;
@@ -221,12 +222,18 @@ export default function SearchDialog() {
       aria-label="搜索文章"
     >
       <div
-        className={`fixed inset-0 bg-black/40 backdrop-blur-sm transition-all duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`}
+        className={cn(
+          'fixed inset-0 bg-black/40 backdrop-blur-sm transition-all duration-200',
+          visible ? 'opacity-100' : 'opacity-0',
+        )}
         onClick={closeDialog}
       />
 
       <div
-        className={`border-border bg-card relative z-[60] w-full max-w-3xl rounded-xl border shadow-2xl transition-all duration-200 ${visible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+        className={cn(
+          'border-border bg-card relative z-[60] w-full max-w-3xl rounded-xl border shadow-2xl transition-all duration-200',
+          visible ? 'scale-100 opacity-100' : 'scale-95 opacity-0',
+        )}
       >
         <div className="border-border flex items-center justify-between border-b p-4 sm:p-6">
           <h2 className="text-lg font-semibold tracking-tight">搜索文章</h2>

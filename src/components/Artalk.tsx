@@ -13,6 +13,7 @@ import { fetchComments, postComment } from '@/lib/artalk/adapter';
 import { getConf } from '@/lib/artalk/system';
 import { getCaptchaStatus, getCaptcha, verifyCaptcha } from '@/lib/artalk/captcha';
 import { login as adminLogin } from '@/lib/artalk/user';
+import { cn } from '@/lib/utils';
 import { artalkConfig } from '@/config/artalk';
 
 interface FormData {
@@ -559,9 +560,10 @@ function CommentForm({
         </div>
 
         <div
-          className={`grid transition-all duration-300 ease-out ${
-            showPreview ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
-          }`}
+          className={cn(
+            'grid transition-all duration-300 ease-out',
+            showPreview ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+          )}
         >
           <div className="overflow-hidden">
             <div className="border-border bg-muted/30 mt-4 rounded-lg border p-4">
@@ -596,11 +598,12 @@ function CommentForm({
             {}
             <div
               ref={pickerRef}
-              className={`bg-popover border-border absolute bottom-full left-0 z-50 mb-2 flex w-80 origin-bottom-left flex-col overflow-hidden rounded-xl border text-sm shadow-xl transition-all duration-200 ease-out select-none ${
+              className={cn(
+                'bg-popover border-border absolute bottom-full left-0 z-50 mb-2 flex w-80 origin-bottom-left flex-col overflow-hidden rounded-xl border text-sm shadow-xl transition-all duration-200 ease-out select-none',
                 showEmoticons && emoticonGroups.length > 0
                   ? 'scale-100 opacity-100'
-                  : 'pointer-events-none invisible scale-95 opacity-0'
-              }`}
+                  : 'pointer-events-none invisible scale-95 opacity-0',
+              )}
             >
               <nav className="border-border bg-background flex [scrollbar-width:none] items-center overflow-x-auto border-b px-1 [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                 {emoticonGroups.map((g) => (
@@ -608,16 +611,20 @@ function CommentForm({
                     key={g.name}
                     type="button"
                     onClick={() => setActiveEmoticonTab(g.name)}
-                    className={`relative flex-shrink-0 px-3 py-2 text-xs font-medium transition-colors ${
+                    className={cn(
+                      'relative flex-shrink-0 px-3 py-2 text-xs font-medium transition-colors',
                       activeEmoticonTab === g.name
                         ? 'text-primary'
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
+                        : 'text-muted-foreground hover:text-foreground',
+                    )}
                   >
                     {g.name}
-                    {activeEmoticonTab === g.name && (
-                      <span className="bg-primary absolute right-0 bottom-0 left-0 h-0.5 rounded-full" />
-                    )}
+                    <span
+                      className={cn(
+                        'bg-primary absolute right-0 bottom-0 left-0 h-0.5 rounded-full transition-opacity duration-200',
+                        activeEmoticonTab === g.name ? 'opacity-100' : 'opacity-0',
+                      )}
+                    />
                   </button>
                 ))}
               </nav>
@@ -792,10 +799,13 @@ function CommentItemComponent({
   const OSIcon = ua.os ? OS_ICONS[ua.os] : null;
   return (
     <div id={`atk-comment-${comment.id}`}>
-      <div className={`flex gap-3 ${isReply ? 'py-3' : 'py-4'}`}>
+      <div className={cn('flex gap-3', isReply ? 'py-3' : 'py-4')}>
         {}
         <div
-          className={`relative flex shrink-0 overflow-hidden rounded-full ${isReply ? 'size-8' : 'size-10'}`}
+          className={cn(
+            'relative flex shrink-0 overflow-hidden rounded-full',
+            isReply ? 'size-8' : 'size-10',
+          )}
         >
           {comment.emailMd5 ? (
             <img
@@ -832,16 +842,17 @@ function CommentItemComponent({
                     }
                     target={needsRedirect ? undefined : '_blank'}
                     rel="noopener noreferrer nofollow ugc"
-                    className={`hover:text-primary font-semibold transition-colors ${isReply ? 'text-sm' : ''}`}
+                    className={cn(
+                      'hover:text-primary font-semibold transition-colors',
+                      isReply && 'text-sm',
+                    )}
                   >
                     {comment.nickname}
                   </a>
                 );
               })()
             ) : (
-              <span className={`font-semibold ${isReply ? 'text-sm' : ''}`}>
-                {comment.nickname}
-              </span>
+              <span className={cn('font-semibold', isReply && 'text-sm')}>{comment.nickname}</span>
             )}
             {comment.isAdmin && (
               <span className="bg-primary/10 text-primary rounded px-2 py-0.5 text-xs">博主</span>
@@ -857,7 +868,11 @@ function CommentItemComponent({
           </div>
 
           <div
-            className={`text-foreground prose prose-sm dark:prose-invert mt-1 max-w-none [&>p]:my-0.5 [&>p:first-child]:mt-0 [&>p:last-child]:mb-0 ${isReply ? 'text-sm' : ''}`}
+            className={cn(
+              'text-foreground prose prose-sm dark:prose-invert mt-1 max-w-none',
+              '[&>p]:my-0.5 [&>p:first-child]:mt-0 [&>p:last-child]:mb-0',
+              isReply && 'text-sm',
+            )}
           >
             {comment.replyToNick && (
               <span className="text-muted-foreground">回复 @{comment.replyToNick}：</span>
@@ -898,11 +913,12 @@ function CommentItemComponent({
       </div>
 
       <div
-        className={`grid transition-all duration-300 ease-out ${
+        className={cn(
+          'grid transition-all duration-300 ease-out',
           replyingTo === comment.id
             ? 'grid-rows-[1fr] opacity-100'
-            : 'pointer-events-none grid-rows-[0fr] opacity-0'
-        }`}
+            : 'pointer-events-none grid-rows-[0fr] opacity-0',
+        )}
       >
         <div className="min-h-0">
           <CommentForm
@@ -966,9 +982,10 @@ function ReplySection({
       {hiddenReplies.length > 0 && (
         <>
           <div
-            className={`grid transition-all duration-300 ease-out ${
-              expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
-            }`}
+            className={cn(
+              'grid transition-all duration-300 ease-out',
+              expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+            )}
           >
             <div className="space-y-2 overflow-hidden">
               {hiddenReplies.map((r) => (

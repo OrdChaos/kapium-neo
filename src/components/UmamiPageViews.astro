@@ -1,4 +1,6 @@
 ---
+import { cn } from '@/lib/utils';
+
 export interface Props {
   path: string;
   class?: string;
@@ -7,9 +9,7 @@ export interface Props {
 const { path, class: className = '' } = Astro.props;
 ---
 
-<span data-umami-path={path} class={`inline-flex items-center gap-1 ${className}`.trim()}>
-  ...
-</span>
+<span data-umami-path={path} class={cn('inline-flex items-center gap-1', className)}> ... </span>
 
 <script>
   import { fetchUmamiPageViews } from '@/lib/umami';

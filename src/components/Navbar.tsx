@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { navigate } from 'astro:transitions/client';
+import { cn } from '@/lib/utils';
 import { siteConfig } from '@/config/site';
 import { nav } from '@/config/nav';
 import { Button } from '@/components/ui/button';
@@ -97,24 +98,24 @@ export default function Navbar({ postIds = [] }: NavbarProps) {
                       onMouseLeave={handleMenuLeave}
                     >
                       <div
-                        className={`hover:text-primary flex cursor-pointer items-center gap-1 text-sm font-medium transition-colors ${
-                          isActive ? 'text-foreground' : 'text-muted-foreground'
-                        }`}
+                        className={cn(
+                          'hover:text-primary flex cursor-pointer items-center gap-1 text-sm font-medium transition-colors',
+                          isActive ? 'text-foreground' : 'text-muted-foreground',
+                        )}
                       >
                         {item.label}
                         <ChevronDown
-                          className={`h-3 w-3 transition-transform ${
-                            isMenuOpen ? 'rotate-180' : ''
-                          }`}
+                          className={cn('h-3 w-3 transition-transform', isMenuOpen && 'rotate-180')}
                         />
                       </div>
 
                       <div
-                        className={`absolute top-full left-1/2 z-50 -translate-x-1/2 pt-1.5 transition-all duration-200 ease-out ${
+                        className={cn(
+                          'absolute top-full left-1/2 z-50 -translate-x-1/2 pt-1.5 transition-all duration-200 ease-out',
                           isMenuOpen
                             ? 'pointer-events-auto translate-y-0 scale-100 opacity-100'
-                            : 'pointer-events-none -translate-y-1 scale-95 opacity-0'
-                        }`}
+                            : 'pointer-events-none -translate-y-1 scale-95 opacity-0',
+                        )}
                       >
                         <div className="bg-card border-border w-20 rounded-md border py-2 shadow-md">
                           {item.children.map((c) => (
@@ -138,9 +139,10 @@ export default function Navbar({ postIds = [] }: NavbarProps) {
                   <a
                     key={item.href}
                     href={item.href!}
-                    className={`hover:text-primary text-sm font-medium transition-colors ${
-                      isActive ? 'text-foreground' : 'text-muted-foreground'
-                    }`}
+                    className={cn(
+                      'hover:text-primary text-sm font-medium transition-colors',
+                      isActive ? 'text-foreground' : 'text-muted-foreground',
+                    )}
                   >
                     {item.label}
                   </a>
@@ -207,11 +209,12 @@ export default function Navbar({ postIds = [] }: NavbarProps) {
           </div>
 
           <div
-            className={`relative z-[1040] overflow-hidden ease-out md:hidden ${
+            className={cn(
+              'relative z-[1040] overflow-hidden ease-out md:hidden',
               isOpen
                 ? 'max-h-[600px] opacity-100 duration-500'
-                : 'pointer-events-none max-h-0 opacity-0 duration-300'
-            }`}
+                : 'pointer-events-none max-h-0 opacity-0 duration-300',
+            )}
             role="navigation"
             aria-label="移动端导航菜单"
           >
@@ -226,24 +229,27 @@ export default function Navbar({ postIds = [] }: NavbarProps) {
                       <div key={item.label} className="mb-1">
                         <button
                           onClick={() => setOpenMenus((s) => ({ ...s, [idx]: !s[idx] }))}
-                          className={`hover:text-primary flex w-full items-center justify-between py-2 text-left text-sm font-medium transition-colors ${
-                            isActive ? 'text-foreground' : 'text-muted-foreground'
-                          }`}
+                          className={cn(
+                            'hover:text-primary flex w-full items-center justify-between py-2 text-left text-sm font-medium transition-colors',
+                            isActive ? 'text-foreground' : 'text-muted-foreground',
+                          )}
                         >
                           {item.label}
                           <ChevronDown
-                            className={`h-4 w-4 transition-transform ${
-                              openMenus[idx] ? 'rotate-180' : ''
-                            }`}
+                            className={cn(
+                              'h-4 w-4 transition-transform',
+                              openMenus[idx] && 'rotate-180',
+                            )}
                           />
                         </button>
 
                         <div
-                          className={`overflow-hidden ease-out ${
+                          className={cn(
+                            'overflow-hidden ease-out',
                             openMenus[idx]
                               ? 'max-h-[200px] translate-y-0 opacity-100 duration-500'
-                              : 'pointer-events-none max-h-0 -translate-y-1 opacity-0 duration-300'
-                          }`}
+                              : 'pointer-events-none max-h-0 -translate-y-1 opacity-0 duration-300',
+                          )}
                         >
                           <div className="flex flex-col pl-3">
                             {item.children.map((c) => (
@@ -269,9 +275,10 @@ export default function Navbar({ postIds = [] }: NavbarProps) {
                       key={item.href}
                       href={item.href!}
                       onClick={() => setIsOpen(false)}
-                      className={`hover:text-primary block py-2 text-sm font-medium transition-colors ${
-                        isActive ? 'text-foreground' : 'text-muted-foreground'
-                      }`}
+                      className={cn(
+                        'hover:text-primary block py-2 text-sm font-medium transition-colors',
+                        isActive ? 'text-foreground' : 'text-muted-foreground',
+                      )}
                     >
                       {item.label}
                     </a>

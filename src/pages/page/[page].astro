@@ -4,7 +4,7 @@ import BannerLayout from '@/layouts/BannerLayout.astro';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import Badge from '@/components/ui/badge.astro';
 import { siteConfig } from '@/config/site';
-import { estimateReadTime, getPostExcerpt } from '@/lib/utils';
+import { cn, estimateReadTime, getPostExcerpt } from '@/lib/utils';
 
 import Calendar from '@lucide/astro/icons/calendar';
 import Clock from '@lucide/astro/icons/clock';
@@ -123,11 +123,12 @@ function pageHref(p: number) {
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
               <a
                 href={pageHref(p)}
-                class={`cursor-pointer rounded-md px-4 py-2 ${
+                class={cn(
+                  'cursor-pointer rounded-md px-4 py-2',
                   p === currentPage
                     ? 'bg-primary text-primary-foreground'
-                    : 'bg-card hover:border-primary/50 hover:bg-muted/50 border-border border transition-colors duration-300'
-                }`}
+                    : 'bg-card hover:border-primary/50 hover:bg-muted/50 border-border border transition-colors duration-300',
+                )}
               >
                 {p}
               </a>

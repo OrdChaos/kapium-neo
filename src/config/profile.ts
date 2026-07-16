@@ -1,3 +1,12 @@
+export interface PersonalityTab {
+  /** 标签页唯一标识，用于匹配渲染逻辑 */
+  id: string;
+  /** 标签按钮上显示的文字 */
+  label: string;
+  /** 标签按钮图标标识，映射到 Lucide 组件 */
+  icon: string;
+}
+
 export interface SocialLink {
   platform: string;
   url: string;
@@ -50,6 +59,8 @@ export interface ProfileData {
   interests?: string[];
   pursuits?: string[];
   projects?: ProjectItem[];
+  /** 人格标签页配置，决定显示哪些标签页及顺序 */
+  personalityTabs?: PersonalityTab[];
 }
 
 export const profile: ProfileData = {
@@ -67,6 +78,10 @@ export const profile: ProfileData = {
     { name: '理性思考', value: 54 },
     { name: '随机应变', value: 67 },
     { name: '情绪易波动', value: 71 },
+  ],
+  personalityTabs: [
+    { id: 'mbti', label: 'MBTI 人格', icon: 'zap' },
+    { id: 'identity', label: '身份认同', icon: 'heart' },
   ],
   alignment: '绝对中立[22]',
   location: '中国 · 武汉',
