@@ -201,8 +201,8 @@ mkfs.btrfs /dev/mapper/cryptroot
 # 压缩算法随意选择
 mount --mkdir /dev/mapper/cryptroot -o compress=zstd /tmp/btrfs-full
 
-# 暂时挂载到 /mnt
-mount /dev/mapper/cryptroot /mnt
+# 暂时挂载到 /tmp/btrfs-full
+mount /dev/mapper/cryptroot /tmp/btrfs-full
 
 # 创建标准子卷
 btrfs subvolume create /tmp/btrfs-full/@
@@ -256,6 +256,10 @@ pacstrap -K /mnt base base-devel linux linux-firmware btrfs-progs intel-ucode ne
 ```shell
 genfstab -U /mnt > /mnt/etc/fstab
 ```
+
+可以使用`cat`来看一下生成的fstab是否正常，不对的话可以手动修改。
+
+注意swap分区不应当被压缩，去掉compress选项
 
 ### 进入chroot环境
 
@@ -666,8 +670,8 @@ pacman -S adobe-source-han-sans-cn-fonts adobe-source-han-serif-cn-fonts noto-fo
 ```shell
 pacman -S kmscon
 
-systemctl disable getty@tty1.service
-systemctl enable kmsconvt@tty1.service
+systemctl disable getty@tty2.service
+systemctl enable kmsconvt@tty2.service
 ```
 
 把全局locale换为简体中文（zh_CN）。编辑`/etc/locale.conf`：

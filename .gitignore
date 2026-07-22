@@ -22,4 +22,5 @@ pnpm-debug.log*
 
 # setting folders
 .vscode/
-.obsidian/
+src/posts/.obsidian/
+src/posts/templates/
