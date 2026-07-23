@@ -59,8 +59,6 @@ export interface ProfileData {
   interests?: string[];
   pursuits?: string[];
   projects?: ProjectItem[];
-  /** 人格标签页配置，决定显示哪些标签页及顺序 */
-  personalityTabs?: PersonalityTab[];
 }
 
 export const profile: ProfileData = {
@@ -78,10 +76,6 @@ export const profile: ProfileData = {
     { name: '理性思考', value: 54 },
     { name: '随机应变', value: 67 },
     { name: '情绪易波动', value: 71 },
-  ],
-  personalityTabs: [
-    { id: 'mbti', label: 'MBTI 人格', icon: 'zap' },
-    { id: 'identity', label: '身份认同', icon: 'heart' },
   ],
   alignment: '绝对中立[22]',
   location: '中国 · 武汉',
@@ -127,7 +121,13 @@ export const profile: ProfileData = {
       name: 'Kapium-Neo',
       desc: 'Astro博客ssg与前端',
       url: 'https://github.com/OrdChaos/kapium-neo',
-      tech: ['C++', 'TypeScript', 'React'],
+      tech: ['Astro', 'TypeScript', 'React'],
+    },
+    {
+      name: 'DupriMan',
+      desc: '手动双面打印助手',
+      url: 'https://github.com/OrdChaos/dupriman',
+      tech: ['Rust'],
     },
     {
       name: 'ordchaosgpt-cloud-function',
