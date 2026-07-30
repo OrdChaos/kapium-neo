@@ -211,7 +211,7 @@ export default function Toc({ headings }: TocProps) {
 
       <button
         onClick={() => setMobileTocOpen(true)}
-        className="toc-mobile-btn bg-card text-foreground border-border hover:border-primary/50 fixed right-6 bottom-6 z-50 rounded-lg border p-3 shadow-md transition-all duration-300 hover:shadow-lg active:scale-95 xl:hidden"
+        className="toc-mobile-btn bg-card text-foreground border-border hover:border-primary/50 fixed right-6 bottom-20 z-50 rounded-lg border p-3 shadow-md transition-all duration-300 hover:shadow-lg active:scale-95 xl:hidden"
         aria-label="打开目录"
       >
         <List className="h-6 w-6" />

@@ -11,7 +11,7 @@
 @import 'photosuite/dist/photosuite.css';
 
 body[data-btt-visible='true'] .toc-mobile-btn {
-  bottom: 5.25rem;
+  bottom: 8.75rem;
 }
 
 @custom-variant dark (&:is(.dark *));
