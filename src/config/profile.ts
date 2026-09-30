@@ -148,5 +148,10 @@ export const profile: ProfileData = {
       school: '武汉市武钢三中',
       period: '2023 - 2026',
     },
+    {
+      degree: '本科',
+      school: '华中农业大学',
+      period: '2026 -',
+    },
   ],
 };
