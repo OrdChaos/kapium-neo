@@ -7,6 +7,7 @@ tags:
 date: '2026-10-05 22:01:47'
 updated: '2026-10-05 22:01:47'
 category: '编程'
+abbrlink: "de44fa09"
 summary: "这篇博文讲述了博主因 Arch Linux 下 Intel/Nvidia 双显卡问题导致桌面崩溃，转而选择 Guix 并借助 LLM 编写、分享一套基于 btrfs 快照实现无状态、支持 TPM 解锁 LUKS 和 Flatpak 的声明式系统配置。"
 ---
 
