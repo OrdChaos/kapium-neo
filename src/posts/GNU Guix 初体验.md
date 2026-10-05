@@ -36,6 +36,8 @@ niri dumped core
 
 ## 挑选
 
+不清楚什么是无状态的话，可以看看这篇文章[Erase your darlings](https://grahamc.com/blog/erase-your-darlings/)，很经典的一篇。
+
 说起无状态，其往往总和“声明式”连在一起。事实上，虽然二者并非必须一起实现，但声明式的发行版确实很适合做无状态。由此，综合生态和社区人数，我的选择便很少了，无非`Nix`和`Guix`二者其一。
 
 最终选择了`Guix`的原因有四：
