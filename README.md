@@ -42,7 +42,7 @@ pnpm preview    # 预览构建产物
 
 ```bash
 pnpm abbrlink   # 生成文章缩略链接
-pnpm summary    # 生成 AI 摘要（需 .env 中配置 DASHSCOPE_API_KEY）
+pnpm summary    # 生成 AI 摘要（需 .env 中配置 OPENAI_API_KEY）
 pnpm icons      # 生成图标 sprite
 ```
 

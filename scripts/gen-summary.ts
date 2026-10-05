@@ -38,7 +38,7 @@ async function genSummary(postContent: string): Promise<string> {
     body: JSON.stringify({
       model: MODEL,
       temperature: 0.3,
-      max_tokens: 200,
+      max_tokens: 1000,
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: cleanContent },
@@ -52,9 +52,15 @@ async function genSummary(postContent: string): Promise<string> {
   }
 
   const data = (await res.json()) as { choices: { message: { content: string } }[] };
-  const summary = data.choices[0].message.content.trim();
+  const summary = data.choices[0]?.message?.content?.trim();
 
-  return summary.replace(/^["'""]|["'""]$/g, '');
+  const cleanedSummary = summary?.replace(/^["'”"]|["'”"]$/g, '').trim();
+
+  if (!cleanedSummary) {
+    throw new Error('API returned an empty summary');
+  }
+
+  return cleanedSummary;
 }
 
 async function processFile(filePath: string): Promise<void> {
@@ -65,7 +71,10 @@ async function processFile(filePath: string): Promise<void> {
 
   const fm = fmMatch[1];
 
-  if (/^summary:\s*.+/m.test(fm)) {
+  const summaryMatch = fm.match(/^summary:\s*(?:"([^"]*)"|'([^']*)'|(.*))$/m);
+  const existingSummary = summaryMatch?.[1] ?? summaryMatch?.[2] ?? summaryMatch?.[3];
+
+  if (existingSummary?.trim()) {
     console.log(`summary already exists, skipping: ${filePath}`);
     return;
   }
@@ -79,7 +88,10 @@ async function processFile(filePath: string): Promise<void> {
 
   const summary = await genSummary(postContent);
 
-  const newFm = fm + `\nsummary: "${summary}"`;
+  const summaryLine = `summary: ${JSON.stringify(summary)}`;
+  const newFm = summaryMatch
+    ? fm.replace(/^summary:\s*.*$/m, summaryLine)
+    : fm + `\n${summaryLine}`;
   const newContent = content.replace(fmMatch[1], newFm);
 
   await writeFile(filePath, newContent, 'utf-8');
