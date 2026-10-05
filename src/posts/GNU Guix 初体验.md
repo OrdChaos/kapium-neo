@@ -7,6 +7,8 @@ tags:
 date: '2026-10-05 22:01:47'
 updated: '2026-10-05 22:01:47'
 category: '编程'
+abbrlink: "de44fa09"
+summary: ""
 ---
 
 对不起，Arch Linux. 你的 AUR 很棒，但是……但是……已经不能满足我了啊……
