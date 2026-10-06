@@ -516,7 +516,7 @@ function CommentForm({
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid gap-4 md:grid-cols-3">
           <input
-            className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             placeholder="昵称 *"
             value={formData.nickname}
             onChange={(e) => setFormData({ ...formData, nickname: e.target.value })}
@@ -524,7 +524,7 @@ function CommentForm({
             required
           />
           <input
-            className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             type="email"
             placeholder="邮箱 *"
             value={formData.email}
@@ -533,7 +533,7 @@ function CommentForm({
             required
           />
           <input
-            className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             type="text"
             inputMode="url"
             placeholder="网站（可选）"
@@ -546,7 +546,7 @@ function CommentForm({
         <div>
           <textarea
             ref={textareaRef}
-            className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             placeholder={(conf.placeholder || '写下你的评论... 支持 Markdown 语法 *').replace(
               /<br\s*\/?>/gi,
               '\n',
@@ -714,7 +714,7 @@ function CommentForm({
                     title="点击刷新验证码"
                   />
                   <input
-                    className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring h-9 w-28 rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                    className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring h-9 w-28 rounded-md border px-3 py-1 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
                     placeholder="验证码"
                     value={captchaCode}
                     onChange={(e) => {
@@ -1483,7 +1483,7 @@ export default function CommentSystem({ path }: { path: string }) {
                           title="点击刷新验证码"
                         />
                         <input
-                          className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring h-9 w-28 rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                          className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring h-9 w-28 rounded-md border px-3 py-1 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
                           placeholder="验证码"
                           value={adminCaptchaCode}
                           onChange={(e) => {
