@@ -1,6 +1,7 @@
 ---
 import BannerLayout from '@/layouts/BannerLayout.astro';
 import Artalk from '@/components/Artalk';
+import { artalkConfig } from '@/config/artalk';
 import { friendLinks } from '@/config/links';
 
 import ExternalLink from '@lucide/astro/icons/external-link';
@@ -86,9 +87,13 @@ import Users from '@lucide/astro/icons/users';
         </div>
       </section>
 
-      <section aria-label="评论区域">
-        <Artalk client:only="react" path={`/links/`} />
-      </section>
+      {
+        artalkConfig.enabled && (
+          <section aria-label="评论区域">
+            <Artalk client:only="react" path={`/links/`} />
+          </section>
+        )
+      }
     </div>
   </div>
 </BannerLayout>

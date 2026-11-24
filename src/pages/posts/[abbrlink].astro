@@ -5,6 +5,7 @@ import BannerLayout from '@/layouts/BannerLayout.astro';
 import LicenseBox from '@/components/LicenseBox.astro';
 import SocialShare from '@/components/SocialShare.astro';
 import Artalk from '@/components/Artalk';
+import { artalkConfig } from '@/config/artalk';
 import UmamiPageViews from '@/components/UmamiPageViews.astro';
 import Toc from '@/components/Toc.tsx';
 import { siteConfig } from '@/config/site';
@@ -183,7 +184,11 @@ const readTime = remarkPluginFrontmatter.readTime || 1;
         </div>
       </nav>
 
-      <Artalk client:only="react" path={`/posts/${post.data.abbrlink}/`} />
+      {
+        artalkConfig.enabled && (
+          <Artalk client:only="react" path={`/posts/${post.data.abbrlink}/`} />
+        )
+      }
     </div>
 
     <Toc
