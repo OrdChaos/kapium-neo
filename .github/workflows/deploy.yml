@@ -6,6 +6,10 @@ on:
       - master
   workflow_dispatch:
 
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -68,23 +72,13 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -p "$VPS_PORT" -H "$VPS_HOST" >> ~/.ssh/known_hosts
 
-      - name: Deploy to VPS bare repository
+      - name: Deploy dist to VPS
         env:
           VPS_HOST: ${{ secrets.DEPLOY_VPS_HOST }}
           VPS_PORT: ${{ secrets.DEPLOY_VPS_PORT }}
-          VPS_REPO_PATH: ${{ secrets.DEPLOY_VPS_REPO_PATH }}
+          RELEASE: ${{ github.sha }}
         run: |
-          mkdir -p temp-repo
-          cd temp-repo
-
-          git init
-          export GIT_SSH_COMMAND="ssh -p $VPS_PORT -o StrictHostKeyChecking=no"
-          git remote add origin ssh://git@${VPS_HOST}:${VPS_REPO_PATH}
-
-          git checkout --orphan temp-branch
-          cp -r ../dist/. .
-
-          git add -A
-          git commit -m "Deploy $(date '+%Y-%m-%d %H:%M:%S') [ci skip]"
-
-          git push --force origin temp-branch:master
+          rsync -rlptz --delete -e "ssh -p $VPS_PORT -o StrictHostKeyChecking=yes" \
+            dist/ "deploy@$VPS_HOST:/srv/www/ordchaos.com/releases/$RELEASE/"
+          ssh -p "$VPS_PORT" -o StrictHostKeyChecking=yes \
+            "deploy@$VPS_HOST" "/srv/infra/bin/switch-release.sh $RELEASE"
