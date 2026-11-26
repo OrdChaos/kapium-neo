@@ -27,6 +27,14 @@ export const siteConfig = {
   },
 
   footer: {
-    startDate: '2022-01-01T00:00:00+08:00',
+    statusUrl: 'https://status.ordchaos.com',
+    icp: {
+      enabled: true,
+      text: '鄂ICP备2026069779号-1',
+    },
+    mps: {
+      enabled: false,
+      text: '鄂公网安备xxxxxxxxxxxxxx号',
+    },
   },
 } as const;
