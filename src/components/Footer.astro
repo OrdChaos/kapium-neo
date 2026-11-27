@@ -14,7 +14,7 @@ const showMps = mps.enabled && Boolean(mps.text);
 <footer data-site-footer class="border-border/90 bg-background border-t" aria-label="页脚信息">
   <div class="container mx-auto px-4 py-8">
     <div
-      class="text-muted-foreground flex flex-col items-center justify-between gap-4 text-center md:flex-row md:items-start md:text-left"
+      class="text-muted-foreground flex flex-col items-center justify-between gap-2 text-center md:flex-row md:items-start md:gap-4 md:text-left"
     >
       <div class="flex flex-col gap-2">
         <p class="text-sm leading-5">
@@ -28,7 +28,7 @@ const showMps = mps.enabled && Boolean(mps.text);
           </a>
           {' - 保留一切权利'}
         </p>
-        <p class="text-xs leading-5">
+        <p class="text-sm leading-5">
           {'由 '}
           <a
             href="https://astro.build"
@@ -58,18 +58,18 @@ const showMps = mps.enabled && Boolean(mps.text);
           <a href="/copyright-policy/" class="hover:text-primary transition-colors duration-300">
             版权政策
           </a>
-          <span class="opacity-35">·</span>
+          {'·'}
           <a href="/cookies-policy/" class="hover:text-primary transition-colors duration-300">
             Cookies 政策
           </a>
-          <span class="opacity-35">·</span>
+          {'·'}
           <a href="/privacy-policy/" class="hover:text-primary transition-colors duration-300">
             隐私政策
           </a>
           {
             statusUrl && (
               <>
-                <span class="opacity-35">·</span>
+                {'·'}
                 <a
                   href={statusUrl}
                   target="_blank"
@@ -84,7 +84,7 @@ const showMps = mps.enabled && Boolean(mps.text);
         </nav>
 
         <div
-          class="flex flex-wrap items-center justify-center gap-x-1 gap-y-1 text-xs leading-5 md:justify-end"
+          class="flex flex-wrap items-center justify-center gap-x-1 gap-y-1 text-sm leading-5 md:justify-end"
         >
           {
             showIcp && (
