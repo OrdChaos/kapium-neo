@@ -101,9 +101,9 @@ export const profile: ProfileData = {
       icon: 'simple-icons:stackoverflow',
     },
     {
-      platform: 'Mastodon',
+      platform: 'Fediverse',
       url: 'https://social.ordchaos.com/@ordchaos',
-      icon: 'mastodon',
+      icon: 'ri:fediverse-line',
     },
     {
       platform: 'Steam',

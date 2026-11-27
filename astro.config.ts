@@ -1,4 +1,5 @@
 // @ts-check
+import { copyFile } from 'node:fs/promises';
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 
@@ -27,6 +28,15 @@ import sitemap from '@astrojs/sitemap';
 
 import { siteConfig } from './src/config/site';
 
+const sitemapAlias = {
+  name: 'sitemap-alias',
+  hooks: {
+    'astro:build:done': async ({ dir }: { dir: URL }) => {
+      await copyFile(new URL('sitemap-index.xml', dir), new URL('sitemap.xml', dir));
+    },
+  },
+};
+
 export default defineConfig({
   trailingSlash: 'always',
   build: {
@@ -43,6 +53,7 @@ export default defineConfig({
     react(),
     icon(),
     sitemap(),
+    sitemapAlias,
     photosuite({
       scope: '#post-content',
       imageGrid: false,

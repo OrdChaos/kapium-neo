@@ -1,6 +1,7 @@
 export interface FriendLink {
   name: string;
-  avatar: string;
+  /** 站点内相对路径，用于 BlogPicsPicture 处理（必须以 / 开头） */
+  avatar: `/${string}`;
   description: string;
   url: string;
 }
