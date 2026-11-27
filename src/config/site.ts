@@ -3,6 +3,7 @@ export const siteConfig = {
   title: '谐元场域',
   description: '大抵是序炁的龙窝',
   url: 'https://www.ordchaos.com',
+  imageHostname: 'blog-pics.ordchaos.com',
   icon: '/img/icons/svg.svg',
   license: 'BY-NC-SA',
 

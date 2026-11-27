@@ -1,10 +1,11 @@
 import { visit } from 'unist-util-visit';
 import type { Element, Root } from 'hast';
+import { siteConfig } from '../config/site.ts';
 
-const IMAGE_ORIGIN = 'https://blog-pics.ordchaos.com';
+const IMAGE_ORIGIN = `https://${siteConfig.imageHostname}`;
 
 // These formats are already final assets; do not generate <source> entries.
-const PASSTHROUGH_EXTENSIONS = new Set(['gif', 'svg', 'ico']);
+export const PASSTHROUGH_EXTENSIONS = new Set(['gif', 'svg', 'ico']);
 
 export interface ImageInfo {
   year: string;

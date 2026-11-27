@@ -1,0 +1,36 @@
+---
+import { imageUrl, parseImageUrl, PASSTHROUGH_EXTENSIONS } from '@/plugins/rehype-picture';
+
+interface Props {
+  path: `/${string}`;
+  alt: string;
+}
+
+const { path, alt } = Astro.props;
+
+if (!path.startsWith('/') || path.startsWith('//') || /^[a-z][a-z0-9+.-]*:/i.test(path)) {
+  throw new Error(
+    `BlogPicsPicture: path must be hostname-less and start with "/", received "${path}"`,
+  );
+}
+
+const info = parseImageUrl(path);
+const src = info ? imageUrl(info, info.ext) : path;
+const formats =
+  info && !PASSTHROUGH_EXTENSIONS.has(info.ext)
+    ? ['avif', 'webp'].filter((format) => format !== info.ext)
+    : [];
+---
+
+{
+  formats.length > 0 ? (
+    <picture class="contents">
+      {formats.map((format) => (
+        <source type={`image/${format}`} srcset={imageUrl(info!, format)} />
+      ))}
+      <img src={src} alt={alt} loading="lazy" />
+    </picture>
+  ) : (
+    <img src={src} alt={alt} loading="lazy" />
+  )
+}

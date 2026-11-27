@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
-  photosuite@0.4.0: 743cde759b4b6478ab4823963a2d0019db7e6e3280d141f9f0ef57206d49b045
+  photosuite@0.4.0: 8a29508b69708ffc09dd85981eac5d16e2c0205546921b31b5e7a23d9d158235
 
 importers:
 
@@ -130,7 +130,7 @@ importers:
         version: 7.2.0
       photosuite:
         specifier: ^0.4.0
-        version: 0.4.0(patch_hash=743cde759b4b6478ab4823963a2d0019db7e6e3280d141f9f0ef57206d49b045)
+        version: 0.4.0(patch_hash=8a29508b69708ffc09dd85981eac5d16e2c0205546921b31b5e7a23d9d158235)
       react:
         specifier: ^19.2.7
         version: 19.2.7
@@ -6457,7 +6457,7 @@ snapshots:
 
   pend@1.2.0: {}
 
-  photosuite@0.4.0(patch_hash=743cde759b4b6478ab4823963a2d0019db7e6e3280d141f9f0ef57206d49b045):
+  photosuite@0.4.0(patch_hash=8a29508b69708ffc09dd85981eac5d16e2c0205546921b31b5e7a23d9d158235):
     dependencies:
       '@fancyapps/ui': 6.1.8
       exiftool-vendored: 35.21.0

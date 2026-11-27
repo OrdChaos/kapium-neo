@@ -3,6 +3,7 @@ import BannerLayout from '@/layouts/BannerLayout.astro';
 import Artalk from '@/components/Artalk';
 import { artalkConfig } from '@/config/artalk';
 import { friendLinks } from '@/config/links';
+import BlogPicsPicture from '@/components/BlogPicsPicture.astro';
 
 import ExternalLink from '@lucide/astro/icons/external-link';
 import Info from '@lucide/astro/icons/info';
@@ -22,12 +23,9 @@ import Users from '@lucide/astro/icons/users';
                 rel="noopener noreferrer"
                 class="group border-border bg-card hover:border-primary/50 hover:bg-muted/50 flex items-start gap-4 rounded-lg border p-4 transition-colors"
               >
-                <img
-                  src={link.avatar}
-                  alt={link.name}
-                  class="border-border h-14 w-14 shrink-0 rounded-full border-2 object-cover"
-                  loading="lazy"
-                />
+                <span class="friend-avatar border-border block h-14 w-14 shrink-0 overflow-hidden rounded-full border-2">
+                  <BlogPicsPicture path={link.avatar} alt={link.name} />
+                </span>
                 <div class="min-w-0 flex-1">
                   <div class="flex items-center gap-2">
                     <h3 class="group-hover:text-primary truncate font-semibold transition-colors">
@@ -97,3 +95,16 @@ import Users from '@lucide/astro/icons/users';
     </div>
   </div>
 </BannerLayout>
+
+<style>
+  .friend-avatar :global(picture) {
+    display: contents;
+  }
+
+  .friend-avatar :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>

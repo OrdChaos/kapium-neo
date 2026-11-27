@@ -1,15 +1,29 @@
 diff --git a/dist/fancybox-Dh33Yb6c.js b/dist/fancybox-Dh33Yb6c.js
-index 8016a38d1d38cc3cfb44751d14d17e3d12a034e1..ca42b742fcbf21f6b3d8392216f932db250742b7 100644
+index 8016a38d1d38cc3cfb44751d14d17e3d12a034e1..4515f33490a0edc1a416a718d93fb436e7981170 100644
 --- a/dist/fancybox-Dh33Yb6c.js
 +++ b/dist/fancybox-Dh33Yb6c.js
-@@ -3847,6 +3847,18 @@ function ensureAnchor(g, S) {
+@@ -3843,10 +3843,31 @@ var N = {
+ 		}(P, F, L);
+ 	}
+ };
+-function ensureAnchor(g, S) {
++function imageHref(g) {
  	let C = g.currentSrc || g.src || "";
++	let T = g.parentElement;
++	if (T && T.tagName.toLowerCase() === "picture") {
++		let A = T.querySelector('source[type="image/avif"]'), W = T.querySelector('source[type="image/webp"]');
++		C = (A && A.getAttribute("srcset")) || (W && W.getAttribute("srcset")) || C;
++	}
++	return C;
++}
++function ensureAnchor(g, S) {
++	let C = imageHref(g);
  	if (!C) return;
  	let T = g.parentElement;
 +	if (T && T.tagName.toLowerCase() === "picture") {
 +		let P = T, A = P.parentElement;
 +		if (A && A.tagName.toLowerCase() === "a") {
-+			A.getAttribute("href") || A.setAttribute("href", C), A.getAttribute("data-fancybox") || A.setAttribute("data-fancybox", S);
++			A.setAttribute("href", C), A.getAttribute("data-fancybox") || A.setAttribute("data-fancybox", S);
 +			return;
 +		}
 +		if (A) {
@@ -21,3 +35,12 @@ index 8016a38d1d38cc3cfb44751d14d17e3d12a034e1..ca42b742fcbf21f6b3d8392216f932db
  	if (T && T.tagName.toLowerCase() === "a") {
  		T.getAttribute("href") !== C && T.setAttribute("href", C), T.getAttribute("data-fancybox") || T.setAttribute("data-fancybox", S);
  		return;
+@@ -3857,7 +3878,7 @@ function ensureAnchor(g, S) {
+ function sync(g, S) {
+ 	let C = g.querySelector("img");
+ 	if (!C) return;
+-	let T = C.currentSrc || C.src;
++	let T = imageHref(C);
+ 	T && g.getAttribute("href") !== T && g.setAttribute("href", T), g.getAttribute("data-fancybox") || g.setAttribute("data-fancybox", S);
+ }
+ async function initFancyboxModule(g) {
