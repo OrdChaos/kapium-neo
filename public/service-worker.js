@@ -1,14 +1,14 @@
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_STATIC = `static-${CACHE_VERSION}`;
-const CACHE_IMAGES = `images-${CACHE_VERSION}`;
 const CACHE_PAGES = `pages-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = ['/offline/', '/manifest.json'];
 
-const IMAGE_TYPES = ['.jpg', '.jpeg', '.png', '.avif', '.webp'];
+const IMAGE_EXTENSIONS = ['.avif', '.webp', '.jpg', '.jpeg', '.png', '.gif'];
 
-const PRIMARY_HOST = 'base.pics.ordchaos.com';
-const FALLBACK_HOSTS = ['n0.pics.ordchaos.com', 'n1.pics.ordchaos.com', 'n2.pics.ordchaos.com'];
+// Race the CDN against the R2 custom domain. The browser still chooses the
+// image format via <picture>; the SW only chooses the faster origin.
+const IMAGE_HOSTS = ['blog-pics.ordchaos.com', 'blog-pics-cn.ordchaos.com'];
 
 self.addEventListener('install', (event) => {
   console.log(
@@ -44,11 +44,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (
-            cacheName !== CACHE_STATIC &&
-            cacheName !== CACHE_IMAGES &&
-            cacheName !== CACHE_PAGES
-          ) {
+          if (cacheName !== CACHE_STATIC && cacheName !== CACHE_PAGES) {
             console.log(
               '%c[SW Activate]%c Deleting old cache: ' + cacheName,
               'color: #ffc107; font-weight: bold;',
@@ -71,11 +67,11 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
 
   const pathnameLower = url.pathname.toLowerCase();
-  const isImage = IMAGE_TYPES.some((ext) => pathnameLower.endsWith(ext));
-  const isTargetImage = isImage && url.hostname === PRIMARY_HOST;
+  const isImage = IMAGE_EXTENSIONS.some((ext) => pathnameLower.endsWith(ext));
+  const isTargetImage = isImage && IMAGE_HOSTS.includes(url.hostname);
 
   if (isTargetImage) {
-    event.respondWith(handleImageWithFallback(event.request, url));
+    event.respondWith(raceImage(event.request, url));
     return;
   }
 
@@ -94,100 +90,51 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-async function handleImageWithFallback(request, originalUrl) {
-  const acceptHeader = request.headers.get('accept') || '';
-  let targetExt = '';
-  let targetPath = originalUrl.pathname;
+async function raceImage(request, originalUrl) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
 
-  if (acceptHeader.includes('image/avif')) {
-    targetExt = '.avif';
-  } else if (acceptHeader.includes('image/webp')) {
-    targetExt = '.webp';
-  }
+  const attempts = IMAGE_HOSTS.map((host) => {
+    const target = new URL(originalUrl);
+    target.hostname = host;
 
-  if (targetExt) {
-    targetPath = originalUrl.pathname.replace(/\.(jpg|jpeg|png)$/i, targetExt);
-  }
-
-  const primaryTarget = new URL(originalUrl);
-  primaryTarget.pathname = targetPath;
-
-  try {
-    const primaryResp = await fetch(primaryTarget, {
+    return fetch(target, {
+      method: 'GET',
+      headers: request.headers,
+      signal: controller.signal,
       mode: 'cors',
       credentials: 'omit',
       cache: 'default',
       redirect: 'follow',
-    });
-    if (primaryResp.ok) {
+    }).then((response) => {
+      if (!response.ok) {
+        throw new Error(`${host}: HTTP ${response.status}`);
+      }
       console.log(
-        '%c[SW Image Success]%c ' + PRIMARY_HOST + targetPath,
+        `%c[SW Image Race]%c ${host} won: ${target.pathname}`,
         'color: #28a745; font-weight: bold;',
         'color: inherit;',
       );
-      return primaryResp;
-    }
-  } catch (e) {
-    console.warn(
-      '%c[SW Primary Fail]%c ' + PRIMARY_HOST + ' → ' + e.message,
-      'color: #dc3545; font-weight: bold;',
-      'color: inherit;',
-    );
-  }
-
-  console.log(
-    '%c[SW Fallback]%c ' + originalUrl.pathname + ' → concurrent n0/n1/n2',
-    'color: #ffc107; font-weight: bold;',
-    'color: inherit;',
-  );
-
-  const fallbackPromises = FALLBACK_HOSTS.map((host) => {
-    const fbUrl = new URL(primaryTarget);
-    fbUrl.hostname = host;
-    return fetch(fbUrl, { mode: 'cors', credentials: 'omit', cache: 'default', redirect: 'follow' })
-      .then((resp) => {
-        if (resp.ok) {
-          console.log(
-            '%c[SW Fallback OK]%c ' + host + fbUrl.pathname,
-            'color: #28a745; font-weight: bold;',
-            'color: inherit;',
-          );
-          return resp;
-        }
-        throw new Error('status ' + resp.status);
-      })
-      .catch((err) => {
-        console.warn(
-          '%c[SW Fallback Fail]%c ' + host + ' → ' + err.message,
-          'color: #dc3545; font-weight: bold;',
-          'color: inherit;',
-        );
-        return null;
-      });
+      return response;
+    });
   });
 
-  const firstSuccess = await Promise.race(fallbackPromises);
-  if (firstSuccess) return firstSuccess;
-
-  console.error(
-    '%c[SW All Failed]%c ' + originalUrl.pathname,
-    'color: #dc3545; font-weight: bold;',
-    'color: inherit;',
-  );
-  return new Response(
-    new Blob([
-      new Uint8Array([
-        0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44,
-        0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x03, 0x00, 0x00, 0x00, 0x25,
-        0xdb, 0x56, 0xca, 0x00, 0x00, 0x00, 0x03, 0x50, 0x4c, 0x54, 0x45, 0x00, 0x00, 0x00, 0xa7,
-        0x7a, 0x5f, 0x00, 0x00, 0x00, 0x01, 0x74, 0x52, 0x4e, 0x53, 0x00, 0x40, 0xe6, 0xd8, 0x66,
-        0x00, 0x00, 0x00, 0x0a, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63, 0x00, 0x01, 0x00, 0x00,
-        0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44,
-        0xae, 0x42, 0x60, 0x82,
-      ]),
-    ]),
-    { status: 200, headers: { 'Content-Type': 'image/png' } },
-  );
+  try {
+    return await Promise.any(attempts);
+  } catch (err) {
+    console.error(
+      '%c[SW Image Race]%c all origins failed: ' + originalUrl.pathname,
+      'color: #dc3545; font-weight: bold;',
+      'color: inherit;',
+      err,
+    );
+    return new Response('', {
+      status: 404,
+      headers: { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'no-store' },
+    });
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 function handleJsonRequest(event, request) {

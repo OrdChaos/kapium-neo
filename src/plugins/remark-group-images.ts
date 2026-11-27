@@ -1,5 +1,6 @@
 import type { Root, Image, Paragraph, Link } from 'mdast';
 import type { Node } from 'unist';
+import { buildPictureHtml } from './rehype-picture.ts';
 
 interface ImageInfo {
   url: string;
@@ -177,7 +178,7 @@ function buildGridHtml(images: ImageInfo[], total: number, rows: number[]): stri
     html += '<div class="gi-row">';
     for (let c = 0; c < count && idx < actualTotal; c++) {
       const img = images[idx];
-      html += `<img src="${img.url}" alt="${img.alt}" loading="lazy" />`;
+      html += buildPictureHtml(img.url, img.alt);
       idx++;
     }
     html += '</div>';

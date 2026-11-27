@@ -42,11 +42,11 @@ summary: '这篇博文记录了博主为一台2017年HP Envy 13-ad1xx老笔记�
 
 接着，使用快捷键`Win+R`，输入`ncpa.cpl`打开网卡列表：
 
-![](https://base.pics.ordchaos.com/2026/06/90dff629f26a10efba5671fa6c44d100.png)
+![](https://blog-pics.ordchaos.com/2026/06/90dff629f26a10efba5671fa6c44d100/image.png)
 
 双击打开TUN模式的网卡属性，按如下流程操作：
 
-![](https://base.pics.ordchaos.com/2026/06/4747666a93bec555f7184d13bcddb38a.png)
+![](https://blog-pics.ordchaos.com/2026/06/4747666a93bec555f7184d13bcddb38a/image.png)
 
 其它设备在连接网络时选择热点即可。
 
@@ -66,7 +66,7 @@ curl -I www.google.com
 
 如选择[阿里云](https://mirrors.aliyun.com/archlinux/iso/2026.06.01/)[^1]，如下图所示，选择`archlinux-2026.06.01-x86_64.iso`下载：
 
-![](https://base.pics.ordchaos.com/2026/06/6c1cfc40b10cd29a420a26d68a5f5a07.png)
+![](https://blog-pics.ordchaos.com/2026/06/6c1cfc40b10cd29a420a26d68a5f5a07/image.png)
 
 接着烧录启动盘，我习惯用`Rufus`，不过也有人用`Ventory`，这个随意。
 
@@ -76,7 +76,7 @@ curl -I www.google.com
 
 启动完成后大致如图所示：
 
-![](https://base.pics.ordchaos.com/2026/06/d7712b456d31cbabde319f0ea4f02e62.jpg)
+![](https://blog-pics.ordchaos.com/2026/06/d7712b456d31cbabde319f0ea4f02e62/image.jpg)
 
 ### 连接网络
 
@@ -103,7 +103,7 @@ iwctl                                       # 进入 iwctl 命令行
 
 如下图，注意选择正确的无线网络适配器下的内网ip（这里是`wlan0`下的`192.168.1.243`）：
 
-![](https://base.pics.ordchaos.com/2026/06/4432bd9c721823b7a3da06800103bfec.jpg)
+![](https://blog-pics.ordchaos.com/2026/06/4432bd9c721823b7a3da06800103bfec/image.jpg)
 
 然后，使用`passwd`设置root密码。
 
@@ -111,7 +111,7 @@ iwctl                                       # 进入 iwctl 命令行
 
 如图为连接成功：
 
-![](https://base.pics.ordchaos.com/2026/06/9d7be47f0279d8f6e9a0b0b4a52d7ffe.png)
+![](https://blog-pics.ordchaos.com/2026/06/9d7be47f0279d8f6e9a0b0b4a52d7ffe/image.png)
 
 ### 切换镜像
 

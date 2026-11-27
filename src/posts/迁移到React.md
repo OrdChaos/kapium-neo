@@ -27,7 +27,7 @@ summary: '这篇博文记录了博主在高考前100天内，为放松而临时�
 
 真·我的一辈子：
 
-![](https://base.pics.ordchaos.com/2026/03/931ace5bbc50c3135849bbcb24bbcd05.png)
+![](https://blog-pics.ordchaos.com/2026/03/931ace5bbc50c3135849bbcb24bbcd05/image.png)
 
 好吧实则技术含量不高，但对我这种只想放松一下而不是现学前端架构的苦手而言真的帮大忙了。
 

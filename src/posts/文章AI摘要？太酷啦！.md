@@ -1,6 +1,6 @@
 ---
 title: '文章AI摘要？太酷啦！'
-index_img: 'https://base.pics.ordchaos.com/2023/07/68ad7c0a2c45b45478c1eb1cc0473e7e.png'
+index_img: 'https://blog-pics.ordchaos.com/2023/07/68ad7c0a2c45b45478c1eb1cc0473e7e/image.png'
 tags:
   - 'javascript'
   - 'css'
@@ -117,7 +117,7 @@ span.memos-t {
 
 ## 效果
 
-![](https://base.pics.ordchaos.com/2023/07/89262b9071f3c4db0169b20c42cc1549.png)
+![](https://blog-pics.ordchaos.com/2023/07/89262b9071f3c4db0169b20c42cc1549/image.png)
 
 ## 题外话
 

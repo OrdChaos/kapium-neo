@@ -1,5 +1,5 @@
 ---
-index_img: 'https://base.pics.ordchaos.com/2023/07/83c3badbc20265a2a2196abafd8b0c9b.png'
+index_img: 'https://blog-pics.ordchaos.com/2023/07/83c3badbc20265a2a2196abafd8b0c9b/image.png'
 title: '船新说说页面—— Memos 初体验'
 date: '2022-11-26 12:42:15'
 updated: '2022-11-26 12:42:15'
@@ -129,9 +129,9 @@ javascript总算是好些那么一点点，起码与c++还有那么一点像，�
 
 <span class="heimu" title="你知道的太多了">自己去看看不行吗，动动手指的事</span>
 
-![说说页面](https://base.pics.ordchaos.com/2022/11/4ace9417edf03d7d6b4bd95620f27f55.png)
+![说说页面](https://blog-pics.ordchaos.com/2022/11/4ace9417edf03d7d6b4bd95620f27f55/image.png)
 
-![首页轮播](https://base.pics.ordchaos.com/2022/11/598e03e4a296da3866f9c4404977e5fa.png)
+![首页轮播](https://blog-pics.ordchaos.com/2022/11/598e03e4a296da3866f9c4404977e5fa/image.png)
 
 ## 题外话
 

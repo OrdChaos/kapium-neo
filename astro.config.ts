@@ -20,6 +20,7 @@ import { remarkExcerpt } from './src/plugins/remark-excerpt.ts';
 import { remarkReadingTime } from './src/plugins/remark-reading-time.ts';
 import { rehypeFootnoteTooltip } from './src/plugins/rehype-footnote-tooltip.ts';
 import { rehypeCodeBlockWrapper } from './src/plugins/rehype-code-block-wrapper.ts';
+import { rehypePicture } from './src/plugins/rehype-picture.ts';
 
 import photosuite from 'photosuite';
 import sitemap from '@astrojs/sitemap';
@@ -94,7 +95,13 @@ export default defineConfig({
         ],
         remarkReadingTime,
       ],
-      rehypePlugins: [rehypeKatex, rehypeSlug, rehypeFootnoteTooltip, rehypeCodeBlockWrapper],
+      rehypePlugins: [
+        rehypeKatex,
+        rehypeSlug,
+        rehypeFootnoteTooltip,
+        rehypeCodeBlockWrapper,
+        rehypePicture,
+      ],
     }),
   },
 });

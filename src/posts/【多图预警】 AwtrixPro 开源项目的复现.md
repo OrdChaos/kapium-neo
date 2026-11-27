@@ -1,6 +1,6 @@
 ---
 title: '【多图预警】 AwtrixPro 开源项目的复现'
-index_img: 'https://base.pics.ordchaos.com/2022/08/46879499981f49c43b4633c19b4f584a.png'
+index_img: 'https://blog-pics.ordchaos.com/2022/08/46879499981f49c43b4633c19b4f584a/image.png'
 tags:
   - 'github'
   - '开源软件'
@@ -55,17 +55,17 @@ summary: '这篇博文介绍了博主为完成暑假物理作业，利用电学�
 
 打好的板子如下：
 
-![](https://base.pics.ordchaos.com/2022/08/5b9772eb888dbcfcdff2a6ab1c6eede6.png)
+![](https://blog-pics.ordchaos.com/2022/08/5b9772eb888dbcfcdff2a6ab1c6eede6/image.png)
 
 焊接好之后（贴片是用的钢网+锡焊膏+风枪）：
 
-![](https://base.pics.ordchaos.com/2022/08/9cf87ef6020be601bbabad04be820af5.png)
+![](https://blog-pics.ordchaos.com/2022/08/9cf87ef6020be601bbabad04be820af5/image.png)
 
 焊接针脚时若是无法直接使用锡丝与电烙铁焊接完成，也可以用锡焊膏+电烙铁。把锡焊膏涂抹在针脚背面，不用担心粘连，然后用电烙铁分别探入每两个针脚间的空隙，随后依次处理每个针脚就可以了。
 
 然后刷程序、接线、通电、启动即可（至少理论上是这样）：
 
-![](https://base.pics.ordchaos.com/2022/08/4a5b57080cd403b7b5dd66bd2d9afcf6.png)
+![](https://blog-pics.ordchaos.com/2022/08/4a5b57080cd403b7b5dd66bd2d9afcf6/image.png)
 
 很明显，这里并未启动成功，望高手赐教。
 
@@ -75,29 +75,29 @@ summary: '这篇博文介绍了博主为完成暑假物理作业，利用电学�
 
 这里除了基础配件外，额外加装了光敏电阻、触摸以及Htui21d温湿度模块。基础部分依据[教你做一个可编程像素屏](https://www.bilibili.com/video/av668523753)制作成功，然后通过自主飞线完成了其它组件的安装。
 
-![开机成功](https://base.pics.ordchaos.com/2022/08/ab26200d787686758a2818e42c194390.png)
+![开机成功](https://blog-pics.ordchaos.com/2022/08/ab26200d787686758a2818e42c194390/image.png)
 
 没有什么难点，注意需要连接多根导线时用钳子分别剪开线的外皮，露出里面的铜/铁/其他金属丝，拧在一起然后用电烙铁与锡焊在一起就可以了。
 
 裸露的金属丝记得用电工胶带或者热熔胶包裹起来，防止意外：
 
-![](https://base.pics.ordchaos.com/2022/08/f7f7f5023c7a24950e5ff5d613f21a77.png)
+![](https://blog-pics.ordchaos.com/2022/08/f7f7f5023c7a24950e5ff5d613f21a77/image.png)
 
-![](https://base.pics.ordchaos.com/2022/08/a58efaa7843d68378c55e5853c9fc868.png)
+![](https://blog-pics.ordchaos.com/2022/08/a58efaa7843d68378c55e5853c9fc868/image.png)
 
 然后装入外壳即可：
 
-![](https://base.pics.ordchaos.com/2022/08/1b676758ff6b5335e885fdb05582ca29.png)
+![](https://blog-pics.ordchaos.com/2022/08/1b676758ff6b5335e885fdb05582ca29/image.png)
 
-![](https://base.pics.ordchaos.com/2022/08/dbe352cad746f465299903afca323065.png)
+![](https://blog-pics.ordchaos.com/2022/08/dbe352cad746f465299903afca323065/image.png)
 
 再放上格栅、均光片及亚克力面板就完成了：
 
-![安装格栅](https://base.pics.ordchaos.com/2022/08/6452f475eee4168878bbdf52d869e8ba.png)
+![安装格栅](https://blog-pics.ordchaos.com/2022/08/6452f475eee4168878bbdf52d869e8ba/image.png)
 
-![安装均光片](https://base.pics.ordchaos.com/2022/08/218377f02cba747a81eb3206738b6618.png)
+![安装均光片](https://blog-pics.ordchaos.com/2022/08/218377f02cba747a81eb3206738b6618/image.png)
 
-![安装亚克力面板](https://base.pics.ordchaos.com/2022/08/e856d4435368c07905d92821cfa562f9.png)
+![安装亚克力面板](https://blog-pics.ordchaos.com/2022/08/e856d4435368c07905d92821cfa562f9/image.png)
 
 ## 软件配置
 
@@ -105,25 +105,25 @@ summary: '这篇博文介绍了博主为完成暑假物理作业，利用电学�
 
 宝塔面板就可以轻松完成配置，也无需ssh连接。
 
-![](https://base.pics.ordchaos.com/2022/08/ef73564d2eab625713028965efc8af76.png)
+![](https://blog-pics.ordchaos.com/2022/08/ef73564d2eab625713028965efc8af76/image.png)
 
 然后安装自己喜欢的软件即可，我这里是这几个：
 
-![](https://base.pics.ordchaos.com/2022/08/2d80f8a316ed6a012b5394ce0b69f68c.png)
+![](https://blog-pics.ordchaos.com/2022/08/2d80f8a316ed6a012b5394ce0b69f68c/image.png)
 
 ## 成品
 
-![室温](https://base.pics.ordchaos.com/2022/08/9475e4941ebe44b1178c7918267b6d6b.jpg)
+![室温](https://blog-pics.ordchaos.com/2022/08/9475e4941ebe44b1178c7918267b6d6b/image.jpg)
 
-![湿度](https://base.pics.ordchaos.com/2022/08/7fed0f0651626ac95c870e24c08f8adb.jpg)
+![湿度](https://blog-pics.ordchaos.com/2022/08/7fed0f0651626ac95c870e24c08f8adb/image.jpg)
 
-![日期](https://base.pics.ordchaos.com/2022/08/91bf0f6b36bc47baf2614b09ac84d96f.jpg)
+![日期](https://blog-pics.ordchaos.com/2022/08/91bf0f6b36bc47baf2614b09ac84d96f/image.jpg)
 
-![B站粉丝数量（还不关注我？）](https://base.pics.ordchaos.com/2022/08/30b2b40e62891015c3ad612597a85b5b.jpg)
+![B站粉丝数量（还不关注我？）](https://blog-pics.ordchaos.com/2022/08/30b2b40e62891015c3ad612597a85b5b/image.jpg)
 
-![Youtube粉丝数（香港服务器的好处之一就是能够获取到这种信息）（没错，我没有粉丝——当然是因为我没发任何视频）](https://base.pics.ordchaos.com/2022/08/91bcff06179f758f36661fe972765083.jpg)
+![Youtube粉丝数（香港服务器的好处之一就是能够获取到这种信息）（没错，我没有粉丝——当然是因为我没发任何视频）](https://blog-pics.ordchaos.com/2022/08/91bcff06179f758f36661fe972765083/image.jpg)
 
-![GitHub Followers](https://base.pics.ordchaos.com/2022/08/4ab43612fe1c3cefcda0548b8052c2e3.jpg)
+![GitHub Followers](https://blog-pics.ordchaos.com/2022/08/4ab43612fe1c3cefcda0548b8052c2e3/image.jpg)
 
 ## 题外话
 

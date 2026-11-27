@@ -222,13 +222,13 @@ if (event.request.url.indexOf('base.pics.ordchaos.com') !== -1) {
 
 要测试无webp支持的情景，则点击右上角的三个点。
 
-![](https://base.pics.ordchaos.com/2023/01/01562686a8db1bb30defe61ffa333bd1.png)
+![](https://blog-pics.ordchaos.com/2023/01/01562686a8db1bb30defe61ffa333bd1/image.png)
 
-![](https://base.pics.ordchaos.com/2023/01/372ab8df519f78c5d59ea93fcd4caf78.png)
+![](https://blog-pics.ordchaos.com/2023/01/372ab8df519f78c5d59ea93fcd4caf78/image.png)
 
 选择更多工具，找到“渲染”并点击。
 
-![](https://base.pics.ordchaos.com/2023/01/6a65c870cbafb3f9f5743d96749c549a.png)
+![](https://blog-pics.ordchaos.com/2023/01/6a65c870cbafb3f9f5743d96749c549a/image.png)
 
 勾选“停用webp”即可。
 
@@ -236,7 +236,7 @@ if (event.request.url.indexOf('base.pics.ordchaos.com') !== -1) {
 
 可以试试我这里的这张图片：（图片来自CYF大佬的`Client Worker`项目的文档）
 
-![](https://base.pics.ordchaos.com/2023/01/9f2975321779cda14980431c4595bb37.jpg)
+![](https://blog-pics.ordchaos.com/2023/01/9f2975321779cda14980431c4595bb37/image.jpg)
 
 若浏览器支持webp则会显示`Webp Accept!`，否则为`Webp Reject!This is a jpg file.`
 

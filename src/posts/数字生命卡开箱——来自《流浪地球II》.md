@@ -1,6 +1,6 @@
 ---
 title: '数字生命卡开箱——来自《流浪地球II》'
-index_img: 'https://base.pics.ordchaos.com/2023/07/2247d10f95e620ca148f615f43b79fad.png'
+index_img: 'https://blog-pics.ordchaos.com/2023/07/2247d10f95e620ca148f615f43b79fad/image.png'
 tags:
   - '电影'
   - '开箱'
@@ -22,7 +22,7 @@ summary: '这篇博文主要记录了博主购买《流浪地球II》官方周�
 
 到手差不多就是这么些东西：
 
-![](https://base.pics.ordchaos.com/2023/07/1eb5ea21897bcf46876b164f10f7e7f5.jpg)
+![](https://blog-pics.ordchaos.com/2023/07/1eb5ea21897bcf46876b164f10f7e7f5/image.jpg)
 
 其它周边什么的就不多说了，重头戏还是数字生命卡。
 
@@ -32,9 +32,9 @@ summary: '这篇博文主要记录了博主购买《流浪地球II》官方周�
 
 {% gi 2 2 %}
 
-![](https://base.pics.ordchaos.com/2023/07/04fea4d017486394e5f4e74c65da142c.jpg)
+![](https://blog-pics.ordchaos.com/2023/07/04fea4d017486394e5f4e74c65da142c/image.jpg)
 
-![](https://base.pics.ordchaos.com/2023/07/fdf1ef85b582bd1377910ba05c44f103.jpg)
+![](https://blog-pics.ordchaos.com/2023/07/fdf1ef85b582bd1377910ba05c44f103/image.jpg)
 
 {% endgi %}
 
@@ -48,19 +48,19 @@ summary: '这篇博文主要记录了博主购买《流浪地球II》官方周�
 
 {% gi 7 2-1-1-2-1 %}
 
-![](https://base.pics.ordchaos.com/2023/07/c951c925b05f52336a35e7e15d18b85f.jpg)
+![](https://blog-pics.ordchaos.com/2023/07/c951c925b05f52336a35e7e15d18b85f/image.jpg)
 
-![](https://base.pics.ordchaos.com/2023/07/4579c559da29d7b53d5ef0b661368067.jpg)
+![](https://blog-pics.ordchaos.com/2023/07/4579c559da29d7b53d5ef0b661368067/image.jpg)
 
-![](https://base.pics.ordchaos.com/2023/07/86f32e7d676f188ec1fa9d18c3e5fb98.jpg)
+![](https://blog-pics.ordchaos.com/2023/07/86f32e7d676f188ec1fa9d18c3e5fb98/image.jpg)
 
-![](https://base.pics.ordchaos.com/2023/07/8a1f33737209f5978494e9220725d876.jpg)
+![](https://blog-pics.ordchaos.com/2023/07/8a1f33737209f5978494e9220725d876/image.jpg)
 
-![](https://base.pics.ordchaos.com/2023/07/495badd6356fb1dba5fbe634fbeaca3a.jpg)
+![](https://blog-pics.ordchaos.com/2023/07/495badd6356fb1dba5fbe634fbeaca3a/image.jpg)
 
-![](https://base.pics.ordchaos.com/2023/07/729b18b9ed8d6bd8f2a686ff5d447819.jpg)
+![](https://blog-pics.ordchaos.com/2023/07/729b18b9ed8d6bd8f2a686ff5d447819/image.jpg)
 
-![](https://base.pics.ordchaos.com/2023/07/ac1edd6a5369af89fdf36da162dde1ff.jpg)
+![](https://blog-pics.ordchaos.com/2023/07/ac1edd6a5369af89fdf36da162dde1ff/image.jpg)
 
 {% endgi %}
 
