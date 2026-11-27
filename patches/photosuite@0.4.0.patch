@@ -1,0 +1,23 @@
+diff --git a/dist/fancybox-Dh33Yb6c.js b/dist/fancybox-Dh33Yb6c.js
+index 8016a38d1d38cc3cfb44751d14d17e3d12a034e1..ca42b742fcbf21f6b3d8392216f932db250742b7 100644
+--- a/dist/fancybox-Dh33Yb6c.js
++++ b/dist/fancybox-Dh33Yb6c.js
+@@ -3847,6 +3847,18 @@ function ensureAnchor(g, S) {
+ 	let C = g.currentSrc || g.src || "";
+ 	if (!C) return;
+ 	let T = g.parentElement;
++	if (T && T.tagName.toLowerCase() === "picture") {
++		let P = T, A = P.parentElement;
++		if (A && A.tagName.toLowerCase() === "a") {
++			A.getAttribute("href") || A.setAttribute("href", C), A.getAttribute("data-fancybox") || A.setAttribute("data-fancybox", S);
++			return;
++		}
++		if (A) {
++			let L = document.createElement("a");
++			L.href = C, L.setAttribute("data-fancybox", S), A.replaceChild(L, P), L.appendChild(P);
++		}
++		return;
++	}
+ 	if (T && T.tagName.toLowerCase() === "a") {
+ 		T.getAttribute("href") !== C && T.setAttribute("href", C), T.getAttribute("data-fancybox") || T.setAttribute("data-fancybox", S);
+ 		return;
