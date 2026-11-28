@@ -14,5 +14,6 @@ minimumReleaseAgeExclude:
   - '@astrojs/compiler-binding@0.3.0'
   - '@astrojs/compiler-rs@0.3.0'
   - astro@7.0.4
+  - '@ordchaos/maple-mono-normal-nl-nf-cn@7.9.0'
 patchedDependencies:
   photosuite@0.4.0: patches/photosuite@0.4.0.patch

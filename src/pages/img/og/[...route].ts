@@ -116,7 +116,10 @@ export const { getStaticPaths, GET } = await OGImageRoute({
       },
     },
 
-    fonts: ['./public/fonts/NotoSansSC-Medium.ttf', './public/fonts/NotoSansSC-Bold.ttf'],
+    fonts: [
+      './node_modules/@expo-google-fonts/noto-sans-sc/500Medium/NotoSansSC_500Medium.ttf',
+      './node_modules/@expo-google-fonts/noto-sans-sc/700Bold/NotoSansSC_700Bold.ttf',
+    ],
 
     cacheDir: './node_modules/.astro-og-canvas',
   }),

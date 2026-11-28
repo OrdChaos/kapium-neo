@@ -21,11 +21,11 @@ body[data-btt-visible='true'] .toc-mobile-btn {
     @apply border-border outline-ring/50;
   }
   html {
-    @apply bg-background text-foreground overflow-x-clip;
+    @apply bg-background text-foreground overflow-x-clip font-sans;
     scrollbar-gutter: stable;
   }
   body {
-    @apply bg-background text-foreground overflow-x-clip;
+    @apply bg-background text-foreground overflow-x-clip font-sans;
   }
 
   .prose {
@@ -162,6 +162,12 @@ body[data-btt-visible='true'] .toc-mobile-btn {
 }
 
 @theme inline {
+  --font-sans:
+    'Inter Variable', 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    system-ui, sans-serif;
+  --font-mono:
+    'Maple Mono Normal NL NF CN', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
