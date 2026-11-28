@@ -99,9 +99,6 @@ const postIds = (await getCollection('posts')).map((post) => post.data.abbrlink)
     />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
-    <!-- Preconnect -->
-    <link rel="preconnect" href="https://challenges.cloudflare.com" />
-
     <script is:inline>
       const theme = localStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
