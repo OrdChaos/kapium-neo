@@ -2,6 +2,7 @@
 import BannerLayout from '@/layouts/BannerLayout.astro';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import Badge from '@/components/ui/badge.astro';
+import Tooltip from '@/components/ui/tooltip.astro';
 import { Icon } from 'astro-icon/components';
 import { profile } from '@/config/profile';
 import { cn } from '@/lib/utils';
@@ -84,16 +85,17 @@ const compactBadgeClass = 'px-2.5 py-1 font-normal';
                 profile.socialLinks && profile.socialLinks.length > 0 && (
                   <div class="mt-4 flex flex-wrap justify-center gap-2 md:justify-start">
                     {profile.socialLinks.map((social) => (
-                      <a
-                        href={social.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={social.platform}
-                        aria-label={`访问 ${social.platform}`}
-                        class="border-border/70 text-muted-foreground hover:border-primary/30 hover:bg-muted/40 hover:text-foreground flex h-9 w-9 items-center justify-center rounded-md border transition-colors"
-                      >
-                        <Icon name={social.icon} class="h-4.5 w-4.5" />
-                      </a>
+                      <Tooltip label={social.platform}>
+                        <a
+                          href={social.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`访问 ${social.platform}`}
+                          class="border-border/70 text-muted-foreground hover:border-primary/30 hover:bg-muted/40 hover:text-foreground flex h-9 w-9 items-center justify-center rounded-md border transition-colors"
+                        >
+                          <Icon name={social.icon} class="h-4.5 w-4.5" />
+                        </a>
+                      </Tooltip>
                     ))}
                   </div>
                 )

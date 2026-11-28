@@ -83,6 +83,7 @@ body[data-btt-visible='true'] .toc-mobile-btn {
 
 :root {
   --radius: 0.625rem;
+  color-scheme: light;
 
   --background: oklch(0.99 0 0);
   --foreground: oklch(0.15 0 0);
@@ -122,6 +123,7 @@ body[data-btt-visible='true'] .toc-mobile-btn {
 }
 
 .dark {
+  color-scheme: dark;
   --background: oklch(0.1 0.01 250);
   --foreground: oklch(0.95 0.01 250);
 
@@ -202,4 +204,35 @@ body {
 
 .astro-loading-indicator {
   z-index: 9999 !important;
+}
+
+/* 页面切换过渡
+   浏览器默认让旧/新快照同时淡入淡出：中段两张快照都半透明，会透出浏览上下文的
+   画布（UA 默认白色，不跟随主题），这就是切换页面时的"闪白/空白"。
+   ::view-transition 上的背景色 Chrome 不会绘制，所以改为：
+   旧快照保持不透明垫底，新快照在其上淡入 —— 任何时刻都有底图，永远不露画布。 */
+/* 恢复普通混合：::view-transition 的 UA 默认用 mix-blend-mode: plus-lighter
+   （为默认的双向淡入淡出设计），替换动画后会把两层叠加提亮成白闪。 */
+::view-transition-image-pair(root) {
+  isolation: auto;
+}
+
+::view-transition-old(root) {
+  animation: none;
+  opacity: 1;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  animation: 180ms ease-out both page-transition-fade-in;
+  mix-blend-mode: normal;
+}
+
+@keyframes page-transition-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

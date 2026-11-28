@@ -31,6 +31,7 @@ const offsetStyle: Record<string, string> = {
       'scale-95 opacity-0 transition-all duration-150',
       'group-hover:scale-100 group-hover:opacity-100',
       'group-focus-within:scale-100 group-focus-within:opacity-100',
+      '[@media(hover:none)]:hidden',
       sideClasses[side],
     ]}
     style={offsetStyle[side]}

@@ -1,0 +1,90 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import Badge from '@/components/ui/badge.astro';
+import { estimateReadTime, getPostExcerpt } from '@/lib/utils';
+
+import Calendar from '@lucide/astro/icons/calendar';
+import Clock from '@lucide/astro/icons/clock';
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+}
+
+const { post } = Astro.props;
+
+const readTime = estimateReadTime(post.body || '');
+const href = `/posts/${post.data.abbrlink}/`;
+const catHref = post.data.category
+  ? `/categories/${encodeURIComponent(post.data.category)}/`
+  : null;
+---
+
+<Card
+  class="group/card hover:border-primary/50 relative flex h-[280px] w-full max-w-full flex-col transition-all duration-300 hover:shadow-lg"
+>
+  <CardHeader>
+    <div class="relative z-10 mb-2 flex items-center gap-2">
+      {
+        catHref && (
+          <a href={catHref}>
+            <Badge
+              variant="secondary"
+              class="hover:bg-primary hover:text-primary-foreground cursor-pointer transition-colors"
+            >
+              {post.data.category}
+            </Badge>
+          </a>
+        )
+      }
+    </div>
+
+    <a href={href} class="after:absolute after:inset-0">
+      <CardTitle
+        class="group-hover/card:text-primary line-clamp-2 h-[3rem] leading-6 transition-colors"
+      >
+        {post.data.title}
+      </CardTitle>
+
+      <CardDescription class="mt-2 line-clamp-2 h-[3rem] leading-6">
+        {getPostExcerpt(post)}
+      </CardDescription>
+    </a>
+  </CardHeader>
+
+  <CardContent class="flex flex-1 flex-col justify-between">
+    <div class="text-muted-foreground flex items-center gap-4 text-sm">
+      <div class="flex items-center gap-1">
+        <Calendar class="h-4 w-4" />
+        <span>{post.data.date.toISOString().slice(0, 10)}</span>
+      </div>
+
+      <div class="flex items-center gap-1">
+        <Clock class="h-4 w-4" />
+        <span>{readTime} 分钟</span>
+      </div>
+    </div>
+
+    <div class="relative mt-3">
+      <div class="relative z-10 flex gap-2 overflow-hidden whitespace-nowrap">
+        {
+          post.data.tags?.map((tag: string) => (
+            <a href={`/tags/${encodeURIComponent(tag)}/`}>
+              <Badge
+                variant="outline"
+                class="hover:bg-primary hover:text-primary-foreground shrink-0 cursor-pointer text-xs transition-colors"
+              >
+                {tag}
+              </Badge>
+            </a>
+          ))
+        }
+      </div>
+
+      <div
+        class="from-card pointer-events-none absolute top-0 right-0 flex h-full w-8 items-center justify-end bg-gradient-to-l to-transparent pr-1 text-xs"
+      >
+      </div>
+    </div>
+  </CardContent>
+</Card>

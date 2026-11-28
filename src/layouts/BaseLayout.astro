@@ -29,6 +29,21 @@ const postIds = (await getCollection('posts')).map((post) => post.data.abbrlink)
 <html lang={siteConfig.locale}>
   <head>
     <meta charset={siteConfig.charset} />
+
+    {
+      /* 兜底底色：任何"样式尚未就绪"的帧都画主题底色而不是 UA 默认白。
+        用 data-astro-transition-persist 让它在 ClientRouter 换页时保留在 head 里。 */
+    }
+    <style is:inline data-astro-transition-persist="theme-ground">
+      html {
+        background-color: oklch(0.99 0 0);
+        color-scheme: light;
+      }
+      html.dark {
+        background-color: oklch(0.1 0.01 250);
+        color-scheme: dark;
+      }
+    </style>
     <link rel="icon" type="image/svg+xml" href={siteConfig.icon} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
